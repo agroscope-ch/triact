@@ -1,11 +1,18 @@
 Package: triact2
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Animal activity and lying bouts from triaxial (pedo)accelerometer data. 
+Version: 0.1.0.9000
+Author@R: person("Michael", "Simmler", email = "michael.simmler@agroscope.admin.ch", role = c("cre", "aut"))
+Maintainer: Michael Simmler <michael.simmler@agroscope.admin.ch>
+Description: Animal activity and lying bouts from triaxial (pedo)accelerometer data.
+License: GLP-3
 Encoding: UTF-8
 LazyData: true
+Imports: 
+    R6(>= 2.5.0),
+    data.table (>= 1.14.0),
+    checkmate (> 2.0.0)
+Collate:
+    "methods.R"
+    "load_data.R"
+    "triact_class.R"
