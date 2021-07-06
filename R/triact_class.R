@@ -1,5 +1,4 @@
 
-
 # Method naming...
 # add_XX
 # extract_YY
@@ -11,7 +10,8 @@ Triact <- R6::R6Class("Triact",
     add_lying = add_lying,
     add_side = add_side,
     extract_liedown = extract_liedown,
-    extract_standup = extract_standup
+    extract_standup = extract_standup,
+    get_activity_by_iterval = get_activity_by_iterval
     ),
   private = list(has_X = FALSE,
                  has_Y = FALSE,

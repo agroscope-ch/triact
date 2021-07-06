@@ -45,9 +45,15 @@ extract_standup <- function(sec_before = NULL, sec_after = NULL) {
   return(extract_updown(self, sec_before, sec_after, updown = "up"))
 }
 
+# -----------------------------------------------------------------------
 
-
-
+get_activity_by_iterval <- function(interval = "hour", lag = 0) {
+  .SDcols <- c("accel_X", "accel_Y", "accel_Z")[c(private$has_X, private$has_Y, private$has_Z)]
+  activity <- self$data[ , .(activity = mean(sapply(.SD, function(x) sum(abs(diff(x)))))),
+                        by = .(id, time = lubridate::floor_date(self$data$time - lag, interval) + lag),
+                        .SDcols = .SDcols]
+  return(activity)
+}
 
 
 
