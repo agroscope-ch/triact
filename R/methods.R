@@ -23,7 +23,7 @@ add_side <- function(crit_left = -0.5) {
 
 # -----------------------------------------------------------------------
 
-extract_updown <- function(self, sec_before, sec_after, updown) { # internal
+extract_updown <- function(self, private, sec_before, sec_after, updown) { # internal
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
   checkmate::assertNumber(sec_before, lower = 0, null.ok = TRUE)
@@ -42,11 +42,11 @@ extract_updown <- function(self, sec_before, sec_after, updown) { # internal
 }
 
 extract_liedown <- function(sec_before = NULL, sec_after = NULL) {
-  return(extract_updown(self, sec_before, sec_after, updown = "down"))
+  return(extract_updown(self, private, sec_before, sec_after, updown = "down"))
 }
 
 extract_standup <- function(sec_before = NULL, sec_after = NULL) {
-  return(extract_updown(self, sec_before, sec_after, updown = "up"))
+  return(extract_updown(self, private, sec_before, sec_after, updown = "up"))
 }
 
 # -----------------------------------------------------------------------
@@ -70,7 +70,7 @@ get_activity_by_iterval <- function(interval = "hour", lag_in_s = 0) {
 get_activity_by_bout <- function(bout_type = "all") {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
-  checkmate::checkChoice(bout_type, choices = c("all", "lying", "upright"))
+  checkmate::assertChoice(bout_type, choices = c("all", "lying", "upright"))
   .SDcols <- c("time", "accel_X", "accel_Y", "accel_Z")[c(TRUE, private$has_X, private$has_Y, private$has_Z)]
   lie <- if (bout_type == "all") {
             TRUE
