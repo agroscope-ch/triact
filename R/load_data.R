@@ -43,28 +43,29 @@ load_data <- function(input,
                                                header = FALSE,
                                                ...)}
 
-   self$data <- data.table::rbindlist(lapply(input, read_file), idcol = "id")
+   private$dataDT <- data.table::rbindlist(lapply(input, read_file), idcol = "id")
 
-   attr(self$data$time, "tzone") <- tz
+   attr(private$dataDT$time, "tzone") <- tz
 
    # conversion to POSIX in case of user supplied time_format
-   if (class(self$data$time)[1] == "character") {
-      self$data[, time := as.POSIXct(time, format = time_format, tz = tz)]
+   if (class(private$dataDT$time)[1] == "character") {
+      private$dataDT[, time := as.POSIXct(time, format = time_format, tz = tz)]
    }
 
    # filter time range according to user-provided start and/or end time
    if (!is.null(start_time) & is.null(start_time)) {
-      self$data <- self$data[time >= as.POSIXct(start_time, tz = tz), ]
+      private$dataDT <- private$dataDT[time >= as.POSIXct(start_time, tz = tz), ]
    } else if (is.null(start_time) & !is.null(end_time)) {
-      self$data <- self$data[time <= as.POSIXct(end_time, tz = tz)]
+      private$dataDT <- private$dataDT[time <= as.POSIXct(end_time, tz = tz)]
    } else if (!is.null(start_time) & !is.null(end_time)) {
-      self$data <- self$data[(time >= as.POSIXct(start_time, tz = tz)) & (time <= as.POSIXct(end_time, tz = tz))]
+      private$dataDT <- private$dataDT[(time >= as.POSIXct(start_time, tz = tz)) & (time <= as.POSIXct(end_time, tz = tz))]
    }
 
    # note availability of acceleration directions (for checks by other methods)
-   private$has_X = "accel_X" %in% colnames(self$data)
-   private$has_Y = "accel_Y" %in% colnames(self$data)
-   private$has_Z = "accel_Z" %in% colnames(self$data)
+   private$has_data <- checkmate::checkDataTable(private$dataDT)
+   private$has_X <- "accel_X" %in% colnames(private$dataDT)
+   private$has_Y <- "accel_Y" %in% colnames(private$dataDT)
+   private$has_Z <- "accel_Z" %in% colnames(private$dataDT)
 
    return(invisible(self))
 }
