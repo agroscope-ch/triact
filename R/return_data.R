@@ -1,17 +1,18 @@
 
 
 return_data <- function(value) {
-  triact_class <- getOption("triact_class", default = "data.frame")
-  checkmate::checkChoice(triact_class, choices = c("data.frame", "data.table", "tibble"))
   if (missing(value)) {
-    if (triact_class == "data.frame") {
-      return(as.data.frame(private$dataDT))
-    } else if (triact_class == "data.table") {
-      return(private$dataDT)
-    } else if (triact_class == "tibble") {
-      return(tibble::as_tibble(private$dataDT))
-    }
+    transform_table(private$dataDT)
   } else private$dataDT <- data.table::as.data.table(value)
 }
 
-
+transform_table <- function(x, table_class = getOption("triact_table", default = "data.frame")) {
+  checkmate::checkChoice(table_class, choices = c("data.frame", "data.table", "tibble"))
+  if (table_class == "data.frame") {
+    return(as.data.frame(x))
+  } else if (table_class == "data.table") {
+    return(data.table::as.data.table(x))
+  } else if (table_class == "tibble") {
+    return(tibble::as_tibble(x))
+  }
+}
