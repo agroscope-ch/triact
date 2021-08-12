@@ -1,10 +1,17 @@
 
-add_lying <- function(crit_lie = -0.5, k = 121) {
+add_lying <- function(crit_lie = 0.5, k = 121) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_Y, .var.name = "has Y acceleration?")
   checkmate::assertNumber(crit_lie)
   checkmate::assertInt(k, lower = 1)
-  private$dataDT[, lying := runmed(accel_Y > crit_lie, k, endrule = "constant"), id]
+
+  # ----------------------------------------------
+
+  # write y-accel check here
+
+  # ----------------------------------------------
+
+  private$dataDT[, lying := runmed(accel_Y < crit_lie, k, endrule = "constant"), id]
   private$dataDT[, bout_id := cumsum(c(0, diff(lying) != 0)), id]
   nco <- ncol(private$dataDT)
   data.table::setcolorder(private$dataDT, c(1:(nco - 2), nco, nco - 1))
