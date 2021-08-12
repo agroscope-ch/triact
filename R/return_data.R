@@ -7,7 +7,7 @@ return_data <- function(value) {
 }
 
 transform_table <- function(x, table_class = getOption("triact_table", default = "data.frame")) {
-  checkmate::checkChoice(table_class, choices = c("data.frame", "data.table", "tibble"))
+  checkmate::assertChoice(table_class, choices = c("data.frame", "data.table", "tibble"), .var.name = "Global option triact_table")
   if (table_class == "data.frame") {
     return(as.data.frame(x))
   } else if (table_class == "data.table") {
