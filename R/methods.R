@@ -1,15 +1,22 @@
-
-add_lying <- function(crit_lie = 0.5, k = 121) {
+# ----------------------------------------------------------------
+# ----------------------------------------------------------------
+add_lying <- function(crit_lie = 0.5, k = 121, check = TRUE) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_Y, .var.name = "has Y acceleration?")
   checkmate::assertNumber(crit_lie)
   checkmate::assertInt(k, lower = 1)
+  checkmate::assertFlag(check)
 
-  # ----------------------------------------------
-
-  # write y-accel check here
-
-  # ----------------------------------------------
+  # Check for correct mounting of logger
+  if (check) {
+    check <- parse(text = "sum(accel_Y > crit_lie) < sum(accel_Y < -1 * crit_lie)")
+    Y_inverted <- private$dataDT[, .(test = eval(check)), id]
+    if (any(Y_inverted$test)) {
+      private$dataDT[, c("accel_Y", "accel_X") := if(eval(check)) .(-accel_Y, -accel_X) else .(accel_Y, accel_X), id]
+      warning(paste("For ID nr", paste(Y_inverted$id[Y_inverted$test], collapse = ", "), "the Y-axis and X-axis were automatically negated (multiplied by -1) because the data appeared to come from a logger that was mounted 180° rotated. See package documentation."),
+              call. = FALSE)
+    }
+  }
 
   private$dataDT[, lying := runmed(accel_Y < crit_lie, k, endrule = "constant"), id]
   private$dataDT[, bout_id := cumsum(c(0, diff(lying) != 0)), id]
@@ -19,6 +26,8 @@ add_lying <- function(crit_lie = 0.5, k = 121) {
   return(invisible(self))
 }
 
+# ----------------------------------------------------------------
+# ----------------------------------------------------------------
 add_side <- function(crit_left = -0.5) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
@@ -28,8 +37,8 @@ add_side <- function(crit_left = -0.5) {
   return(invisible(self))
 }
 
-# -----------------------------------------------------------------------
-
+# ----------------------------------------------------------------
+# ----------------------------------------------------------------
 extract_updown <- function(self, private, sec_before, sec_after, updown) { # internal
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
@@ -57,12 +66,16 @@ extract_standup <- function(sec_before = 0, sec_after = 0) {
   return(extract_updown(self, private, sec_before, sec_after, updown = "up"))
 }
 
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------
+# ----------------------------------------------------------------
 
 calc_activity <- function(accel_dt) {
   duration <- as.numeric(difftime(max(accel_dt$time), min(accel_dt$time), units = "hours"))
   return(sum(sapply(accel_dt[, -1], function(x) sum(abs(diff(x))))) / duration)
 }
+
+# ----------------------------------------------------------------
+# ----------------------------------------------------------------
 
 get_activity_by_iterval <- function(interval = "hour", lag_in_s = 0) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
@@ -74,6 +87,8 @@ get_activity_by_iterval <- function(interval = "hour", lag_in_s = 0) {
   return(transform_table(activity))
 }
 
+# ----------------------------------------------------------------
+# ----------------------------------------------------------------
 
 get_activity_by_bout <- function(bout_type = "all") {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
