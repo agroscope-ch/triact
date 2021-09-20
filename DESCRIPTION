@@ -18,3 +18,4 @@ Collate:
     "load_data.R"
     "return_data.R"
     "triact_class.R"
+RoxygenNote: 7.1.1

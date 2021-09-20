@@ -96,15 +96,15 @@ get_activity_by_bout <- function(bout_type = "all") {
   checkmate::assertChoice(bout_type, choices = c("all", "lying", "upright"))
   .SDcols <- c("time", "accel_X", "accel_Y", "accel_Z")[c(TRUE, private$has_X, private$has_Y, private$has_Z)]
   lie <- if (bout_type == "all") {
-            TRUE
-         } else if (bout_type == "lying") {
-            private$dataDT$lying == 1
-         } else if (bout_type == "upright") {
-            private$dataDT$lying == 0
-         }
+    TRUE
+  } else if (bout_type == "lying") {
+    private$dataDT$lying == 1
+  } else if (bout_type == "upright") {
+    private$dataDT$lying == 0
+  }
   activity <- private$dataDT[lie, .(activity = calc_activity(.SD), lying = unique(lying)),
-                        by = .(id, bout_id),
-                        .SDcols = .SDcols]
+                             by = .(id, bout_id),
+                             .SDcols = .SDcols]
   return(transform_table(activity))
 }
 
