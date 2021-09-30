@@ -9,6 +9,7 @@ R6 class for accelerometer data from cows
 An object for containing and analyzing triaxial accelerometer data from hind legs of cows.
 Analyses focus on standing and lying behaviour and activity of the cows.
 }
+
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
@@ -16,6 +17,10 @@ Analyses focus on standing and lying behaviour and activity of the cows.
 }
 \if{html}{\out{</div>}}
 }
+
+%% ------------------------------
+%% ------------------------------
+
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -30,9 +35,12 @@ Analyses focus on standing and lying behaviour and activity of the cows.
 }
 }
 
+%% ------------------------------
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
+
 \subsection{Method \code{new()}}{
 Create a new triact object.
 \subsection{Usage}{
@@ -44,11 +52,14 @@ A new `Triact` object.
 }
 }
 
+%% ------------------------------
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-load_data"></a>}}
 \if{latex}{\out{\hypertarget{method-load_data}{}}}
+
 \subsection{Method \code{load_data()}}{
-Blablablabla
+Import data from accelerometer files from one or several cows to the 'Triact' object. Multiple files from same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: id_substring).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$load_data(
   input,
@@ -64,18 +75,47 @@ Blablablabla
 )}
 \if{html}{\out{</div>}}
 }
+
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{input}}{Name of a file or a directory containing the files, which the data are to be read from. If it does not contain an absolute path, the directory or file name is relative to the current working directory, \code{getwd()}.}
-\item{\code{id_substring}}{Character string containing a \link[=regex]{regular expression} (or character string) identifying the part in the file names representing the unique identifier of the cow. Alternatively, an integer vector identifying the substring by character position: c(first, last).}
-\item{\code{start_time}}{Timestamp identifying the earliest data to keep, formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or other formats automatically tried by \link{as.POSIX*}. \emph{Default:} \code{NULL}}
-\item{\code{end_time}}{Timestamp identifying the latest data to keep, formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or other formats automatically tried by \link{as.POSIX*}. \emph{Default:} \code{NULL}}
-\item{\code{timeXYZ_cols}}{Integer vector specifying the columns containing the acceleratin time, and the X, Y, and Z axis acceleration data: c(time, X, Y, Z). \emph{Default:} \code{c(1, 2, 3, 4)}. Missing acceleration axes can be specified as \code{NA}}
-\item{\code{time_format}}{Character vector specifying the date-time format corresponding to the acceleration files (syntax as in \code{\link[base]{strptime}}). If \code{NULL} a date-time format as tried by \link{as.POSIX*} is expected. \emph{Default:} \code{NULL}}
-\item{\code{tz}}{Character vector specifying the \link[=timezones]{time zone} \emph{Default:} \code{Sys.timezone()}}
-\item{\code{sep}}{The separator between columns in acceleration files. If "auto", it is automatically detected by \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{"auto"}}
-\item{\code{skip}}{An integer indicating the number of lines to skip before reading data from the files. Alternatively, a (sub)string indicating the line to start reading data, or "__auto__" for the automatic detection by \code{\link[=fread]{data.table::fread}}.\emph{Default:} \code{"__auto__"}}
+
+\item{\code{input}}{
+Name of a file or a directory containing the files, which the data are to be read from. If it does not contain an absolute path, the directory or file name is relative to the current working directory, \code{getwd()}.
+}
+
+\item{\code{id_substring}}{
+Character string containing a \link[=regex]{regular expression} (or character string) identifying the part in the file names representing the unique identifier of the cow. Alternatively, an integer vector identifying the substring by character position: c(first, last).
+}
+
+\item{\code{start_time}}{
+Timestamp identifying the earliest data to keep, formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or other formats automatically tried by \link{as.POSIX*}. \emph{Default:} \code{NULL}
+}
+
+
+\item{\code{end_time}}{
+Timestamp identifying the latest data to keep, formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or other formats automatically tried by \link{as.POSIX*}. \emph{Default:} \code{NULL}
+}
+
+\item{\code{timeXYZ_cols}}{
+Integer vector specifying the columns containing the acceleratin time, and the X, Y, and Z axis acceleration data: c(time, X, Y, Z). \emph{Default:} \code{c(1, 2, 3, 4)}. Missing acceleration axes can be specified as \code{NA}
+}
+
+\item{\code{time_format}}{
+Character vector specifying the date-time format corresponding to the acceleration files (syntax as in \code{\link[base]{strptime}}). If \code{NULL} a date-time format as tried by \link{as.POSIX*} is expected. \emph{Default:} \code{NULL}
+}
+
+\item{\code{tz}}{
+Character vector specifying the \link[=timezones]{time zone} \emph{Default:} \code{Sys.timezone()}
+}
+
+\item{\code{sep}}{
+The separator between columns in acceleration files. If "auto", it is automatically detected by \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{"auto"}
+}
+
+\item{\code{skip}}{
+An integer indicating the number of lines to skip before reading data from the files. Alternatively, a (sub)string indicating the line to start reading data, or "__auto__" for the automatic detection by \code{\link[=fread]{data.table::fread}}.\emph{Default:} \code{"__auto__"}
+}
 }}
 }
 
