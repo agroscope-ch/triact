@@ -119,34 +119,50 @@ An integer indicating the number of lines to skip before reading data from the f
 }}
 }
 
+%% ------------------------------
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-add_lying"></a>}}
 \if{latex}{\out{\hypertarget{method-add_lying}{}}}
 \subsection{Method \code{add_lying()}}{
+Classify data into lying and upright and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and upright) are uniquely numbered in column 'bout_id'. Classification procedures is composed of two steps: evaluating ‘Y-acceleration < \code{crit_lie}’ followed by running median smoothing with window size \code{k}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(crit_lie = 0.5, k = 121, check = TRUE)}\if{html}{\out{</div>}}
+
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{crit_lie}}{default: \code{0.5}}
-\item{\code{k}}{default: \code{121}}
-\item{\code{check}}{default: \code{TRUE}}
-}}
+
+\item{\code{crit_lie}}{
+Y-acceleration threshold for classifying lying versus upright. \emph{Default:} \code{0.5}
 }
 
+\item{\code{k}}{
+Integer width of median window for smoothing; must be odd. \emph{Default:} \code{121}
 }
+
+\item{\code{check}}{
+A logical value that indicates whether the data should be checked for possible incorrect mounting of the logger (180° turned) and corrected accordingly (negation of X and Y axis). \emph{Default:} \code{TRUE}}
+}
+}}}
+
+%% ------------------------------
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-add_side"></a>}}
 \if{latex}{\out{\hypertarget{method-add_side}{}}}
 \subsection{Method \code{add_side()}}{
+Classify lying bouts into left and right lying side and add results as column ‘side’ to the ‘Triact’ object. A lying bout is classified as 'L' (left) if 'Z-acceleration < crit_left' is predominantly true, otherwise it is classified as 'R' (right).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(crit_left = -0.5)}\if{html}{\out{</div>}}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{crit_left}}{default: \code{-0.5}}
+\item{\code{crit_left}}{Z-acceleration threshold for classifying lying on left versus right side. \emph{Default:} \code{-0.5}}
 }}
 }
+
+%% ------------------------------
 
 }
 \if{html}{\out{<hr>}}
@@ -158,13 +174,24 @@ An integer indicating the number of lines to skip before reading data from the f
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{crit_left}}{default: \code{-0.5}}
-}}
+
+\item{\code{sec_before}}{
+\emph{Default:} \code{0}
+}
+
+\item{\code{sec_after}}{
+\emph{Default:} \code{0}
+}
+
+}
+}
 \if{html}{\out{</div>}}
 \subsection{Returns}{
 A new `Person` object.
 }
 }
+
+%% ------------------------------
 
 }
 \if{html}{\out{<hr>}}
@@ -176,9 +203,19 @@ A new `Person` object.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{crit_left}}{default: \code{-0.5}}
+
+\item{\code{sec_before}}{
+\emph{Default:} \code{0}
+}
+
+\item{\code{sec_after}}{
+\emph{Default:} \code{0}
+}
+
 }}
 }
+
+%% ------------------------------
 
 }
 \if{html}{\out{<hr>}}
@@ -194,6 +231,8 @@ A new `Person` object.
 \item{\code{lag_in_s}}{default: \code{0}}
 }}
 }
+
+%% ------------------------------
 
 }
 \if{html}{\out{<hr>}}
