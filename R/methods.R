@@ -13,7 +13,8 @@ add_lying <- function(crit_lie = 0.5, k = 121, check = TRUE) {
     Y_inverted <- private$dataDT[, .(test = eval(check)), id]
     if (any(Y_inverted$test)) {
       private$dataDT[, c("accel_Y", "accel_X") := if(eval(check)) .(-accel_Y, -accel_X) else .(accel_Y, accel_X), id]
-      warning(paste("For ID nr", paste(Y_inverted$id[Y_inverted$test], collapse = ", "), "the Y-axis and X-axis were automatically negated (multiplied by -1) because the data appeared to come from a logger that was mounted 180° rotated. See package documentation."),
+      warning(paste("For the IDs listed below the Y-axis and X-axis were automatically negated (multiplied by -1) because the data appeared to come from a logger that was mounted 180° rotated (see package documentation):\n\n"
+                    , paste(Y_inverted$id[Y_inverted$test], collapse = ", ")),
               call. = FALSE)
     }
   }
