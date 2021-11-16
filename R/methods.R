@@ -47,7 +47,7 @@ extract_updown <- function(self, private, sec_before, sec_after, updown) { # int
   L1 <- switch(updown, "down" = 0, "up" = 1)
   L2 <- switch(updown, "down" = 1, "up" = 0)
   private$dataDT[, switch := data.table::frollapply(lying, 2, function(i) {i[1] == L1 & i[2] == L2}), by = id]
-  liedown_times <- private$dataDT[as.logical(switch), time]
+  liedown_times <- private$dataDT[as.logical(switch)]
   private$dataDT[, switch := NULL]
   if ((sec_before == 0) & (sec_after == 0)) {
     return(transform_table(liedown_times))
