@@ -32,7 +32,7 @@ load_data <- function(input,
       names(colcls) <- c("character", rep("numeric", length(colcls) - 1))
    }
 
-   # fread the file
+   # wrapper function to fread, setting parameters
    read_file <- function(f) {data.table::fread(file = f,
                                                select = timeXYZ_cols,
                                                tz = if (tz == "UTC") "UTC" else "", # fread only takes "UTC" or "" (system tz) --> extra step below needed
@@ -41,9 +41,23 @@ load_data <- function(input,
                                                sep = sep,
                                                skip = skip,
                                                header = FALSE,
-                                               ...)}
+                                               nThread = n_fread_threads,
+                                               ...
+                                               )}
 
-   private$dataDT <- data.table::rbindlist(lapply(input, read_file), idcol = "id")
+   # parallelization for reading the files:
+   # given we have >1 files we will run fread in parallel via parallel::parLapply
+   # in this case we set nThread = 1 in fread to avoid nested parallelization
+
+   if (length(input) > 1) {
+      n_fread_threads <- 1
+      fread_cls <- parallel::makeCluster(data.table::getDTthreads())
+      parallel::clusterExport(fread_cls, list("timeXYZ_cols", "tz", "colnms", "colcls", "sep", "skip", "n_fread_threads"), environment())
+   } else {
+      n_fread_threads <- data.table::getDTthreads()
+   }
+
+   private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, read_file), idcol = "id")
 
    private$dataDT <- private$dataDT[complete.cases(private$dataDT), ]
 

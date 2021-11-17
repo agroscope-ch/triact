@@ -1,2 +1,3 @@
 exportPattern(Triact)
 import(data.table)
+import(parallel)
