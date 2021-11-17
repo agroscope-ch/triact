@@ -7,6 +7,8 @@ load_data <- function(input,
                       tz           = Sys.timezone(),
                       sep          = "auto",
                       skip         = "__auto__",
+                      n_fread_threads = data.table::getDTthreads(),
+                      n_parallel_files = 1,
                       ...) {
 
    # list files if input is dir
@@ -49,15 +51,17 @@ load_data <- function(input,
    # given we have >1 files we will run fread in parallel via parallel::parLapply
    # in this case we set nThread = 1 in fread to avoid nested parallelization
 
-   if (length(input) > 1) {
-      n_fread_threads <- 1
-      fread_cls <- parallel::makeCluster(data.table::getDTthreads())
-      parallel::clusterExport(fread_cls, list("timeXYZ_cols", "tz", "colnms", "colcls", "sep", "skip", "n_fread_threads"), environment())
-   } else {
-      n_fread_threads <- data.table::getDTthreads()
-   }
+
+   fread_cls <- parallel::makeCluster(n_parallel_files)
+
+   parallel::clusterExport(fread_cls, list("timeXYZ_cols", "tz", "colnms", "colcls", "sep", "skip", "n_fread_threads"), environment())
 
    private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, read_file), idcol = "id")
+
+   private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, read_file), idcol = "id")
+
+   # ---------------------------
+
 
    private$dataDT <- private$dataDT[complete.cases(private$dataDT), ]
 
