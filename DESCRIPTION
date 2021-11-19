@@ -11,6 +11,7 @@ LazyData: true
 Imports: 
     R6(>= 2.5.0),
     data.table (>= 1.14.0),
+    parallel (>= 4.1.2),
     checkmate (>= 2.0.0),
     lubridate (>= 1.7.10)
 Collate:

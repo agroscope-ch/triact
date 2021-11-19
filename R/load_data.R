@@ -34,15 +34,6 @@ load_data <- function(input,
    }
 
    # -----------------------------------------------------------
-   # Note in parallelization: when parallel > 1 files are read in parallel via parLapply
-   # in this case nThread in data.table::fread is set to zero to avoid nested parallelization
-   # this behavior can be overwritten by passing nTread via the ... argument
-
-   arguments <- list(...)
-
-   if (is.null(arguments$nThread)) {
-      if (parallel > 1) arguments$nThread <- 1
-   }
 
    arguments <- c(list(
                   select = timeXYZ_cols,
@@ -51,22 +42,23 @@ load_data <- function(input,
                   colClasses = colcls,
                   sep = sep,
                   skip = skip,
-                  header = FALSE), arguments)
+                  header = FALSE), list(...))
 
-   print(arguments)
+   read_file <- function(f, arguments) {
+      do.call(data.table::fread, c(list(file = f), arguments))
+   }
+
+   # Note on parallelization: when parallel > 1 files are read in parallel via parLapply
+   # in this case nThread in data.table::fread is set to zero to avoid nested parallelization
+   # this behavior can be overwritten by passing nTread via the ... argument
 
    if (parallel > 1) {
-
-      fread_cls <- parallel::makeCluster(n_parallel_files)
-
-      private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, function(f) {
-         do.call(data.table::fread, c(list(file = f), arguments))
-         }), idcol = "id")
-
+      if (is.null(arguments$nThread)) arguments$nThread <- 1 # to avoid nested parallelization
+      fread_cls <- parallel::makeCluster(parallel)
+      on.exit(parallel::stopCluster(fread_cls))
+      private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, read_file, arguments), idcol = "id")
    } else {
-
-      private$dataDT <- data.table::rbindlist(lapply(input, do.call(data.table, arguments)), idcol = "id")
-
+      private$dataDT <- data.table::rbindlist(lapply(input, read_file, arguments), idcol = "id")
    }
 
    # ---------------------------

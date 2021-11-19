@@ -71,6 +71,7 @@ Import data from accelerometer files from one or several cows to the 'Triact' ob
   tz = Sys.timezone(),
   sep = "auto",
   skip = "__auto__",
+  parallel = 1,
   ...
 )}
 \if{html}{\out{</div>}}
@@ -116,6 +117,12 @@ The separator between columns in acceleration files. If "auto", it is automatica
 \item{\code{skip}}{
 An integer indicating the number of lines to skip before reading data from the files. Alternatively, a (sub)string indicating the line to start reading data, or "__auto__" for the automatic detection by \code{\link[=fread]{data.table::fread}}.\emph{Default:} \code{"__auto__"}
 }
+
+\item{\code{parallel}}{
+An integer indicating the number of files that are read in parallel. For \code{parallel > 1} the reading of the individual file is set to single-threaded to avoid nested parallelization. This behavior can be overwritten by passing \code{nThread} via \code{...}  argument, which is passed on to \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{1}
+}
+
+
 }}
 }
 
