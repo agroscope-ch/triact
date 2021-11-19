@@ -7,8 +7,7 @@ load_data <- function(input,
                       tz           = Sys.timezone(),
                       sep          = "auto",
                       skip         = "__auto__",
-                      n_fread_threads = data.table::getDTthreads(),
-                      n_parallel_files = 1,
+                      parallel     = 1,
                       ...) {
 
    # list files if input is dir
@@ -34,34 +33,41 @@ load_data <- function(input,
       names(colcls) <- c("character", rep("numeric", length(colcls) - 1))
    }
 
-   # wrapper function to fread, setting parameters
-   read_file <- function(f) {data.table::fread(file = f,
-                                               select = timeXYZ_cols,
-                                               tz = if (tz == "UTC") "UTC" else "", # fread only takes "UTC" or "" (system tz) --> extra step below needed
-                                               col.names = colnms,
-                                               colClasses = colcls,
-                                               sep = sep,
-                                               skip = skip,
-                                               header = FALSE,
-                                               nThread = n_fread_threads,
-                                               ...
-                                               )}
+   # -----------------------------------------------------------
+   # Note in parallelization: when parallel > 1 files are read in parallel via parLapply
+   # in this case nThread in data.table::fread is set to zero to avoid nested parallelization
+   # this behavior can be overwritten by passing nTread via the ... argument
 
-   # parallelization for reading the files:
-   # given we have >1 files we will run fread in parallel via parallel::parLapply
-   # in this case we set nThread = 1 in fread to avoid nested parallelization
+   arguments <- list(...)
 
+   if (is.null(arguments$nThread)) {
+      if (parallel > 1) arguments$nThread <- 1
+   }
 
-   fread_cls <- parallel::makeCluster(n_parallel_files)
+   arguments <- c(list(file = f,
+                  select = timeXYZ_cols,
+                  tz = if (tz == "UTC") "UTC" else "", # fread only takes "UTC" or "" (system tz) --> extra step below needed
+                  col.names = colnms,
+                  colClasses = colcls,
+                  sep = sep,
+                  skip = skip,
+                  header = FALSE), arguments)
 
-   parallel::clusterExport(fread_cls, list("timeXYZ_cols", "tz", "colnms", "colcls", "sep", "skip", "n_fread_threads"), environment())
+   print(arguments)
 
-   private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, read_file), idcol = "id")
+   if (parallel > 1) {
 
-   private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, read_file), idcol = "id")
+      fread_cls <- parallel::makeCluster(n_parallel_files)
+
+      private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, do.call(data.table::fread, arguments)), idcol = "id")
+
+   } else {
+
+      private$dataDT <- data.table::rbindlist(lapply(input, do.call(data.table, arguments)), idcol = "id")
+
+   }
 
    # ---------------------------
-
 
    private$dataDT <- private$dataDT[complete.cases(private$dataDT), ]
 
