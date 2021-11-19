@@ -44,7 +44,7 @@ load_data <- function(input,
       if (parallel > 1) arguments$nThread <- 1
    }
 
-   arguments <- c(list(file = f,
+   arguments <- c(list(
                   select = timeXYZ_cols,
                   tz = if (tz == "UTC") "UTC" else "", # fread only takes "UTC" or "" (system tz) --> extra step below needed
                   col.names = colnms,
@@ -59,7 +59,9 @@ load_data <- function(input,
 
       fread_cls <- parallel::makeCluster(n_parallel_files)
 
-      private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, do.call(data.table::fread, arguments)), idcol = "id")
+      private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, function(f) {
+         do.call(data.table::fread, c(list(file = f), arguments))
+         }), idcol = "id")
 
    } else {
 
