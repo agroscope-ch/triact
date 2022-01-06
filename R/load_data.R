@@ -63,6 +63,8 @@ load_data <- function(input,
 
    # ---------------------------
 
+   private$dataDT[, id := as.factor(id)]
+
    private$dataDT <- private$dataDT[complete.cases(private$dataDT), ]
 
    attr(private$dataDT$time, "tzone") <- tz
