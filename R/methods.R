@@ -73,9 +73,11 @@ extract_standup <- function(sec_before = 0, sec_after = 0) {
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-calc_activity <- function(accel_dt) {
-  duration <- as.numeric(difftime(max(accel_dt$time), min(accel_dt$time), units = "hours"))
-  return(sum(sapply(accel_dt[, -1], function(x) sum(abs(diff(x))))) / duration)
+calc_activity <- function(dataDT, useX, useY, useZ) {
+  activity = dataDT[, mean(sqrt(c(if (useX) (diff(accel_X) / as.numeric(diff(time)))^2,
+                                  if (useY) (diff(accel_Y) / as.numeric(diff(time)))^2,
+                                  if (useZ) (diff(accel_Z) / as.numeric(diff(time)))^2)))]
+  return(activity)
 }
 
 # ----------------------------------------------------------------
@@ -84,11 +86,8 @@ calc_activity <- function(accel_dt) {
 get_activity_by_iterval <- function(interval = "hour", lag_in_s = 0) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assert_number(lag_in_s, finite = TRUE)
-
-  .SDcols <- c("time", "accel_X", "accel_Y", "accel_Z")[c(TRUE, private$has_X, private$has_Y, private$has_Z)]
-  activity <- private$dataDT[ , .(activity = calc_activity(.SD)),
-                        by = .(id, time = lubridate::floor_date(private$dataDT$time - lag_in_s, interval) + lag_in_s),
-                        .SDcols = .SDcols]
+  activity <- private$dataDT[ , calc_activity(.SD, private$has_X, private$has_Y, private$has_Z),
+                        by = .(id, time = lubridate::floor_date(private$dataDT$time - lag_in_s, interval) + lag_in_s)]
   return(transform_table(activity))
 }
 
@@ -100,7 +99,6 @@ get_activity_by_bout <- function(bout_type = "all") {
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
   checkmate::assertChoice(bout_type, choices = c("all", "lying", "upright"))
 
-  .SDcols <- c("time", "accel_X", "accel_Y", "accel_Z")[c(TRUE, private$has_X, private$has_Y, private$has_Z)]
   bout_select <- if (bout_type == "all") {
     TRUE
   } else if (bout_type == "lying") {
@@ -108,9 +106,9 @@ get_activity_by_bout <- function(bout_type = "all") {
   } else if (bout_type == "upright") {
     !private$dataDT$lying
   }
-  activity <- private$dataDT[bout_select, .(activity = calc_activity(.SD), lying = unique(lying)),
-                             by = .(id, bout_nr),
-                             .SDcols = .SDcols]
+  activity <- private$dataDT[bout_select, .(activity = calc_activity(.SD, private$has_X, private$has_Y, private$has_Z),
+                                            lying = unique(lying)),
+                             by = .(id, bout_nr)]
   return(transform_table(activity))
 }
 
