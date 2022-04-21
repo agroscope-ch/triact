@@ -2,7 +2,7 @@ load_data <- function(input,
                       id_substring,
                       start_time   = NULL,
                       end_time     = NULL,
-                      timeXYZ_cols = c(1, 2, 3, 4),
+                      timeFwdUpRight_cols = c(1, 2, 3, 4),
                       time_format  = NULL,
                       tz           = Sys.timezone(),
                       sep          = "auto",
@@ -23,10 +23,10 @@ load_data <- function(input,
    }
 
    # prepare col names
-   colnms <- c("time", "accel_X", "accel_Y", "accel_Z")[!is.na(timeXYZ_cols)]
+   colnms <- c("time", "acc_fwd", "acc_up", "acc_right")[!is.na(timeFwdUpRight_cols)]
 
    # prepare col classes: when user does not supply time_format then POSIXct for time col, otherwise character
-   colcls <- as.list(na.omit(timeXYZ_cols))
+   colcls <- as.list(na.omit(timeFwdUpRight_cols))
    if (is.null(time_format)) {
       names(colcls) <- c("POSIXct", rep("numeric", length(colcls) - 1))
    } else {
@@ -36,7 +36,7 @@ load_data <- function(input,
    # -----------------------------------------------------------
 
    arguments <- c(list(
-                  select = timeXYZ_cols,
+                  select = timeFwdUpRight_cols,
                   tz = if (tz == "UTC") "UTC" else "", # fread only takes "UTC" or "" (system tz) --> extra step below needed
                   col.names = colnms,
                   colClasses = colcls,
@@ -87,9 +87,9 @@ load_data <- function(input,
 
    # note availability of acceleration directions (for checks by other methods)
    private$has_data <- checkmate::checkDataTable(private$dataDT)
-   private$has_X <- "accel_X" %in% colnames(private$dataDT)
-   private$has_Y <- "accel_Y" %in% colnames(private$dataDT)
-   private$has_Z <- "accel_Z" %in% colnames(private$dataDT)
+   private$has_fwd <- "acc_fwd" %in% colnames(private$dataDT)
+   private$has_up <- "acc_up" %in% colnames(private$dataDT)
+   private$has_right <- "acc_right" %in% colnames(private$dataDT)
 
    return(invisible(self))
 }

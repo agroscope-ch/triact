@@ -14,9 +14,9 @@ Triact <- R6::R6Class("Triact",
   ),
   private = list(dataDT = NULL,
                  has_data = NULL,
-                 has_X = FALSE,
-                 has_Y = FALSE,
-                 has_Z = FALSE,
+                 has_fwd = FALSE,
+                 has_up = FALSE,
+                 has_right = FALSE,
                  has_lying = FALSE
   )
 )
