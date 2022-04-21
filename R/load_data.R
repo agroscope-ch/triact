@@ -67,6 +67,8 @@ load_data <- function(input,
 
    private$dataDT <- private$dataDT[complete.cases(private$dataDT), ]
 
+   private$dataDT <- private$dataDT[!duplicated(private$dataDT), ]
+
    attr(private$dataDT$time, "tzone") <- tz
 
    # conversion to POSIX in case of user supplied time_format
