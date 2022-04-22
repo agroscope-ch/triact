@@ -108,7 +108,8 @@ get_activity_by_bout <- function(bout_type = "all") {
     !private$dataDT$lying
   }
   activity <- private$dataDT[bout_select, .(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
-                                            lying = unique(lying)),
+                                            lying = unique(lying),
+                                            side = unique(side)),
                              by = .(id, bout_nr)]
   return(transform_table(activity))
 }
