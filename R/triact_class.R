@@ -17,6 +17,7 @@ Triact <- R6::R6Class("Triact",
                  has_fwd = FALSE,
                  has_up = FALSE,
                  has_right = FALSE,
-                 has_lying = FALSE
+                 has_lying = FALSE,
+                 has_side = FALSE
   )
 )

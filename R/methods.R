@@ -36,6 +36,7 @@ add_side <- function(crit_left = -0.5) {
   checkmate::assertNumber(crit_left)
 
   private$dataDT[, side := as.factor(if (lying[1] == 0) NA else if (median(acc_right < crit_left)) "L" else "R"), by = bout_nr]
+  private$has_side <- TRUE
   return(invisible(self))
 }
 
@@ -86,10 +87,10 @@ calc_activity <- function(dataDT, use_fwd, use_up, use_right) {
 get_activity_by_iterval <- function(interval = "hour", lag_in_s = 0) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assert_number(lag_in_s, finite = TRUE)
-  activity <- private$dataDT[ , .(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right)),
+  analysis <- private$dataDT[ , .(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right)),
                         by = .(id, time = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s),
                         .SDcols = colnames(private$dataDT)] # unclear why defining .SDcols is needed here (bug in data.table?)
-  return(transform_table(activity))
+  return(transform_table(analysis))
 }
 
 # ----------------------------------------------------------------
@@ -107,11 +108,19 @@ get_activity_by_bout <- function(bout_type = "all") {
   } else if (bout_type == "upright") {
     !private$dataDT$lying
   }
-  activity <- private$dataDT[bout_select, .(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
-                                            lying = unique(lying),
-                                            side = unique(side)),
-                             by = .(id, bout_nr)]
-  return(transform_table(activity))
+
+  if (private$has_side) {
+    col_cals <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+                                     lying = unique(lying),
+                                     side = unique(side)))
+  } else {
+    col_cals <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+                                     lying = unique(lying)))
+  }
+
+  analysis <- private$dataDT[bout_select, eval(col_cals), by = .(id, bout_nr)]
+
+  return(transform_table(analysis))
 }
 
 
