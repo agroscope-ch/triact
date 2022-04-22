@@ -84,7 +84,7 @@ calc_activity <- function(dataDT, use_fwd, use_up, use_right) {
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-get_activity_by_iterval <- function(interval = "hour", lag_in_s = 0) {
+analyze_itervals <- function(interval = "hour", lag_in_s = 0) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assert_number(lag_in_s, finite = TRUE)
   analysis <- private$dataDT[ , .(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right)),
@@ -96,7 +96,7 @@ get_activity_by_iterval <- function(interval = "hour", lag_in_s = 0) {
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-get_activity_by_bout <- function(bout_type = "all") {
+analyze_bouts <- function(bout_type = "all") {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
   checkmate::assertChoice(bout_type, choices = c("all", "lying", "upright"))

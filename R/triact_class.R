@@ -9,8 +9,8 @@ Triact <- R6::R6Class("Triact",
     add_side = add_side,
     extract_liedown = extract_liedown,
     extract_standup = extract_standup,
-    get_activity_by_iterval = get_activity_by_iterval,
-    get_activity_by_bout = get_activity_by_bout
+    analyze_itervals = analyze_itervals,
+    analyze_bouts = analyze_bouts
   ),
   private = list(dataDT = NULL,
                  has_data = NULL,
