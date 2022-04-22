@@ -86,7 +86,7 @@ calc_activity <- function(dataDT, use_fwd, use_up, use_right) {
 get_activity_by_iterval <- function(interval = "hour", lag_in_s = 0) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assert_number(lag_in_s, finite = TRUE)
-  activity <- private$dataDT[ , calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+  activity <- private$dataDT[ , .(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right)),
                         by = .(id, time = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s),
                         .SDcols = colnames(private$dataDT)] # unclear why defining .SDcols is needed here (bug in data.table?)
   return(transform_table(activity))
