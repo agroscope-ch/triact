@@ -77,11 +77,11 @@ load_data <- function(input,
    }
 
    # filter time range according to user-provided start and/or end time
-   if (!is.null(start_time) & is.null(start_time)) {
+   if (!is.null(start_time) && is.null(start_time)) {
       private$dataDT <- private$dataDT[time >= as.POSIXct(start_time, tz = tz), ]
-   } else if (is.null(start_time) & !is.null(end_time)) {
+   } else if (is.null(start_time) && !is.null(end_time)) {
       private$dataDT <- private$dataDT[time <= as.POSIXct(end_time, tz = tz)]
-   } else if (!is.null(start_time) & !is.null(end_time)) {
+   } else if (!is.null(start_time) && !is.null(end_time)) {
       private$dataDT <- private$dataDT[(time >= as.POSIXct(start_time, tz = tz)) & (time <= as.POSIXct(end_time, tz = tz))]
    }
 
