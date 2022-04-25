@@ -49,23 +49,35 @@ extract_updown <- function(self, private, sec_before, sec_after, updown) { # int
   checkmate::assertNumber(sec_after, lower = 0)
 
   L <- switch(updown, "down" = FALSE, "up" = TRUE)
-  private$dataDT[, switch := data.table::frollapply(lying, 2, function(i) {i[1] == L & i[2] == !L}), by = id]
-  liedown_times <- private$dataDT[as.logical(switch)]
+
+  private$dataDT[, switch := data.table::frollapply(lying, 2, function(i) {i[1] == L & i[2] == !L},
+                                                    align = if (L) "left" else "right"), by = id, ]
+
+  updown_times <- private$dataDT[as.logical(switch), c("id", "time", "bout_nr", "side")]
+
   private$dataDT[, switch := NULL]
+
   if ((sec_before == 0) && (sec_after == 0)) {
-    return(transform_table(liedown_times))
+
+    return(transform_table(updown_times))
+
   } else {
-    liedown_times$id
-    liedown_results <- lapply(1:nrow(liedown_times), function(r) {
-      private$dataDT[(id == liedown_times[[r, "id"]]) & (time >= (liedown_times[[r, "time"]] - sec_before) & time <= (liedown_times[[r, "time"]] + sec_after))]
+
+    updown_results <- lapply(1:nrow(updown_times), function(r) {
+      private$dataDT[(id == updown_times[[r, "id"]]) & (time >= (updown_times[[r, "time"]] - sec_before) & time <= (updown_times[[r, "time"]] + sec_after))]
     })
-    return(lapply(liedown_results, transform_table))
+
+    return(lapply(updown_results, transform_table))
   }
 }
+
+# ----------------------------------------------------------------
 
 extract_liedown <- function(sec_before = 0, sec_after = 0) {
   return(extract_updown(self, private, sec_before, sec_after, updown = "down"))
 }
+
+# ----------------------------------------------------------------
 
 extract_standup <- function(sec_before = 0, sec_after = 0) {
   return(extract_updown(self, private, sec_before, sec_after, updown = "up"))
@@ -81,15 +93,33 @@ calc_activity <- function(dataDT, use_fwd, use_up, use_right) {
   return(activity)
 }
 
+calc_pct_lying <- function(dataDT) {
+  pct_lying = dataDT[, mean(lying) * 100]
+  return(pct_lying)
+}
+
+
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
 analyze_itervals <- function(interval = "hour", lag_in_s = 0) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assert_number(lag_in_s, finite = TRUE)
-  analysis <- private$dataDT[ , .(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right)),
-                        by = .(id, time = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s),
-                        .SDcols = colnames(private$dataDT)] # unclear why defining .SDcols is needed here (bug in data.table?)
+
+  if (private$has_lying) {
+
+    col_calcs <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+                              lyingPct = calc_pct_lying(.SD)))
+
+  } else {
+
+    col_calcs <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right)))
+
+  }
+
+  analysis <- private$dataDT[ , eval(col_calcs),
+                             by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s),
+                             .SDcols = colnames(private$dataDT)] # unclear why defining .SDcols is needed here (bug in data.table?)
   return(transform_table(analysis))
 }
 
@@ -110,15 +140,15 @@ analyze_bouts <- function(bout_type = "all") {
   }
 
   if (private$has_side) {
-    col_cals <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+    col_calcs <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
                                      lying = unique(lying),
                                      side = unique(side)))
   } else {
-    col_cals <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+    col_calcs <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
                                      lying = unique(lying)))
   }
 
-  analysis <- private$dataDT[bout_select, eval(col_cals), by = .(id, bout_nr)]
+  analysis <- private$dataDT[bout_select, eval(col_calcs), by = .(id, bout_nr)]
 
   return(transform_table(analysis))
 }
