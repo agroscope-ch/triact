@@ -247,7 +247,7 @@ A new `Person` object.
 \if{latex}{\out{\hypertarget{method-get_activity_by_bout}{}}}
 \subsection{Method \code{get_activity_by_bout()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Triact$get_activity_by_bout(bout_type = "all")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Triact$get_activity_by_bout(bout_type = "both")}\if{html}{\out{</div>}}
 }
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}

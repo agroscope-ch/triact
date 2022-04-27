@@ -36,8 +36,41 @@ add_side <- function(crit_left = -0.5) {
   checkmate::assertNumber(crit_left)
 
   private$dataDT[, side := as.factor(if (lying[1] == 0) NA else if (median(acc_right < crit_left)) "L" else "R"), by = bout_nr]
+
   private$has_side <- TRUE
+
   return(invisible(self))
+
+}
+
+# ----------------------------------------------------------------
+# ----------------------------------------------------------------
+
+add_activity <- function(add_jerk = FALSE) {
+  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
+
+  private$dataDT[, delta_time := as.numeric(c(NA, difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
+
+  axis <- c(private$has_fwd, private$has_up, private$has_right)
+
+  private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] := lapply(.SD, function(x) {c(NA, diff(x)) / delta_time}),
+                 .SDcols = c("acc_fwd", "acc_up", "acc_right")[axis]]
+
+  private$dataDT[, delta_time := NULL]
+
+  private$dataDT[, activity := sqrt(rowSums(sapply(.SD, function(x) x^2))),
+                 .SDcols = c("jerk_fwd", "jerk_up", "jerk_right")[axis]]
+
+  if (!add_jerk) {
+
+    private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] := NULL]
+
+  }
+
+  private$has_activity <- TRUE
+
+  return(invisible(self))
+
 }
 
 # ----------------------------------------------------------------
@@ -93,27 +126,34 @@ calc_activity <- function(dataDT, use_fwd, use_up, use_right) {
   return(activity)
 }
 
-calc_pct_lying <- function(dataDT) {
-  pct_lying = dataDT[, mean(lying) * 100]
-  return(pct_lying)
-}
+# calc_lyingDuration <- function(dataDT) {
+#   lyingDuration = dataDT[, mean(lying) * difftime(max(time) - min(time), units = )]
+#   return(lyingDuration)
+# }
 
 
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-analyze_itervals <- function(interval = "hour", lag_in_s = 0) {
+analyze_itervals <- function(interval = "hour", lag_in_s = 0, duration_units = "mins") {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assert_number(lag_in_s, finite = TRUE)
 
   if (private$has_lying) {
 
-    col_calcs <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
-                              lyingPct = calc_pct_lying(.SD)))
+    duration <- function(x, units = duration_units) {difftime(max(x), min(x), units = units)}
 
+    col_calcs <- expression(.(centerTime = min(time) + (duration(time) / 2),
+                              endTime = max(time),
+                              # totalDuration = duration(time),
+                              activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+                              standingDuration = mean(!lying) * duration(time),
+                              lyingDuration = mean(lying) * duration(time)))
   } else {
 
-    col_calcs <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right)))
+    col_calcs <- expression(.(centerTime = min(time) + diff(range(time)),
+                              endTime = max(time),
+                              activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right)))
 
   }
 
@@ -126,12 +166,12 @@ analyze_itervals <- function(interval = "hour", lag_in_s = 0) {
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-analyze_bouts <- function(bout_type = "all") {
+analyze_bouts <- function(bout_type = "both", duration_units = "mins") {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
-  checkmate::assertChoice(bout_type, choices = c("all", "lying", "upright"))
+  checkmate::assertChoice(bout_type, choices = c("both", "lying", "upright"))
 
-  bout_select <- if (bout_type == "all") {
+  bout_select <- if (bout_type == "both") {
     TRUE
   } else if (bout_type == "lying") {
     private$dataDT$lying
@@ -140,12 +180,18 @@ analyze_bouts <- function(bout_type = "all") {
   }
 
   if (private$has_side) {
-    col_calcs <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
-                                     lying = unique(lying),
-                                     side = unique(side)))
+    col_calcs <- expression(.(startTime = min(time),
+                              endTime = max(time),
+                              duration  = difftime(max(time), min(time), units = duration_units),
+                              activity  = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+                              lying = unique(lying),
+                              side = unique(side)))
   } else {
-    col_calcs <- expression(.(activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
-                                     lying = unique(lying)))
+    col_calcs <- expression(.(startTime = min(time),
+                              endTime = max(time),
+                              duration  = difftime(max(time), min(time), units = duration_unit),
+                              activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+                              lying = unique(lying)))
   }
 
   analysis <- private$dataDT[bout_select, eval(col_calcs), by = .(id, bout_nr)]

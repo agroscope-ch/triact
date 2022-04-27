@@ -7,6 +7,7 @@ Triact <- R6::R6Class("Triact",
     load_data = load_data,
     add_lying = add_lying,
     add_side = add_side,
+    add_activity = add_activity,
     extract_liedown = extract_liedown,
     extract_standup = extract_standup,
     analyze_itervals = analyze_itervals,
@@ -18,6 +19,7 @@ Triact <- R6::R6Class("Triact",
                  has_up = FALSE,
                  has_right = FALSE,
                  has_lying = FALSE,
-                 has_side = FALSE
+                 has_side = FALSE,
+                 has_activity = FALSE
   )
 )
