@@ -119,12 +119,12 @@ extract_standup <- function(sec_before = 0, sec_after = 0) {
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-calc_activity <- function(dataDT, use_fwd, use_up, use_right) {
-  activity = dataDT[, mean(sqrt(c(if (use_fwd) (diff(acc_fwd) / as.numeric(diff(time)))^2,
-                                  if (use_up) (diff(acc_up) / as.numeric(diff(time)))^2,
-                                  if (use_right) (diff(acc_right) / as.numeric(diff(time)))^2)))]
-  return(activity)
-}
+# calc_activity <- function(dataDT, use_fwd, use_up, use_right) {
+#   activity = dataDT[, mean(sqrt(c(if (use_fwd) (diff(acc_fwd) / as.numeric(diff(time)))^2,
+#                                   if (use_up) (diff(acc_up) / as.numeric(diff(time)))^2,
+#                                   if (use_right) (diff(acc_right) / as.numeric(diff(time)))^2)))]
+#   return(activity)
+# }
 
 # calc_lyingDuration <- function(dataDT) {
 #   lyingDuration = dataDT[, mean(lying) * difftime(max(time) - min(time), units = )]
@@ -139,27 +139,21 @@ analyze_itervals <- function(interval = "hour", lag_in_s = 0, duration_units = "
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assert_number(lag_in_s, finite = TRUE)
 
-  if (private$has_lying) {
+  col_calcs <- quote(list(centerTime = min(time) + (interval_duration / 2),
+                       endTime = max(time),
+                       meanActivity = mean(activity, na.rm = TRUE),
+                       standingDuration = mean(!lying) * interval_duration,
+                       lyingDuration = mean(lying) * interval_duration))
 
-    duration <- function(x, units = duration_units) {difftime(max(x), min(x), units = units)}
+  if (!private$has_activity) col_calcs["meanActivity"] <- NULL
+  if (!private$has_lying) col_calcs[c("standingDuration", "lyingDuration")] <- NULL
 
-    col_calcs <- expression(.(centerTime = min(time) + (duration(time) / 2),
-                              endTime = max(time),
-                              # totalDuration = duration(time),
-                              activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
-                              standingDuration = mean(!lying) * duration(time),
-                              lyingDuration = mean(lying) * duration(time)))
-  } else {
+  analysis <- private$dataDT[ , {{interval_duration <- difftime(max(time), min(time)) + private$sampInt
+                                  units(interval_duration) <- duration_units
+                                  interval_duration <- as.numeric(interval_duration)} # create temp. var interval_duration will not be returned
+                                 eval(col_calcs)},
+                              by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s)]
 
-    col_calcs <- expression(.(centerTime = min(time) + diff(range(time)),
-                              endTime = max(time),
-                              activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right)))
-
-  }
-
-  analysis <- private$dataDT[ , eval(col_calcs),
-                             by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s),
-                             .SDcols = colnames(private$dataDT)] # unclear why defining .SDcols is needed here (bug in data.table?)
   return(transform_table(analysis))
 }
 
@@ -183,14 +177,14 @@ analyze_bouts <- function(bout_type = "both", duration_units = "mins") {
     col_calcs <- expression(.(startTime = min(time),
                               endTime = max(time),
                               duration  = difftime(max(time), min(time), units = duration_units),
-                              activity  = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+                              meanActivity  = mean(activity, na.rm = TRUE),
                               lying = unique(lying),
                               side = unique(side)))
   } else {
     col_calcs <- expression(.(startTime = min(time),
                               endTime = max(time),
                               duration  = difftime(max(time), min(time), units = duration_unit),
-                              activity = calc_activity(.SD, private$has_fwd, private$has_up, private$has_right),
+                              meanActivity = mean(activity, na.rm = TRUE),
                               lying = unique(lying)))
   }
 

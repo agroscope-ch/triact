@@ -85,6 +85,18 @@ load_data <- function(input,
       private$dataDT <- private$dataDT[(time >= as.POSIXct(start_time, tz = tz)) & (time <= as.POSIXct(end_time, tz = tz))]
    }
 
+   # --------------------------
+
+   # determine sampling interval in sec
+
+   ### --> here work needs to be done; helpful message should be rised in case of problems
+
+   sInt_by_id <- private$dataDT[, .(sInt = unique(difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
+
+   private$sampInt <- as.difftime(sInt_by_id[, unique(sInt)], units = "secs")
+
+   # --------------------------
+
    # note availability of acceleration directions (for checks by other methods)
    private$has_data <- checkmate::checkDataTable(private$dataDT)
    private$has_fwd <- "acc_fwd" %in% colnames(private$dataDT)
