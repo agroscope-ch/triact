@@ -17,7 +17,7 @@ load_data <- function(input,
 
    # extracts ID from file names
    if (is.character(id_substring)) {
-      names(input) <- sapply(regmatches(basename(input), regexec(id_substring, basename(input))), function(i) i[2])
+      names(input) <- sapply(regmatches(basename(input), regexec(id_substring, basename(input), perl = TRUE)), function(i) i[1])
    } else if (is.numeric(id_substring)) {
       names(input) <- substring(basename(input), id_substring[1], id_substring[2])
    }

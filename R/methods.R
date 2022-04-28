@@ -119,7 +119,7 @@ extract_standup <- function(sec_before = 0, sec_after = 0) {
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-analyze_itervals <- function(interval = "hour", lag_in_s = 0, duration_units = "mins") {
+summarize_itervals <- function(interval = "hour", lag_in_s = 0, duration_units = "mins") {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assert_number(lag_in_s, finite = TRUE)
   checkmate::assert_choice(duration_units, c("secs", "mins", "hours"))
@@ -147,7 +147,7 @@ analyze_itervals <- function(interval = "hour", lag_in_s = 0, duration_units = "
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-analyze_bouts <- function(bout_type = "both", duration_units = "mins") {
+summarize_bouts <- function(bout_type = "both", duration_units = "mins") {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
   checkmate::assertChoice(bout_type, choices = c("both", "lying", "upright"))
