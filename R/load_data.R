@@ -99,7 +99,7 @@ load_data <- function(input,
 
    sInt <- sInt_by_id[, round_to_freq_interv(sInt)]
 
-   private$sampInt <- unique(sInt)
+   private$sampInt <- as.difftime(unique(sInt), units = "secs")
 
    # --------------------------
 

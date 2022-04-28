@@ -126,6 +126,7 @@ analyze_itervals <- function(interval = "hour", lag_in_s = 0, duration_units = "
 
   col_calcs <- quote(list(centerTime = minT + (interval_duration / 2),
                        endTime = maxT + private$sampInt,
+                       duration = interval_duration,
                        meanActivity = mean(activity, na.rm = TRUE),
                        standingDuration = mean(!lying) * interval_duration,
                        lyingDuration = mean(lying) * interval_duration))
