@@ -89,11 +89,17 @@ load_data <- function(input,
 
    # determine sampling interval in sec
 
-   ### --> here work needs to be done; helpful message should be rised in case of problems
+   ### --> here work needs to be done; helpful message should be raised in case of problems
 
    sInt_by_id <- private$dataDT[, .(sInt = unique(difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
 
-   private$sampInt <- as.difftime(sInt_by_id[, unique(sInt)], units = "secs")
+   freq_grid = 1 / c(1:1000)
+
+   round_to_freq_interv <- function(x) {sapply(x, function(x) freq_grid[which.min(abs(freq_grid - x))])}
+
+   sInt <- sInt_by_id[, round_to_freq_interv(sInt)]
+
+   private$sampInt <- unique(sInt)
 
    # --------------------------
 
