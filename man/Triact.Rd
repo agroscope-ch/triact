@@ -27,7 +27,7 @@ Analyses focus on the lying behaviour and on the cow's 'activity'.
 \item \href{#method-add_side}{\code{Triact$add_side()}}
 \item \href{#method-extract_liedown}{\code{Triact$extract_liedown()}}
 \item \href{#method-extract_standup}{\code{Triact$extract_standup()}}
-\item \href{#method-summarize_itervals}{\code{Triact$summarize_itervals()}}
+\item \href{#method-summarize_intervals}{\code{Triact$summarize_intervals()}}
 \item \href{#method-summarize_bouts}{\code{Triact$summarize_bouts()}}
 }
 }
@@ -56,7 +56,7 @@ A new `Triact` object.
 \if{latex}{\out{\hypertarget{method-load_data}{}}}
 
 \subsection{Method \code{load_data()}}{
-Import data from accelerometer data files from one or several cows to the 'Triact' object. Multiple files from same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: id_substring). Sampling frequency must be consistent across the files. Triaxial, biaxial and uniaxial axelerometer data are allowed, but only triaxial data corresponding to relative body coordinates allow full functionality.
+Import data from accelerometer data files from one or several cows to the 'Triact' object. Importing multiple files from the same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: id_substring). Sampling frequency must be consistent across the files. Triaxial, biaxial and uniaxial axelerometer data are allowed, but only triaxial data corresponding to relative body coordinates allow full functionality.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$load_data(
   input,
@@ -129,10 +129,10 @@ An integer indicating the number of files that are read in parallel. For \code{p
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-add_activity"></a>}}
 \if{latex}{\out{\hypertarget{method-add_activity}{}}}
-\subsection{Method \code{add_lying()}}{
-Calculate the cow's 'activity' and add it as column to the 'Triact' object. Activity is defined as the magnitude of the jerk vector, which is estimated from the acceleration vector by approximating the derivatives using the finit differences.
+\subsection{Method \code{add_activity()}}{
+Calculate the cow's 'activity' and add results as column to the 'Triact' object. Activity is defined as the magnitude of the jerk vector, which is estimated from the acceleration vector by approximating the derivatives using the finite differences.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(add_jerk = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Triact$add_activity(add_jerk = FALSE)}\if{html}{\out{</div>}}
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
@@ -151,7 +151,7 @@ A logical value that indicates whether the jerk vector (fwr_jerk, up_jerk, right
 \if{html}{\out{<a id="method-add_lying"></a>}}
 \if{latex}{\out{\hypertarget{method-add_lying}{}}}
 \subsection{Method \code{add_lying()}}{
-Classify data into lying and upright and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and upright) are uniquely numbered in column 'bout_id'. Classification procedures is composed of two steps: evaluating ‘up-acceleration < \code{crit_lie}’ followed by running median smoothing with window size \code{k}.
+Classify data into lying and standing and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and standing) are uniquely numbered in column 'bout_id'. Classification procedure is composed of two steps: evaluating ‘up-acceleration < \code{crit_lie}’ followed by running median smoothing with window size \code{k}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(crit_lie = 0.5, k = 121, check = TRUE)}\if{html}{\out{</div>}}
 
@@ -160,7 +160,7 @@ Classify data into lying and upright and add results as column ‘lying’ to th
 \describe{
 
 \item{\code{crit_lie}}{
-Up-acceleration threshold for classifying lying versus upright. \emph{Default:} \code{0.5}
+Up-acceleration threshold for classifying into lying and standing. \emph{Default:} \code{0.5}
 }
 
 \item{\code{k}}{
@@ -178,7 +178,7 @@ A logical value that indicates whether the data should be checked for possible i
 \if{html}{\out{<a id="method-add_side"></a>}}
 \if{latex}{\out{\hypertarget{method-add_side}{}}}
 \subsection{Method \code{add_side()}}{
-Classify lying bouts into left and right lying side and add results as column ‘side’ to the ‘Triact’ object. A lying bout is classified as 'L' (left) if 'Z-acceleration < crit_left' is predominantly true, otherwise it is classified as 'R' (right).
+Classify lying bouts into left and right lying side and add results as column ‘side’ to the ‘Triact’ object. A lying bout is classified as 'L' (left) if 'right-acceleration < crit_left' is predominantly true, otherwise it is classified as 'R' (right).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(crit_left = -0.5)}\if{html}{\out{</div>}}
 \subsection{Arguments}{
@@ -195,7 +195,7 @@ Classify lying bouts into left and right lying side and add results as column �
 \if{html}{\out{<a id="method-extract_liedown"></a>}}
 \if{latex}{\out{\hypertarget{method-extract_liedown}{}}}
 \subsection{Method \code{extract_liedown()}}{
-Extracts data associated with liedown events (upright-lying transitions). Operates in two modes, see \emph{Returns} section.
+Extracts data associated with liedown events (standing-to-lying transitions). Operates in two modes, see \emph{Returns} section.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$extract_liedown(sec_before = 0, sec_after = 0)}\if{html}{\out{</div>}}
 \subsection{Arguments}{
@@ -214,7 +214,7 @@ Until how many seconds after the liedown events data should be considered. \emph
 }
 \if{html}{\out{</div>}}
 \subsection{Returns}{
-With default settings, a table with one entry per liedown event, with timestamp and bout_id of the lying bout, plus lying side information (if available). With parameters sec_before and/or sec_after > 0, a list containing individual tables per liedown event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the liedown events.
+With default settings, a table with one entry per liedown event, with timestamp and bout_id of the lying bout, plus lying side information (if available). With parameters \code{sec_before} and/or \code{sec_after} > 0, a list containing individual tables per liedown event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the liedown events.
 }
 }
 
@@ -225,7 +225,7 @@ With default settings, a table with one entry per liedown event, with timestamp 
 \if{html}{\out{<a id="method-extract_standup"></a>}}
 \if{latex}{\out{\hypertarget{method-extract_standup}{}}}
 \subsection{Method \code{extract_standup()}}{
-Extracts data associated with standup events (lying-upright transitions). Operates in two modes, see \emph{Returns} section.
+Extracts data associated with standup events (lying-to-standing transitions). Operates in two modes, see \emph{Returns} section.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$extract_standup(sec_before = 0, sec_after = 0)}\if{html}{\out{</div>}}
 \subsection{Arguments}{
@@ -244,7 +244,7 @@ Until how many seconds after the standup events data should be considered. \emph
 }
 \if{html}{\out{</div>}}
 \subsection{Returns}{
-With default settings, a table with one entry per standup event, with timestamp and bout_id of the lying bout, plus lying side information (if available). With parameters sec_before and/or sec_after > 0, a list containing individual tables per standup event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the standup events.
+With default settings, a table with one entry per standup event, with timestamp and bout_id of the lying bout, plus lying side information (if available). With parameters \code{sec_before} and/or \code{sec_after} > 0, a list containing individual tables per standup event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the standup events.
 }
 }
 
@@ -252,12 +252,12 @@ With default settings, a table with one entry per standup event, with timestamp 
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-summarize_itervals"></a>}}
-\if{latex}{\out{\hypertarget{method-summarize_itervals}{}}}
-\subsection{Method \code{summarize_itervals()}}{
+\if{html}{\out{<a id="method-summarize_intervals"></a>}}
+\if{latex}{\out{\hypertarget{method-summarize_intervals}{}}}
+\subsection{Method \code{summarize_intervals()}}{
 Summarizes the data in the 'Triact' object by regular intervals.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_itervals(interval = "hour", lag_in_s = 0, duration_units = "mins")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_intervals(interval = "hour", lag_in_s = 0, duration_units = "mins")}\if{html}{\out{</div>}}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
@@ -284,14 +284,14 @@ A table summarizing the data in the 'Triact' object by interval. \cr\cr
 \if{html}{\out{<a id="method-summarize_bouts"></a>}}
 \if{latex}{\out{\hypertarget{method-summarize_bouts}{}}}
 \subsection{Method \code{summarize_bouts()}}{
-Summarizes the data in the 'Triact' object by lying/upright bouts.
+Summarizes the data in the 'Triact' object by lying/standing bouts.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_bouts(bout_type = "both", duration_units = "mins", calc_for_incomplete = FALSE)}\if{html}{\out{</div>}}
 }
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{bout_type}}{ Type of bout to be considered. Options are \code{"both"}, \code{"lying"}, and \code{"upright"}. \emph{Default:} \code{"both"}}
+\item{\code{bout_type}}{ Type of bout to be considered. Options are \code{"both"}, \code{"lying"}, and \code{"standing"}. \emph{Default:} \code{"both"}}
 \item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"}, and \code{"hours"}. \emph{Default:} \code{"mins"}}
 \item{\code{calc_for_incomplete}}{Logical indicating whether a complete summary should also be returned for the incompletely observed bouts (first and last bout for each cow). \emph{Default:} \code{FALSE}}
 }}

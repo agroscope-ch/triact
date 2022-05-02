@@ -117,7 +117,7 @@ extract_standup <- function(sec_before = 0, sec_after = 0) {
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-summarize_itervals <- function(interval = "hour", lag_in_s = 0, duration_units = "mins") {
+summarize_intervals <- function(interval = "hour", lag_in_s = 0, duration_units = "mins") {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assert_number(lag_in_s, finite = TRUE)
   checkmate::assert_choice(duration_units, c("secs", "mins", "hours"))
@@ -148,14 +148,14 @@ summarize_itervals <- function(interval = "hour", lag_in_s = 0, duration_units =
 summarize_bouts <- function(bout_type = "both", duration_units = "mins", calc_for_incomplete = FALSE) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
-  checkmate::assertChoice(bout_type, choices = c("both", "lying", "upright"))
+  checkmate::assertChoice(bout_type, choices = c("both", "lying", "standing"))
   checkmate::assert_choice(duration_units, c("secs", "mins", "hours"))
 
   bout_select <- if (bout_type == "both") {
     TRUE
   } else if (bout_type == "lying") {
     private$dataDT$lying
-  } else if (bout_type == "upright") {
+  } else if (bout_type == "standing") {
     !private$dataDT$lying
   }
 
