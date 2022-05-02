@@ -286,13 +286,14 @@ A table summarizing the data in the 'Triact' object by interval. \cr\cr
 \subsection{Method \code{summarize_bouts()}}{
 Summarizes the data in the 'Triact' object by lying/upright bouts.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_bouts(bout_type = "both", duration_units = "mins")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_bouts(bout_type = "both", duration_units = "mins", calc_for_incomplete = FALSE)}\if{html}{\out{</div>}}
 }
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{bout_type}}{\emph{Default:} \code{"both"}}
-\item{\code{duration_units}}{\emph{Default:} \code{"mins"}}
+\item{\code{bout_type}}{ Type of bout to be considered. Options are \code{"both"}, \code{"lying"}, and \code{"upright"}. \emph{Default:} \code{"both"}}
+\item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"}, and \code{"hours"}. \emph{Default:} \code{"mins"}}
+\item{\code{calc_for_incomplete}}{Logical indicating whether a complete summary should also be returned for the incompletely observed bouts (first and last bout for each cow). \emph{Default:} \code{FALSE}}
 }}
 }
 }
