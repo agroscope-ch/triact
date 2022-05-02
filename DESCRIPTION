@@ -1,7 +1,7 @@
 Package: triact2
 Type: Package
 Title: triact package for R: Analyzing the lying behavior of cows from accelerometer data
-Version: 0.1.0.9001
+Version: 0.1.0.9002
 Maintainer: Michael Simmler <michael.simmler@agroscope.admin.ch>
 Authors@R: 
     person("Michael", "Simmler", , "michael.simmler@agroscope.admin.com", role = c("aut", "cre"),
