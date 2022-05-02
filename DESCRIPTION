@@ -1,10 +1,12 @@
 Package: triact2
 Type: Package
-Title: Animal activity and lying bouts from triaxial (pedo)accelerometer data. 
+Title: triact package for R: Analyzing the lying behavior of cows from accelerometer data
 Version: 0.1.0.9001
-Author@R: person("Michael", "Simmler", email = "michael.simmler@agroscope.admin.ch", role = c("cre", "aut"))
 Maintainer: Michael Simmler <michael.simmler@agroscope.admin.ch>
-Description: Animal activity and lying bouts from triaxial (pedo)accelerometer data.
+Authors@R: 
+    person("Michael", "Simmler", , "michael.simmler@agroscope.admin.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-4095-4111"))
+Description: triact package for R: Analyzing the lying behavior of cows from accelerometer data
 License: GLP-3
 Encoding: UTF-8
 LazyData: true
@@ -15,10 +17,10 @@ Imports:
     checkmate (>= 2.0.0),
     lubridate (>= 1.7.10)
 Collate:
-    "methods.R"
-    "load_data.R"
-    "return_data.R"
-    "triact_class.R"
+    methods.R
+    load_data.R
+    return_data.R
+    triact_class.R
 Suggests: 
     rmarkdown,
     knitr

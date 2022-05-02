@@ -1,19 +1,15 @@
 \name{Triact}
 \alias{Triact}
-\title{R6 class for accelerometer data from cows}
+\title{R6 class for analyzing accelerometer data from cows}
 \description{
-R6 class for accelerometer data from cows
-
-}
-\details{
-An object for containing and analyzing triaxial accelerometer data from hind legs of cows.
-Analyses focus on standing and lying behaviour and activity of the cows.
+An object for containing and analyzing data from accelerometers attached to the leg of cows.
+Analyses focus on the lying behaviour and on the cow's 'activity'.
 }
 
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{data}}{Raw and classified accelerometer data. Modified by $load_data, $add_lying, $add_side methods.}
+\item{\code{data}}{Raw accelerometer data and derived information. Modified by $load_data and the $add_... methods}
 }
 \if{html}{\out{</div>}}
 }
@@ -26,12 +22,13 @@ Analyses focus on standing and lying behaviour and activity of the cows.
 \itemize{
 \item \href{#method-new}{\code{Triact$new()}}
 \item \href{#method-load_data}{\code{Triact$load_data()}}
+\item \href{#method-add_activity}{\code{Triact$add_activity()}}
 \item \href{#method-add_lying}{\code{Triact$add_lying()}}
 \item \href{#method-add_side}{\code{Triact$add_side()}}
 \item \href{#method-extract_liedown}{\code{Triact$extract_liedown()}}
 \item \href{#method-extract_standup}{\code{Triact$extract_standup()}}
-\item \href{#method-get_activity_by_iterval}{\code{Triact$get_activity_by_iterval()}}
-\item \href{#method-get_activity_by_bout}{\code{Triact$get_activity_by_bout()}}
+\item \href{#method-summarize_itervals}{\code{Triact$summarize_itervals()}}
+\item \href{#method-summarize_bouts}{\code{Triact$summarize_bouts()}}
 }
 }
 
@@ -59,19 +56,19 @@ A new `Triact` object.
 \if{latex}{\out{\hypertarget{method-load_data}{}}}
 
 \subsection{Method \code{load_data()}}{
-Import data from accelerometer files from one or several cows to the 'Triact' object. Multiple files from same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: id_substring).
+Import data from accelerometer data files from one or several cows to the 'Triact' object. Multiple files from same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: id_substring). Sampling frequency must be consistent across the files. Triaxial, biaxial and uniaxial axelerometer data are allowed, but only triaxial data corresponding to relative body coordinates allow full functionality.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$load_data(
   input,
   id_substring,
-  start_time = NULL,
-  end_time = NULL,
-  timeXYZ_cols = c(1, 2, 3, 4),
-  time_format = NULL,
-  tz = Sys.timezone(),
-  sep = "auto",
-  skip = "__auto__",
-  parallel = 1,
+  timeFwdUpRight_cols = c(1, 2, 3, 4),
+  time_format  = NULL,
+  tz           = Sys.timezone(),
+  start_time   = NULL,
+  end_time     = NULL,
+  sep          = "auto",
+  skip         = "__auto__",
+  parallel     = 1,
   ...
 )}
 \if{html}{\out{</div>}}
@@ -82,24 +79,15 @@ Import data from accelerometer files from one or several cows to the 'Triact' ob
 \describe{
 
 \item{\code{input}}{
-Name of a file or a directory containing the files, which the data are to be read from. If it does not contain an absolute path, the directory or file name is relative to the current working directory, \code{getwd()}.
+Specifies the input acceleration data files. Character vector with the name(s) of the file(s) or a directory containing the files (files can be in subdirectories). If it does not contain absolute paths, the directory or file name(s) are relative to the current working directory, \code{getwd()}.
 }
 
 \item{\code{id_substring}}{
-Character string containing a \link[=regex]{regular expression} (or character string) identifying the part in the file names representing the unique identifier of the cow. Alternatively, an integer vector identifying the substring by character position: c(first, last).
+Integer vector identifying the substring of the file names representing the unique identifier of the cows by character position: c(first, last), e.g, \code{c(1, 5)} for first to fifth character. Alternatively, a Perl-like \link[=regex]{regular expression} matching the substring.
 }
 
-\item{\code{start_time}}{
-Timestamp identifying the earliest data to keep, formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or other formats automatically tried by \link{as.POSIX*}. \emph{Default:} \code{NULL}
-}
-
-
-\item{\code{end_time}}{
-Timestamp identifying the latest data to keep, formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or other formats automatically tried by \link{as.POSIX*}. \emph{Default:} \code{NULL}
-}
-
-\item{\code{timeXYZ_cols}}{
-Integer vector specifying the columns containing the acceleratin time, and the X, Y, and Z axis acceleration data: c(time, X, Y, Z). \emph{Default:} \code{c(1, 2, 3, 4)}. Missing acceleration axes can be specified as \code{NA}
+\item{\code{timeFwdUpRight_cols}}{
+Integer vector specifying the columns containing the time, and the forward, up, and right axis acceleration data: c(time, fwd, up, right). \emph{Default:} \code{c(1, 2, 3, 4)}. Missing acceleration axes are specified as \code{NA}
 }
 
 \item{\code{time_format}}{
@@ -110,8 +98,18 @@ Character vector specifying the date-time format corresponding to the accelerati
 Character vector specifying the \link[=timezones]{time zone} \emph{Default:} \code{Sys.timezone()}
 }
 
+\item{\code{start_time}}{
+Time from which on the data should be considered. Formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or in another format automatically tried by \link{as.POSIX*}. \emph{Default:} \code{NULL}
+}
+
+
+\item{\code{end_time}}{
+Time up to which the data should be considered. Formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or in another format automatically tried by \link{as.POSIX*}. \emph{Default:} \code{NULL}
+}
+
+
 \item{\code{sep}}{
-The separator between columns in acceleration files. If "auto", it is automatically detected by \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{"auto"}
+The separator between columns in the acceleration data files. If "auto", it is automatically detected by \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{"auto"}
 }
 
 \item{\code{skip}}{
@@ -119,7 +117,7 @@ An integer indicating the number of lines to skip before reading data from the f
 }
 
 \item{\code{parallel}}{
-An integer indicating the number of files that are read in parallel. For \code{parallel > 1} the reading of the individual file is set to single-threaded to avoid nested parallelization. This behavior can be overwritten by passing \code{nThread} via \code{...}  argument, which is passed on to \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{1}
+An integer indicating the number of files that are read in parallel. For \code{parallel > 1} the reading of the individual file is set to single-threaded to avoid nested parallelization. This behavior can be overwritten by additionally passing \code{nThread} via \code{...}  argument, which is passed on to \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{1}
 }
 
 
@@ -129,10 +127,31 @@ An integer indicating the number of files that are read in parallel. For \code{p
 %% ------------------------------
 
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-add_activity"></a>}}
+\if{latex}{\out{\hypertarget{method-add_activity}{}}}
+\subsection{Method \code{add_lying()}}{
+Calculate the cow's 'activity' and add it as column to the 'Triact' object. Activity is defined as the magnitude of the jerk vector, which is estimated from the acceleration vector by approximating the derivatives using the finit differences.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(add_jerk = FALSE)}\if{html}{\out{</div>}}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+
+\item{\code{add_jerk}}{
+A logical value that indicates whether the jerk vector (fwr_jerk, up_jerk, right_jerk) should be added to the 'Triact' object. \emph{Default:} \code{FALSE}
+}
+
+}
+}}}
+
+
+%% ------------------------------
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-add_lying"></a>}}
 \if{latex}{\out{\hypertarget{method-add_lying}{}}}
 \subsection{Method \code{add_lying()}}{
-Classify data into lying and upright and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and upright) are uniquely numbered in column 'bout_id'. Classification procedures is composed of two steps: evaluating ‘Y-acceleration < \code{crit_lie}’ followed by running median smoothing with window size \code{k}.
+Classify data into lying and upright and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and upright) are uniquely numbered in column 'bout_id'. Classification procedures is composed of two steps: evaluating ‘up-acceleration < \code{crit_lie}’ followed by running median smoothing with window size \code{k}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(crit_lie = 0.5, k = 121, check = TRUE)}\if{html}{\out{</div>}}
 
@@ -141,7 +160,7 @@ Classify data into lying and upright and add results as column ‘lying’ to th
 \describe{
 
 \item{\code{crit_lie}}{
-Y-acceleration threshold for classifying lying versus upright. \emph{Default:} \code{0.5}
+Up-acceleration threshold for classifying lying versus upright. \emph{Default:} \code{0.5}
 }
 
 \item{\code{k}}{
@@ -149,7 +168,7 @@ Integer width of median window for smoothing; must be odd. \emph{Default:} \code
 }
 
 \item{\code{check}}{
-A logical value that indicates whether the data should be checked for possible incorrect mounting of the logger (180° turned) and corrected accordingly (negation of X and Y axis). \emph{Default:} \code{TRUE}}
+A logical value that indicates whether the data should be checked for possible incorrect mounting of the logger (180° turned in saggital plane) and corrected accordingly (negation of forward and upward axis). \emph{Default:} \code{TRUE}}
 }
 }}}
 
@@ -165,7 +184,7 @@ Classify lying bouts into left and right lying side and add results as column �
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{crit_left}}{Z-acceleration threshold for classifying lying on left versus right side. \emph{Default:} \code{-0.5}}
+\item{\code{crit_left}}{Right-acceleration threshold for classifying lying on left versus right side. \emph{Default:} \code{-0.5}}
 }}
 }
 
@@ -176,6 +195,7 @@ Classify lying bouts into left and right lying side and add results as column �
 \if{html}{\out{<a id="method-extract_liedown"></a>}}
 \if{latex}{\out{\hypertarget{method-extract_liedown}{}}}
 \subsection{Method \code{extract_liedown()}}{
+Extracts data associated with liedown events (upright-lying transitions). Operates in two modes, see \emph{Returns} section.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$extract_liedown(sec_before = 0, sec_after = 0)}\if{html}{\out{</div>}}
 \subsection{Arguments}{
@@ -183,18 +203,18 @@ Classify lying bouts into left and right lying side and add results as column �
 \describe{
 
 \item{\code{sec_before}}{
-\emph{Default:} \code{0}
+From how many seconds before the liedown events data should be considered. \emph{Default:} \code{0}
 }
 
 \item{\code{sec_after}}{
-\emph{Default:} \code{0}
+Until how many seconds after the liedown events data should be considered. \emph{Default:} \code{0}
 }
 
 }
 }
 \if{html}{\out{</div>}}
 \subsection{Returns}{
-A new `Person` object.
+With default settings, a table with one entry per liedown event, with timestamp and bout_id of the lying bout, plus lying side information (if available). With parameters sec_before and/or sec_after > 0, a list containing individual tables per liedown event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the liedown events.
 }
 }
 
@@ -205,6 +225,7 @@ A new `Person` object.
 \if{html}{\out{<a id="method-extract_standup"></a>}}
 \if{latex}{\out{\hypertarget{method-extract_standup}{}}}
 \subsection{Method \code{extract_standup()}}{
+Extracts data associated with standup events (lying-upright transitions). Operates in two modes, see \emph{Returns} section.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$extract_standup(sec_before = 0, sec_after = 0)}\if{html}{\out{</div>}}
 \subsection{Arguments}{
@@ -212,48 +233,71 @@ A new `Person` object.
 \describe{
 
 \item{\code{sec_before}}{
-\emph{Default:} \code{0}
+From how many seconds before the standup events data should be considered. \emph{Default:} \code{0}
 }
 
 \item{\code{sec_after}}{
-\emph{Default:} \code{0}
+Until how many seconds after the standup events data should be considered. \emph{Default:} \code{0}
 }
 
-}}
 }
-
-%% ------------------------------
-
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_activity_by_iterval"></a>}}
-\if{latex}{\out{\hypertarget{method-get_activity_by_iterval}{}}}
-\subsection{Method \code{get_activity_by_iterval()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Triact$get_activity_by_iterval(interval = "hour", lag_in_s = 0)}\if{html}{\out{</div>}}
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{interval}}{default: \code{"hour"}}
-\item{\code{lag_in_s}}{default: \code{0}}
-}}
+\if{html}{\out{</div>}}
+\subsection{Returns}{
+With default settings, a table with one entry per standup event, with timestamp and bout_id of the lying bout, plus lying side information (if available). With parameters sec_before and/or sec_after > 0, a list containing individual tables per standup event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the standup events.
+}
 }
 
 %% ------------------------------
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-get_activity_by_bout"></a>}}
-\if{latex}{\out{\hypertarget{method-get_activity_by_bout}{}}}
-\subsection{Method \code{get_activity_by_bout()}}{
+\if{html}{\out{<a id="method-summarize_itervals"></a>}}
+\if{latex}{\out{\hypertarget{method-summarize_itervals}{}}}
+\subsection{Method \code{summarize_itervals()}}{
+Summarizes the data in the 'Triact' object by regular intervals.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Triact$get_activity_by_bout(bout_type = "both")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_itervals(interval = "hour", lag_in_s = 0, duration_units = "mins")}\if{html}{\out{</div>}}
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{interval}}{Character string specifying the intervals to be analysed. Any unique English abbreviations as in \code{\link[=period]{lubridate::period}} are allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
+\item{\code{lag_in_s}}{Lag in seconds with respect to the full hour. \emph{Default:} \code{0}}
+\item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"} and \code{"hours"}. \emph{Default:} \code{"mins"}}
+}}
+\if{html}{\out{</div>}}
+\subsection{Returns}{
+A table summarizing the data in the 'Triact' object by interval. \cr\cr
+
+\strong{Note 1}: The \code{duration} column informs on the duration with data available. At the beginning and end of your data aquisition the interval might not be fully covered.\cr\cr
+
+\strong{Note 2}: The information contained in the table depends on the data you added to the 'Triact' object using the $add_... methods
+
+
+}
+}
+
+%% ------------------------------
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-summarize_bouts"></a>}}
+\if{latex}{\out{\hypertarget{method-summarize_bouts}{}}}
+\subsection{Method \code{summarize_bouts()}}{
+Summarizes the data in the 'Triact' object by lying/upright bouts.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_bouts(bout_type = "both", duration_units = "mins")}\if{html}{\out{</div>}}
 }
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{interval}}{default: \code{"hour"}}
-\item{\code{lag_in_s}}{default: \code{0}}
+\item{\code{bout_type}}{\emph{Default:} \code{"both"}}
+\item{\code{duration_units}}{\emph{Default:} \code{"mins"}}
 }}
 }
 }
+
+%% ------------------------------
+
+
+

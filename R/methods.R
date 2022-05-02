@@ -1,4 +1,32 @@
 # ----------------------------------------------------------------
+
+add_activity <- function(add_jerk = FALSE) {
+  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
+
+  private$dataDT[, delta_time := as.numeric(c(NA, difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
+
+  axis <- c(private$has_fwd, private$has_up, private$has_right)
+
+  private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] := lapply(.SD, function(x) {c(NA, diff(x)) / delta_time}),
+                 .SDcols = c("acc_fwd", "acc_up", "acc_right")[axis]]
+
+  private$dataDT[, delta_time := NULL]
+
+  private$dataDT[, activity := sqrt(rowSums(sapply(.SD, function(x) x^2))),
+                 .SDcols = c("jerk_fwd", "jerk_up", "jerk_right")[axis]]
+
+  if (!add_jerk) {
+
+    private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] := NULL]
+
+  }
+
+  private$has_activity <- TRUE
+
+  return(invisible(self))
+
+}
+# ----------------------------------------------------------------
 # ----------------------------------------------------------------
 add_lying <- function(crit_lie = 0.5, k = 121, check = TRUE) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
@@ -35,39 +63,9 @@ add_side <- function(crit_left = -0.5) {
   checkmate::assertTRUE(private$has_right, .var.name = "has right-axis acceleration?")
   checkmate::assertNumber(crit_left)
 
-  private$dataDT[, side := as.factor(if (lying[1] == 0) NA else if (median(acc_right < crit_left)) "L" else "R"), by = bout_nr]
+  private$dataDT[, side := as.factor(if(!lying[1]) NA else if (median(acc_right < crit_left)) "L" else "R"), by = .(id, bout_nr)]
 
   private$has_side <- TRUE
-
-  return(invisible(self))
-
-}
-
-# ----------------------------------------------------------------
-# ----------------------------------------------------------------
-
-add_activity <- function(add_jerk = FALSE) {
-  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
-
-  private$dataDT[, delta_time := as.numeric(c(NA, difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
-
-  axis <- c(private$has_fwd, private$has_up, private$has_right)
-
-  private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] := lapply(.SD, function(x) {c(NA, diff(x)) / delta_time}),
-                 .SDcols = c("acc_fwd", "acc_up", "acc_right")[axis]]
-
-  private$dataDT[, delta_time := NULL]
-
-  private$dataDT[, activity := sqrt(rowSums(sapply(.SD, function(x) x^2))),
-                 .SDcols = c("jerk_fwd", "jerk_up", "jerk_right")[axis]]
-
-  if (!add_jerk) {
-
-    private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] := NULL]
-
-  }
-
-  private$has_activity <- TRUE
 
   return(invisible(self))
 
@@ -84,7 +82,7 @@ extract_updown <- function(self, private, sec_before, sec_after, updown) { # int
   L <- switch(updown, "down" = FALSE, "up" = TRUE)
 
   private$dataDT[, switch := data.table::frollapply(lying, 2, function(i) {i[1] == L & i[2] == !L},
-                                                    align = if (L) "left" else "right"), by = id, ]
+                                                     align = if (L) "left" else "right"), by = id, ]
 
   updown_times <- private$dataDT[as.logical(switch), c("id", "time", "bout_nr", "side")]
 
@@ -147,7 +145,7 @@ summarize_itervals <- function(interval = "hour", lag_in_s = 0, duration_units =
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-summarize_bouts <- function(bout_type = "both", duration_units = "mins") {
+summarize_bouts <- function(bout_type = "both", duration_units = "mins", calc_for_incomplete = FALSE) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
   checkmate::assertChoice(bout_type, choices = c("both", "lying", "upright"))
@@ -176,6 +174,22 @@ summarize_bouts <- function(bout_type = "both", duration_units = "mins") {
   analysis <- private$dataDT[bout_select, {{minT <- min(time); maxT <- max(time)} # block prepares temp vars
                                            eval(col_calcs)},                      # this is returned
                              by = .(id, bout_nr)]
+
+  if (!calc_for_incomplete) {
+
+    analysis[, c("duration", "startTime", "endTime") := .(
+                 ifelse((bout_nr == 1) | (bout_nr == max(bout_nr)), NA, duration),
+                 ifelse((bout_nr == 1), NA, startTime),
+                 ifelse((bout_nr == max(bout_nr)), NA, endTime)),
+              by = id]
+
+    if (private$has_activity) {
+
+      analysis[, meanActivity := ifelse((bout_nr == 1) | (bout_nr == max(bout_nr)), NA, meanActivity), by = id]
+
+    }
+
+  }
 
   return(transform_table(analysis))
 }

@@ -1,18 +1,18 @@
 load_data <- function(input,
                       id_substring,
-                      start_time   = NULL,
-                      end_time     = NULL,
                       timeFwdUpRight_cols = c(1, 2, 3, 4),
                       time_format  = NULL,
                       tz           = Sys.timezone(),
+                      start_time   = NULL,
+                      end_time     = NULL,
                       sep          = "auto",
                       skip         = "__auto__",
                       parallel     = 1,
                       ...) {
 
    # list files if input is dir
-   if (dir.exists(input)) {
-      input <- list.files(input, full.names = TRUE)
+   if (dir.exists(input[1])) {
+      input <- list.files(input, full.names = TRUE, recursive = TRUE)
    }
 
    # extracts ID from file names
@@ -97,9 +97,12 @@ load_data <- function(input,
 
    round_to_freq_interv <- function(x) {sapply(x, function(x) freq_grid[which.min(abs(freq_grid - x))])}
 
-   sInt <- sInt_by_id[, round_to_freq_interv(sInt)]
+   sInt <- unique(sInt_by_id[, round_to_freq_interv(sInt)])
 
-   private$sampInt <- as.difftime(unique(sInt), units = "secs")
+   checkmate::assertNumber(sInt, finite = TRUE, lower = 0, null.ok = FALSE,  na.ok = FALSE,
+                           .var.name = "PROBLEM WITH YOUR SAMPLING FREQ - Maebe you use data with differrent freqs? Or your cow id is not unique?...")
+
+   private$sampInt <- as.difftime(sInt, units = "secs")
 
    # --------------------------
 
