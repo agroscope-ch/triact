@@ -22,6 +22,12 @@ load_data <- function(input,
       names(input) <- substring(basename(input), id_substring[1], id_substring[2])
    }
 
+   # extract math sign of accel cols to new var and strip it from timeFwdUpRigh_cols
+
+   acc_col_sign <- na.omit(sign(timeFwdUpRight_cols[-1]))
+
+   timeFwdUpRight_cols <- abs(timeFwdUpRight_cols)
+
    # prepare col names
    colnms <- c("time", "acc_fwd", "acc_up", "acc_right")[!is.na(timeFwdUpRight_cols)]
 
@@ -62,7 +68,17 @@ load_data <- function(input,
    }
 
    # ---------------------------
+   # Negation of the acceleration data (opposing direction)
+   # according to the math sign specified via the timeFwdUpRight_cols argument
 
+   expr <- str2lang(paste0("list(" ,
+                           paste(ifelse(acc_col_sign == -1, paste0("-", colnms[-1]), colnms[-1]),
+                                 collapse = ", "),
+                           ")"))
+
+   private$dataDT[, colnms[-1] := eval(expr)]
+
+   # ---------------------------
    private$dataDT[, id := as.factor(id)]
 
    private$dataDT <- private$dataDT[complete.cases(private$dataDT), ]

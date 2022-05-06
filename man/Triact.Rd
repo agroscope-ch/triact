@@ -87,7 +87,7 @@ Integer vector identifying the substring of the file names representing the uniq
 }
 
 \item{\code{timeFwdUpRight_cols}}{
-Integer vector specifying the columns containing the time, and the forward, up, and right axis acceleration data: c(time, fwd, up, right). \emph{Default:} \code{c(1, 2, 3, 4)}. Missing acceleration axes are specified as \code{NA}
+Integer vector specifying the columns containing the time, and the forward, up, and right axis acceleration data: c(time, fwd, up, right). Missing acceleration axes are specified as \code{NA}. A negative mathematical sign is used to indicate that the recorded data reflects the opposite direction (e.g., for backward acceleration, specify the forward acceleration column with a negative mathematical sign). \emph{Default:} \code{c(1, 2, 3, 4)}
 }
 
 \item{\code{time_format}}{
