@@ -22,7 +22,7 @@ load_data <- function(input,
       names(input) <- substring(basename(input), id_substring[1], id_substring[2])
    }
 
-   # extract math sign of accel cols to new var and strip it from timeFwdUpRigh_cols
+   # extract math sign of accel cols to new var and strip it from timeFwdUpRight_cols
 
    acc_col_sign <- na.omit(sign(timeFwdUpRight_cols[-1]))
 

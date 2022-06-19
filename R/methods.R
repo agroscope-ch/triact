@@ -57,11 +57,16 @@ add_lying <- function(crit_lie = 0.5, k = 121, check = TRUE) {
 
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
-add_side <- function(crit_left = -0.5) {
+
+add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5){
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
   checkmate::assertTRUE(private$has_right, .var.name = "has right-axis acceleration?")
+  if (missing(crit_left)) {checkmate::assertFlag(left_leg)}
   checkmate::assertNumber(crit_left)
+  if (!missing(crit_left) & !missing(left_leg)) {
+    warning("The argument 'left_leg' is ignored as argument 'crit_left' was provided.", call. = FALSE)
+  }
 
   private$dataDT[, side := as.factor(if(!lying[1]) NA else if (median(acc_right < crit_left)) "L" else "R"), by = .(id, bout_nr)]
 
@@ -142,7 +147,6 @@ summarize_intervals <- function(interval = "hour", lag_in_s = 0, duration_units 
   return(transform_table(analysis))
 }
 
-# ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
 summarize_bouts <- function(bout_type = "both", duration_units = "mins", calc_for_incomplete = FALSE) {
