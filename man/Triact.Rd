@@ -151,9 +151,9 @@ A logical value that indicates whether the jerk vector (fwr_jerk, up_jerk, right
 \if{html}{\out{<a id="method-add_lying"></a>}}
 \if{latex}{\out{\hypertarget{method-add_lying}{}}}
 \subsection{Method \code{add_lying()}}{
-Classify data into lying and standing and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and standing) are uniquely numbered in column 'bout_id'. Classification procedure is composed of two steps: evaluating ‘up-acceleration < \code{crit_lie}’ followed by running median smoothing with window size \code{k}.
+Classify data into lying and standing and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and standing) are uniquely numbered in column 'bout_id'. Classification procedure is composed of two steps: preliminary classification by evaluating ‘up-acceleration < \code{crit_lie}’ followed by majority filter with window size in seconds of \code{window_size}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(crit_lie = 0.5, k = 121, check = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(crit_lie = 0.5, window_size = 120, check = TRUE)}\if{html}{\out{</div>}}
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
@@ -163,8 +163,8 @@ Classify data into lying and standing and add results as column ‘lying’ to t
 Up-acceleration threshold for classifying into lying and standing. \emph{Default:} \code{0.5}
 }
 
-\item{\code{k}}{
-Integer width of median window for smoothing; must be odd. \emph{Default:} \code{121}
+\item{\code{window_size}}{
+Window size for majority filter in seconds \emph{Default:} \code{120}
 }
 
 \item{\code{check}}{

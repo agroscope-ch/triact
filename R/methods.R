@@ -28,11 +28,11 @@ add_activity <- function(add_jerk = FALSE) {
 }
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
-add_lying <- function(crit_lie = 0.5, k = 121, check = TRUE) {
+add_lying <- function(crit_lie = 0.5, window_size = 120, check = TRUE) {
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
   checkmate::assertNumber(crit_lie)
-  checkmate::assertInt(k, lower = 1)
+  checkmate::assertNumber(window_size, lower = 0, finite = TRUE)
   checkmate::assertFlag(check)
 
   # Check for correct mounting of logger
@@ -46,6 +46,10 @@ add_lying <- function(crit_lie = 0.5, k = 121, check = TRUE) {
               call. = FALSE)
     }
   }
+
+  # determine k
+  k <- round(window_size / as.numeric(private$sampInt, units = "seconds"), digits = 0)
+  k <- if ((k %% 2) == 0) k + 1 else k
 
   private$dataDT[, lying := as.logical(runmed(acc_up < crit_lie, k, endrule = "constant")), id]
   private$dataDT[, bout_nr := cumsum(c(1, diff(lying) != 0)), id]

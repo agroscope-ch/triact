@@ -118,7 +118,7 @@ load_data <- function(input,
    checkmate::assertNumber(sInt, finite = TRUE, lower = 0, null.ok = FALSE,  na.ok = FALSE,
                            .var.name = "PROBLEM WITH YOUR SAMPLING FREQ - Maebe you use data with differrent freqs? Or your cow id is not unique?...")
 
-   private$sampInt <- as.difftime(sInt, units = "secs")
+   private$sampInt <- as.numeric(sInt, units = "secs")
 
    # --------------------------
 
