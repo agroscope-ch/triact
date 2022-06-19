@@ -180,11 +180,12 @@ A logical value that indicates whether the data should be checked for possible i
 \subsection{Method \code{add_side()}}{
 Classify lying bouts into left and right lying side and add results as column ‘side’ to the ‘Triact’ object. A lying bout is classified as 'L' (left) if 'right-acceleration < crit_left' is predominantly true, otherwise it is classified as 'R' (right).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(crit_left = -0.5)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(left_leg, crit_left = if(left_leg) -0.5 else 0.5)}\if{html}{\out{</div>}}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{crit_left}}{Right-acceleration threshold for classifying lying on left versus right side. \emph{Default:} \code{-0.5}}
+\item{\code{left_leg}}{Logical indicating whether the loggers were attached to the left hind leg (\code{TRUE}) or to the right hind leg (\code{FALSE}). This information is used to choose the default value for \code{crit_left}. It is ignored if \code{crit_left} is specified by the user.}
+\item{\code{crit_left}}{Right-acceleration threshold for classifying lying on left versus right side. \emph{Default:} \code{-0.5} if \code{left_leg} is \code{TRUE}, else \code{0.5}}
 }}
 }
 
