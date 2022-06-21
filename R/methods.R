@@ -48,7 +48,7 @@ add_lying <- function(crit_lie = 0.5, window_size = 120, check = TRUE) {
   }
 
   # determine k
-  k <- round(window_size / as.numeric(private$sampInt, units = "seconds"), digits = 0)
+  k <- round(window_size / as.numeric(private$sampInt, units = "secs"), digits = 0)
   k <- if ((k %% 2) == 0) k + 1 else k
 
   private$dataDT[, lying := as.logical(runmed(acc_up < crit_lie, k, endrule = "constant")), id]
@@ -147,6 +147,32 @@ summarize_intervals <- function(interval = "hour", lag_in_s = 0, duration_units 
                                   interval_duration <- as.numeric(interval_duration)} # block prepares temp vars
                                  eval(col_calcs)},                                    # this is returned
                               by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s)]
+
+  # ---------------------------------------
+  # Experimental
+
+  bout_x_interval <- private$dataDT[, .(lying = unique(lying), duration_in_interval = difftime(maxT, minT) + private$sampInt),
+         by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s, bout_nr)]
+
+  # bout_x_interval <- private$dataDT[, .(lying = unique(lying), .N), by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s, bout_nr)]
+
+  # bout_x_interval[, total_N := sum(N), by = .(id, bout_nr)]
+
+  # bout_x_interval[, proportion_in_interval := N / total_N, by = .(id, bout_nr)]
+
+  bout_x_interval[self$summarize_bouts(bout_type = "both", duration_units = "secs", calc_for_incomplete = TRUE),
+                  c("duration", "meanActivity") := .(duration, meanActivity),
+                  on = .(id, bout_nr)]
+
+  # results <-
+  #   bout_x_interval[lying == TRUE,
+  #                   .(n_bouts = sum(proportion_in_interval),
+  #                     meanDuration = sum((duration * proportion_in_interval)) / sum(proportion_in_interval)),
+  #                   by = .(id, startTime)]
+
+
+
+  # return(list(bout_summary, boutNr_x_interval_freq, transform_table(analysis)))
 
   return(transform_table(analysis))
 }
