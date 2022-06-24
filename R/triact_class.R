@@ -14,7 +14,7 @@ Triact <- R6::R6Class("Triact",
     summarize_bouts = summarize_bouts
   ),
   private = list(dataDT = NULL,
-                 has_data = NULL,
+                 has_data = FALSE,
                  has_fwd = FALSE,
                  has_up = FALSE,
                  has_right = FALSE,

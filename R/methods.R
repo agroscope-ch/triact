@@ -20,7 +20,6 @@ add_activity <- function(add_jerk = FALSE) {
     private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] := NULL]
 
   }
-
   private$has_activity <- TRUE
 
   return(invisible(self))
@@ -126,20 +125,39 @@ extract_standup <- function(sec_before = 0, sec_after = 0) {
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 
-summarize_intervals <- function(interval = "hour", lag_in_s = 0, duration_units = "mins") {
+summarize_intervals <- function(interval = "hour",
+                                lag_in_s = 0,
+                                duration_units = "mins",
+                                bouts = FALSE,
+                                calc_for_incomplete = FALSE) {
+
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
-  checkmate::assert_number(lag_in_s, finite = TRUE)
-  checkmate::assert_choice(duration_units, c("secs", "mins", "hours"))
+  checkmate::assertNumber(lag_in_s, finite = TRUE)
+  checkmate::assertChoice(duration_units, c("secs", "mins", "hours"))
+  checkmate::assertFlag(bouts)
+  if (bouts & !private$has_lying) {
+    stop("Summary of bouts requested (bouts = TRUE) but lying data is missing. You need to call $add_lying() first.", call. = FALSE)
+    }
 
   col_calcs <- quote(list(centerTime = startTime + (lubridate::duration(interval) / 2),
-                       endTime = startTime + lubridate::duration(interval),
-                       duration = data_duration,
-                       meanActivity = mean(activity, na.rm = TRUE),
-                       standingDuration = mean(!lying) * data_duration,
-                       lyingDuration = mean(lying) * data_duration))
+                          endTime = startTime + lubridate::duration(interval),
+                          duration = data_duration,
+                          durationStanding = mean(!lying) * data_duration,
+                          durationLying = mean(lying) * data_duration,
+                          durationLyingLeft = mean(lying * (!is.na(side) & (side == "L"))) * data_duration,
+                          durationLyingRight = mean(lying * (!is.na(side) & (side == "R"))) * data_duration,
+                          meanActivity = mean(activity, na.rm = TRUE),
+                          meanActivityStanding = mean(activity[!lying], na.rm = TRUE),
+                          meanActivityLying = mean(activity[lying], na.rm = TRUE),
+                          meanActivityLyingLeft = mean(activity[(!is.na(side) & (side == "L"))], na.rm = TRUE),
+                          meanActivityLyingRight = mean(activity[(!is.na(side) & (side == "R"))], na.rm = TRUE))
+                     )
 
+  if (!private$has_lying) col_calcs[c("durationStanding", "durationLying")] <- NULL
+  if (!private$has_side) col_calcs[c("durationLyingLeft", "durationLyingRight")] <- NULL
   if (!private$has_activity) col_calcs["meanActivity"] <- NULL
-  if (!private$has_lying) col_calcs[c("standingDuration", "lyingDuration")] <- NULL
+  if (!private$has_activity | !private$has_lying) col_calcs[c("meanActivityStanding", "meanActivityLying")] <- NULL
+  if (!private$has_activity | !private$has_side) col_calcs[c("meanActivityLyingLeft", "meanActivityLyingRight")] <- NULL
 
   analysis <- private$dataDT[ , {{minT = min(time); maxT = max(time)
                                   data_duration <- difftime(maxT, minT) + private$sampInt
@@ -148,40 +166,74 @@ summarize_intervals <- function(interval = "hour", lag_in_s = 0, duration_units 
                                  eval(col_calcs)},                                    # this is returned
                               by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s)]
 
-  # ---------------------------------------
-  # Experimental
+  # --------
 
-  bout_x_interval <- private$dataDT[, .(lying = unique(lying), .N), by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s, bout_nr)]
+  if (bouts) {
 
-  bout_x_interval[, proportion_in_interval := N / sum(N), by = .(id, bout_nr)]
-
-  bout_x_interval[self$summarize_bouts(bout_type = "both", duration_units = "secs", calc_for_incomplete = TRUE),
-                  c("duration", "meanActivity") := .(duration, meanActivity),
-                  on = .(id, bout_nr)]
+    # test for lying separately and warn on top!
 
 
-  BxI_lyi_bout_analysis <- bout_x_interval[lying == TRUE,
-                                           .(N_lyingBouts = sum(proportion_in_interval),
-                                           meanLyingBoutDuration = sum((duration * proportion_in_interval)) / sum(proportion_in_interval)),
-                                           by = .(id, startTime)]
+    bout_x_interval <- private$dataDT[, .(lying = unique(lying), side = if(private$has_side) unique(side) else character(), N = .N),
+                                      by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s, bout_nr)]
 
-  BxI_std_bout_analysis <- bout_x_interval[lying == FALSE,
-                                           .(N_standingBouts = sum(proportion_in_interval),
-                                             meanStandingBoutDuration = sum((duration * proportion_in_interval)) / sum(proportion_in_interval)),
-                                           by = .(id, startTime)]
+    bout_x_interval[, proportion_in_interval := N / sum(N), by = .(id, bout_nr)]
 
+    bout_x_interval[self$summarize_bouts(bout_type = "both", duration_units = duration_units, calc_for_incomplete = calc_for_incomplete),
+                    boutDuration := duration,
+                    on = .(id, bout_nr)]
 
-  analysis[BxI_lyi_bout_analysis, c("N_lyingBouts", "meanLyingBoutDuration") := .(N_lyingBouts, meanLyingBoutDuration), on = .(id, startTime)]
+    col_calcs <- quote(list(nBoutsStanding = if (any(is.na(boutDuration[!lying]))) as.double(NA) else sum(proportion_in_interval[!lying]),
+                            nBoutsLying = if (any(is.na(boutDuration[lying]))) as.double(NA) else sum(proportion_in_interval[lying]),
+                            nBoutsLyingLeft = if (any(is.na(boutDuration[lying]))) as.double(NA) else sum(proportion_in_interval[lying & (!is.na(side) & (side == "L"))]),
+                            nBoutsLyingRight = if (any(is.na(boutDuration[lying]))) as.double(NA) else sum(proportion_in_interval[lying & (!is.na(side) & (side == "R"))]),
+                            wMeanDurationStandingBout = sum((boutDuration[!lying] * proportion_in_interval[!lying])) / sum(proportion_in_interval[!lying]),
+                            wMeanDurationLyingBout = sum((boutDuration[lying] * proportion_in_interval[lying])) / sum(proportion_in_interval[lying]),
+                            wMeanDurationLyingBoutLeft = sum((boutDuration[lying & (!is.na(side) & (side == "L"))] * proportion_in_interval[lying & (!is.na(side) & (side == "L"))])) / sum(proportion_in_interval[lying & (!is.na(side) & (side == "L"))]),
+                            wMeanDurationLyingBoutRight = sum((boutDuration[lying & (!is.na(side) & (side == "R"))] * proportion_in_interval[lying & (!is.na(side) & (side == "R"))])) / sum(proportion_in_interval[lying & (!is.na(side) & (side == "R"))]))
+                       )
 
-  analysis[BxI_std_bout_analysis, c("N_StandingBouts", "meanStandingBoutDuration") := .(N_standingBouts, meanStandingBoutDuration), on = .(id, startTime)]
+    if (!private$has_side) col_calcs[c("nBoutsLyingLeft", "nBoutsLyingRight", "wMeanDurationLyingBoutLeft", "wMeanDurationLyingBoutRight")] <- NULL
+
+    analysis[bout_x_interval[, eval(col_calcs), by = .(id, startTime)],
+             names(col_calcs)[-1] := mget(names(col_calcs)[-1]),
+             on = .(id, startTime)]
+
+  }
+
+  if (!calc_for_incomplete) {
+
+    cols <- colnames(analysis) %in% c("durationStanding",
+                                      "durationLying",
+                                      "durationLyingLeft",
+                                      "durationLyingRight",
+                                      "meanActivity",
+                                      "meanActivityStanding",
+                                      "meanActivityLying",
+                                      "meanActivityLyingLeft",
+                                      "meanActivityLyingRight",
+
+                                      "nBoutsStanding",
+                                      "nBoutsLying",
+                                      "nBoutsLyingLeft",
+                                      "nBoutsLyingRight",
+                                      "wMeanDurationStandingBout",
+                                      "wMeanDurationLyingBout",
+                                      "wMeanDurationLyingBoutLeft",
+                                      "wMeanDurationLyingBoutRight")
+
+    analysis[startTime %in% c(min(startTime), max(startTime)), colnames(analysis)[cols] := NA, by = id]
+
+  }
 
   return(transform_table(analysis))
-
 }
 
 # ----------------------------------------------------------------
 
-summarize_bouts <- function(bout_type = "both", duration_units = "mins", calc_for_incomplete = FALSE) {
+summarize_bouts <- function(bout_type = "both",
+                            duration_units = "mins",
+                            calc_for_incomplete = FALSE) {
+
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
   checkmate::assertChoice(bout_type, choices = c("both", "lying", "standing"))

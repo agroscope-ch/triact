@@ -256,25 +256,34 @@ With default settings, a table with one entry per standup event, with timestamp 
 \if{html}{\out{<a id="method-summarize_intervals"></a>}}
 \if{latex}{\out{\hypertarget{method-summarize_intervals}{}}}
 \subsection{Method \code{summarize_intervals()}}{
-Summarizes the data in the 'Triact' object by regular intervals.
+Summarizes the data  in the 'Triact' object, activity and lying behaviour, by regular intervals. The information contained in the output table depends on the analysis you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods. With \code{bout = TRUE} information on bouts per interval (number and mean bout duration) will be returned additionally.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_intervals(interval = "hour", lag_in_s = 0, duration_units = "mins")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_intervals(
+  interval = "hour",
+  lag_in_s = 0,
+  duration_units = "mins",
+  bouts = FALSE,
+  calc_for_incomplete = FALSE
+)}\if{html}{\out{</div>}}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{interval}}{Character string specifying the intervals to be analysed. Any unique English abbreviations as in \code{\link[=period]{lubridate::period}} are allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
 \item{\code{lag_in_s}}{Lag in seconds with respect to the full hour. \emph{Default:} \code{0}}
 \item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"} and \code{"hours"}. \emph{Default:} \code{"mins"}}
+\item{\code{bouts}}{Logical indicating whether information on bouts should be additionally summarized. \emph{Default:} \code{FALSE}}
+\item{\code{calc_for_incomplete}}{Logical indicating whether a complete summary should also be returned for the incompletely observed intervals (first and last interval for each cow) and for any parameter using information of incompletely observed bouts (first and last bout for each cow). Please note that these are ill-defined. \emph{Default:} \code{FALSE}}
 }}
 \if{html}{\out{</div>}}
 \subsection{Returns}{
-A table summarizing the data in the 'Triact' object by interval. \cr\cr
 
-\strong{Note 1}: The \code{duration} column informs on the duration with data available. At the beginning and end of your data aquisition the interval might not be fully covered.\cr\cr
+A table with summaries by interval (rows) containing all or some of the following information (see method description above). \cr\cr
 
-\strong{Note 2}: The information contained in the table depends on the data you added to the 'Triact' object using the $add_... methods
-
-
+\strong{\code{duration}}\cr Duration with data avaiable. At the start/end of the data for each cow the interval might not be fully covered!\cr\cr
+\strong{\code{duration...}}\cr Standing and (left/right) lying durations.\cr\cr
+\strong{\code{meanActivity...}}\cr Mean activity overall and during standing and (left/right) lying. \cr\cr
+\strong{\code{nBouts...}}\cr Number of standing and (left/right) lying bouts calculated as the sum of the proportions of the individual bouts in the respective interval, i.e., a bout completely in the interval contrubutes with 1, while a bout spanning more than one interval contributes <1 to this count.\cr\cr
+\strong{\code{wMeanDuration...}}\cr Weighted mean of the duration of standing and (left/right) lying bouts. The weights are the proportions of the individual bouts in the respective interval, i.e., the weight is 1 when fully in the interval and <1 for bouts spanning more than one interval.
 }
 }
 
@@ -285,7 +294,9 @@ A table summarizing the data in the 'Triact' object by interval. \cr\cr
 \if{html}{\out{<a id="method-summarize_bouts"></a>}}
 \if{latex}{\out{\hypertarget{method-summarize_bouts}{}}}
 \subsection{Method \code{summarize_bouts()}}{
-Summarizes the data in the 'Triact' object by lying/standing bouts.
+Summarizes the data in the 'Triact' object, activity and lying behaviour, by lying/standing bouts.The information contained in the output table depends on the analysis you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods.
+
+
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_bouts(bout_type = "both", duration_units = "mins", calc_for_incomplete = FALSE)}\if{html}{\out{</div>}}
 }
@@ -294,8 +305,12 @@ Summarizes the data in the 'Triact' object by lying/standing bouts.
 \describe{
 \item{\code{bout_type}}{ Type of bout to be considered. Options are \code{"both"}, \code{"lying"}, and \code{"standing"}. \emph{Default:} \code{"both"}}
 \item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"}, and \code{"hours"}. \emph{Default:} \code{"mins"}}
-\item{\code{calc_for_incomplete}}{Logical indicating whether a complete summary should also be returned for the incompletely observed bouts (first and last bout for each cow). \emph{Default:} \code{FALSE}}
+\item{\code{calc_for_incomplete}}{Logical indicating whether a complete summary should also be returned for the incompletely observed bouts (first and last bout for each cow). Please note that these are ill-defined. \emph{Default:} \code{FALSE}}
 }}
+}
+\if{html}{\out{</div>}}
+\subsection{Returns}{
+A table with summaries by bout (rows). Output depends on added analysis (see method description).
 }
 }
 
