@@ -4,4 +4,5 @@
 .Ruserdata
 inst/doc
 tests.R
-test2.R
+bouts_per_day_Madeleine.R
+replace_lubridate.R
