@@ -170,11 +170,9 @@ summarize_intervals <- function(interval = "hour",
 
   if (bouts) {
 
-    print(lubridate::duration(interval, units = "hours"))
-
-    if (lubridate::duration(interval, units = "hours") < 6) {
-      message("For meaningful analysis of bouts per interval (bouts == TRUE) you might want to consider a larger interval, i.e. interval = 'day'.")
-    }
+    # if (lubridate::duration(interval, units = "hours") < 6) {
+    #   message("For meaningful analysis of bouts per interval (bouts == TRUE) you might want to consider a larger interval, i.e. interval = 'day'.")
+    # }
 
     bout_x_interval <- private$dataDT[, .(lying = unique(lying), side = if (private$has_side) unique(side) else character(), N = .N),
                                       by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s, bout_nr)]
