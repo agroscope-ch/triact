@@ -1,3 +1,7 @@
+# ----------------------------------------------------------------
+# load_... methods of Triact class
+# ----------------------------------------------------------------
+
 load_data <- function(input,
                       id_substring,
                       timeFwdUpRight_cols = c(1, 2, 3, 4),

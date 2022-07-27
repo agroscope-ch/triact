@@ -16,11 +16,6 @@ Imports:
     parallel (>= 4.1.2),
     checkmate (>= 2.0.0),
     lubridate (>= 1.7.10)
-Collate:
-    methods.R
-    load_data.R
-    return_data.R
-    triact_class.R
 Suggests: 
     rmarkdown,
     knitr
