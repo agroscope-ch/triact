@@ -3,6 +3,4 @@
 .RData
 .Ruserdata
 inst/doc
-tests.R
-bouts_per_day_Madeleine.R
-replace_lubridate.R
+Triact_demo.Rmd
