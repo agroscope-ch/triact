@@ -2,6 +2,31 @@
 # load_... methods of Triact class
 # ----------------------------------------------------------------
 
+
+# determine sampling interval in sec
+
+### --> here work needs to be done; helpful message should be raised in case of problems
+
+determine_sampInt <- function(tbl) {
+
+  sInt_by_id <- tbl[, .(sInt = unique(difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
+
+  freq_grid = 1 / c(1:1000)
+
+  round_to_freq_interv <- function(x) {sapply(x, function(x) freq_grid[which.min(abs(freq_grid - x))])}
+
+  sInt <- unique(sInt_by_id[, round_to_freq_interv(sInt)])
+
+  checkmate::assertNumber(sInt, finite = TRUE, lower = 0, null.ok = FALSE,  na.ok = FALSE,
+                          .var.name = "PROBLEM WITH YOUR SAMPLING FREQ - Maebe you use data with differrent freqs? Or your cow id is not unique?...")
+
+  return(as.difftime(sInt, units = "secs"))
+
+}
+
+
+# ----------------------------------------------------------------
+
 load_data <- function(input,
                       id_substring,
                       timeFwdUpRight_cols = c(1, 2, 3, 4),
@@ -107,22 +132,7 @@ load_data <- function(input,
 
    # --------------------------
 
-   # determine sampling interval in sec
-
-   ### --> here work needs to be done; helpful message should be raised in case of problems
-
-   sInt_by_id <- private$dataDT[, .(sInt = unique(difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
-
-   freq_grid = 1 / c(1:1000)
-
-   round_to_freq_interv <- function(x) {sapply(x, function(x) freq_grid[which.min(abs(freq_grid - x))])}
-
-   sInt <- unique(sInt_by_id[, round_to_freq_interv(sInt)])
-
-   checkmate::assertNumber(sInt, finite = TRUE, lower = 0, null.ok = FALSE,  na.ok = FALSE,
-                           .var.name = "PROBLEM WITH YOUR SAMPLING FREQ - Maebe you use data with differrent freqs? Or your cow id is not unique?...")
-
-   private$sampInt <- as.difftime(sInt, units = "secs")
+   private$sampInt <- determine_sampInt(private$dataDT)
 
    # --------------------------
 
@@ -134,4 +144,22 @@ load_data <- function(input,
 
    return(invisible(self))
 }
+
+# ----------------------------------------------------------------
+
+load_table <- function(table) {
+
+  private$dataDT <- as.data.table(table)
+  private$sampInt <- determine_sampInt(private$dataDT)
+
+  # note availability of acceleration directions (for checks by other methods)
+  private$has_data <- checkmate::checkDataTable(private$dataDT, min.rows = 1)
+  private$has_fwd <- "acc_fwd" %in% colnames(private$dataDT)
+  private$has_up <- "acc_up" %in% colnames(private$dataDT)
+  private$has_right <- "acc_right" %in% colnames(private$dataDT)
+
+}
+
+
+
 
