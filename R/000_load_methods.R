@@ -39,6 +39,40 @@ load_data <- function(input,
                       parallel     = 1,
                       ...) {
 
+   # argument checks
+
+   assertColl <- checkmate::makeAssertCollection()
+
+   if (checkmate::testDirectory(input[1])) {
+      checkmate::assertDirectory(input, access = "r", add = assertColl)
+   } else if (checkmate::testFile(input[1])) {
+      checkmate::assertFile(input, access = "r", extension = c("csv", "tsv", "txt"), add = assertColl)
+   } else {
+      assertColl$push("'input' not found, must be directory or file names. See ?Triact")
+   }
+
+   if (checkmate::testNumeric(id_substring)) {
+      msg <- checkmate::checkIntegerish(id_substring, len = 2, sorted = TRUE,
+                                  any.missing = FALSE, lower = 1, add = assertColl)
+      if (!isTRUE(msg)) {
+         assertColl$push(paste0("Variable 'id_substring' as integer c(first, last): ", msg))
+      }
+   } else if (checkmate::testCharacter(id_substring)) {
+      msg <- checkmate::checkCharacter(id_substring, len = 1, min.chars = 1, all.missing = FALSE)
+      if (!isTRUE(msg)) {
+         assertColl$push(paste0("Variable 'id_substring' as character (Perl-like regex): ", msg))
+      }
+   } else {
+      "'id_substring' misspecified. See ?Triact"
+   }
+
+
+   # checkmate::assertIntegerish(timeFwdUpRight_cols, len = 4, lower = 1, all.missing = FALSE, unique = TRUE)
+
+   checkmate::reportAssertions(assertColl)
+
+
+
    # list files if input is dir
    if (dir.exists(input[1])) {
       input <- list.files(input, full.names = TRUE, recursive = TRUE)
