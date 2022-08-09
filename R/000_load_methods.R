@@ -27,7 +27,7 @@ determine_sampInt <- function(tbl) {
 
 # ----------------------------------------------------------------
 
-load_data <- function(input,
+load_files <- function(input,
                       id_substring,
                       timeFwdUpRight_cols = c(1, 2, 3, 4),
                       time_format  = NULL,
