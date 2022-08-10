@@ -24,6 +24,20 @@ determine_sampInt <- function(tbl) {
 
 }
 
+# ----------------------------------------------------------------
+
+# source: https://adv-r.hadley.nz/conditions.html
+stop_custom <- function(.subclass, message, call = NULL, ...) {
+   err <- structure(
+      list(
+         message = message,
+         call = call,
+         ...
+      ),
+      class = c(.subclass, "error", "condition")
+   )
+   stop(err)
+}
 
 # ----------------------------------------------------------------
 
@@ -53,7 +67,7 @@ load_files <- function(input,
 
    if (checkmate::testNumeric(id_substring)) {
       msg <- checkmate::checkIntegerish(id_substring, len = 2, sorted = TRUE,
-                                  any.missing = FALSE, lower = 1, add = assertColl)
+                                        any.missing = FALSE, lower = 1)
       if (!isTRUE(msg)) {
          assertColl$push(paste0("Variable 'id_substring' as integer c(first, last): ", msg))
       }
@@ -66,10 +80,17 @@ load_files <- function(input,
       "'id_substring' misspecified. See ?Triact"
    }
 
+   msg <- checkmate::checkIntegerish(timeFwdUpRight_cols, len = 4, lower = 1, all.missing = FALSE)
 
-   # checkmate::assertIntegerish(timeFwdUpRight_cols, len = 4, lower = 1, all.missing = FALSE, unique = TRUE)
+   if (!isTRUE(msg)) {
+      assertColl$push(paste0("Variable 'timeFwdUpRight_cols': ", msg))
+   } else if (is.na(timeFwdUpRight_cols[1])) {
+      assertColl$push("Variable 'timeFwdUpRight_cols': First element (time column) cannot be NA.")
+   }
 
    checkmate::reportAssertions(assertColl)
+
+
 
 
 
@@ -113,8 +134,19 @@ load_files <- function(input,
                   skip = skip,
                   header = FALSE), list(...))
 
-   read_file <- function(f, arguments) {
-      do.call(data.table::fread, c(list(file = f), arguments))
+   read_file <- function(f, arguments, tfo = time_format) {
+
+         file_dt <- do.call(data.table::fread, c(list(file = f), arguments))
+
+         if (!is.null(tfo)) {
+            file_dt[, time := lubridate::parse_date_time(time, orders = tfo,
+                                                         tz = tz, exact = TRUE, quiet = TRUE)]
+         }
+
+         if ((!lubridate::is.POSIXct(file_dt$time)) || (sum(is.na(file_dt$time)) > 0)) {
+            stop_custom("time_parse_error", basename(f))
+         }
+      return(file_dt)
    }
 
    # Note on parallelization: when parallel > 1 files are read in parallel via parLapply
@@ -125,10 +157,19 @@ load_files <- function(input,
       if (is.null(arguments$nThread)) arguments$nThread <- 1 # to avoid nested parallelization
       fread_cls <- parallel::makeCluster(parallel)
       on.exit(parallel::stopCluster(fread_cls))
-      private$dataDT <- data.table::rbindlist(parallel::parLapply(cl = fread_cls, input, read_file, arguments), idcol = "id")
+      dataList <- parallel::parLapply(cl = fread_cls, input,
+                                            function(f) tryCatch(read_file(f, arguments, time_format),
+                                                                 time_parse_error = identity))
    } else {
-      private$dataDT <- data.table::rbindlist(lapply(input, read_file, arguments), idcol = "id")
+      dataList <- lapply(input, function(f) tryCatch(read_file(f, arguments, time_format),
+                                                     time_parse_error = identity))
    }
+
+   tErrMsg <- unlist(dataList[vapply(dataList, is, logical(1), "time_parse_error")], use.names = FALSE)
+   if (!is.null(tErrMsg)) {
+      stop(paste0("Problem coersing time column to POSIXct for files: ", paste(tErrMsg, collapse = ", ")))
+   }
+   private$dataDT <- data.table::rbindlist(dataList, idcol = "id")
 
    # ---------------------------
    # Negation of the acceleration data (opposing direction)
@@ -149,11 +190,6 @@ load_files <- function(input,
    private$dataDT <- private$dataDT[!duplicated(private$dataDT), ]
 
    attr(private$dataDT$time, "tzone") <- tz
-
-   # conversion to POSIX in case of user supplied time_format
-   if (class(private$dataDT$time)[1] == "character") {
-      private$dataDT[, time := as.POSIXct(time, format = time_format, tz = tz)]
-   }
 
    # filter time range according to user-provided start and/or end time
    if (!is.null(start_time) && is.null(start_time)) {

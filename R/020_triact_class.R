@@ -7,7 +7,7 @@ Triact <- R6::R6Class("Triact",
     data = return_data
   ),
   public = list(
-    load_data = load_files,
+    load_files = load_files,
     load_table = load_table,
     add_lying = add_lying,
     add_lying2 = add_lying2,
