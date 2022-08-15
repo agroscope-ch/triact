@@ -9,7 +9,7 @@
 
 determine_sampInt <- function(tbl) {
    sInt_by_id <-
-      tbl[, .(sInt = unique(difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
+      tbl[, .(sInt = unique(difftime(time[-1], time[-length(time)],units = "secs"))), by = id]
 
    freq_grid = 1 / (1:1000)
 
@@ -26,12 +26,32 @@ determine_sampInt <- function(tbl) {
       lower = 0,
       null.ok = FALSE,
       na.ok = FALSE,
-      .var.name = "PROBLEM WITH YOUR SAMPLING FREQ - Maebe you use data with differrent freqs? Or your cow id is not unique?..."
+      .var.name = "PROBLEM WITH YOUR SAMPLING FREQ - Maebe you use data with
+        differrent freqs? Or your cow id is not unique?..."
    )
 
    return(as.difftime(sInt, units = "secs"))
 
 }
+
+
+# Idea for potential direct use in DT[i, j, by = id]
+
+determine_sampInt_NEU <- function(t_vect, intv_grid = 1 / (1:1000)) {
+
+  sInt = unique(difftime(t_vect[-1], t_vect[-length(t_vect)], units = "secs"))
+
+  if (length(sInt) > 1) {
+
+    sInt <- vapply(sInt,
+                   FUN = \(sInt) intv_grid[which.min(abs(intv_grid - sInt))],
+                   FUN.VALUE = numeric(1))
+  }
+
+  return(as.difftime(unique(sInt), units = "secs"))
+
+}
+
 
 # ----------------------------------------------------------------
 
@@ -44,7 +64,7 @@ stop_custom <- function(.subclass, message, call = NULL, ...) {
    stop(err)
 }
 
-# ----------------------------------------------------------------
+################################################################################
 
 load_files <- function(input,
                        id_substring,
@@ -57,10 +77,12 @@ load_files <- function(input,
                        skip         = "__auto__",
                        parallel     = 1,
                        ...) {
-   # argument checks
+
+   # argument checks -----------------------------------------------------------
 
    assertColl <- checkmate::makeAssertCollection()
 
+   # ---- input ----
    if (checkmate::testDirectory(input[1])) {
       checkmate::assertDirectory(input,
                                  access = "r",
@@ -76,6 +98,7 @@ load_files <- function(input,
       assertColl$push("'input' not found, must be directory or file names. See ?Triact")
    }
 
+   # ---- id_substring ----
    if (checkmate::testNumeric(id_substring)) {
       msg <- checkmate::checkIntegerish(
          id_substring,
@@ -107,6 +130,7 @@ load_files <- function(input,
       assertColl$push("'id_substring' misspecified. See ?Triact")
    }
 
+   # ---- timeFwdUpRight_cols ----
    msg <- checkmate::checkIntegerish(
       timeFwdUpRight_cols,
       len = 4,
@@ -120,10 +144,12 @@ load_files <- function(input,
       assertColl$push("Variable 'timeFwdUpRight_cols': First element (time column) cannot be NA.")
    }
 
+
+
    checkmate::reportAssertions(assertColl)
 
 
-
+   # new title  ----------------------------------------------------------------
 
 
    # list files if input is dir
