@@ -84,17 +84,22 @@ add_activity <- function(add_jerk = FALSE) {
 ##################################################################
 # EXPERIMENTAL
 
-add_lying2 <- function(crit_lie = 0.6, window_size_long = 120, window_size_short = 10, check = TRUE) {
+add_lying2 <- function(method = "simple", check = TRUE, ...) {
+
+  # argument checks ------------------------------------------------------------
+
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
-  checkmate::assertNumber(crit_lie)
-  checkmate::assertNumber(window_size_long, lower = 0, finite = TRUE)
-  checkmate::assertNumber(window_size_short, lower = 0, finite = TRUE)
+  #checkmate::assertNumber(crit_lie)
+  #checkmate::assertNumber(window_size_long, lower = 0, finite = TRUE)
+  #checkmate::assertNumber(window_size_short, lower = 0, finite = TRUE)
   checkmate::assertFlag(check)
 
-  # Check for correct mounting of logger
+  # check wrong mounting of logger and correct (180° turned in sagittal plane)--
+
   if (check) {
-    check <- parse(text = "sum(acc_up > crit_lie) < sum(acc_up < -1 * crit_lie)")
+    crit <- if (is.null(list(...)$crit_lie)) 0.5 else list(...)$crit_lie
+    check <- parse(text = "sum(acc_up > crit) < sum(acc_up < -1 * crit)")
     up_inverted <- private$dataDT[, .(test = eval(check)), id]
     if (any(up_inverted$test)) {
       private$dataDT[, c("acc_up", "acc_fwd") := if(eval(check)) .(-acc_up, -acc_fwd) else .(acc_up, acc_fwd), id]
@@ -104,22 +109,60 @@ add_lying2 <- function(crit_lie = 0.6, window_size_long = 120, window_size_short
     }
   }
 
-  # determine k
+  # determine lying (TRUE/FALSE) -----------------------------------------------
 
-  k_long <- round(window_size_long / as.numeric(private$sampInt, units = "secs"), digits = 0)
-  k_long <- if ((k_long %% 2) == 0) k_long + 1 else k_long
+  contr <- list(...)
 
-  k_short <- round(window_size_short / as.numeric(private$sampInt, units = "secs"), digits = 0)
-  k_short <- if ((k_short %% 2) == 0) k_short + 1 else k_short
+  # ---- method: simple ----
 
-  private$dataDT[, lying := {lying_short <- as.logical(runmed(acc_up < crit_lie, k_short, endrule = "constant"))
-                             lying_long  <- as.logical(runmed(acc_up < crit_lie, k_long, endrule = "constant"))
-                             ifelse(lying_long & !lying_short, lying_short, lying_long)}, id]
+  if (method == "simple") {
+
+    contr_defaults <- list(crit_lie = 0.6,
+                           window_size = 120)
+
+    if (is.null(contr$window_size)) contr$window_size <- contr_defaults$window_size
+    if (is.null(contr$crit_lie)) contr$crit_lie <- contr_defaults$crit_lie
+
+    # determine k
+    k <- round(contr$window_size / as.numeric(private$sampInt, units = "secs"), digits = 0)
+    k <- if ((k %% 2) == 0) k + 1 else k
+
+    private$dataDT[, lying := as.logical(runmed(acc_up < contr$crit_lie, k, endrule = "constant")), id]
+
+  # ---- method: double_focus ----
+
+  } else if (method == "double_focus") {
+
+    contr_defaults <- list(crit_lie = 0.6,
+                           window_size_long = 120,
+                           window_size_short = 10)
+
+    if (is.null(contr$crit_lie)) contr$crit_lie <- contr_defaults$crit_lie
+    if (is.null(contr$window_size_long)) contr$window_size_long <- contr_defaults$window_size_long
+    if (is.null(contr$window_size_short)) contr$window_size_short <- contr_defaults$window_size_short
+
+    k_long <- round(contr$window_size_long / as.numeric(private$sampInt, units = "secs"), digits = 0)
+    k_long <- if ((k_long %% 2) == 0) k_long + 1 else k_long
+
+    k_short <- round(contr$window_size_short / as.numeric(private$sampInt, units = "secs"), digits = 0)
+    k_short <- if ((k_short %% 2) == 0) k_short + 1 else k_short
+
+    private$dataDT[, lying := {lying_short <- as.logical(runmed(acc_up < contr$crit_lie, k_short, endrule = "constant"))
+                               lying_long  <- as.logical(runmed(acc_up < contr$crit_lie, k_long, endrule = "constant"))
+                               ifelse(lying_long & !lying_short, lying_short, lying_long)}, id]
+
+  }
+
+  # number lying/standing bouts ------------------------------------------------
 
   private$dataDT[, bout_nr := cumsum(c(1, diff(lying) != 0)), id]
+
+  # tidy -----------------------------------------------------------------------
+
   nco <- ncol(private$dataDT)
   data.table::setcolorder(private$dataDT, c(1:(nco - 2), nco, nco - 1))
   private$has_lying <- TRUE
+
   return(invisible(self))
 }
 
