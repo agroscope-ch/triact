@@ -84,16 +84,20 @@ add_activity <- function(add_jerk = FALSE) {
 ##################################################################
 # EXPERIMENTAL
 
+
 add_lying2 <- function(method = "simple", check = TRUE, ...) {
 
   # argument checks ------------------------------------------------------------
 
-  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
-  checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
-  #checkmate::assertNumber(crit_lie)
-  #checkmate::assertNumber(window_size_long, lower = 0, finite = TRUE)
-  #checkmate::assertNumber(window_size_short, lower = 0, finite = TRUE)
-  checkmate::assertFlag(check)
+  assertColl <- checkmate::makeAssertCollection()
+
+  checkmate::assertChoice(method,
+                          choices = c("simple", "double_focus"),
+                          add = TRUE)
+
+  # stuff missing...
+
+  checkmate::reportAssertions(assertColl)
 
   # check wrong mounting of logger and correct (180° turned in sagittal plane)--
 
