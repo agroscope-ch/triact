@@ -9,6 +9,7 @@ Triact <- R6::R6Class("Triact",
   public = list(
     load_files = load_files,
     load_table = load_table,
+    check_orientation = check_orientation,
     add_lying = add_lying,
     add_lying2 = add_lying2,
     add_side = add_side,

@@ -84,6 +84,33 @@ add_activity <- function(add_jerk = FALSE) {
 ##################################################################
 # EXPERIMENTAL
 
+check_orientation <- function(crit = 0.5) {
+
+  # argument checks ------------------------------------------------------------
+
+  checkmate::assertNumber(crit)
+
+  # check wrong mounting of logger and correct (180° turned in sagittal plane)--
+  check <- parse(text = "sum(acc_up > crit) < sum(acc_up < -1 * crit)")
+  up_inverted <- private$dataDT[, .(test = eval(check)), id]
+  if (any(up_inverted$test)) {
+
+    message("This function checks for a specific type of incorrect mounting of the potentiometer, namely accidental mounting rotated by 180° in the sagittal plane.")
+
+    warning(paste("For the IDs listed below the the logger seem to have been attached rotated:\n\n"
+                  , paste(up_inverted$id[up_inverted$test], collapse = ", ")),
+            call. = FALSE)
+    private$dataDT[, c("acc_up", "acc_fwd") := if(eval(check)) .(-acc_up, -acc_fwd) else .(acc_up, acc_fwd), id]
+    warning(paste("For the IDs listed below the upward- and forward-axis were automatically negated (multiplied by -1) because the data appeared to come from a logger that was mounted 180° rotated (see package documentation):\n\n"
+                  , paste(up_inverted$id[up_inverted$test], collapse = ", ")),
+            call. = FALSE)
+  }
+}
+
+
+
+
+
 
 add_lying2 <- function(method = "simple", check = TRUE, ...) {
 
@@ -98,20 +125,6 @@ add_lying2 <- function(method = "simple", check = TRUE, ...) {
   # stuff missing...
 
   checkmate::reportAssertions(assertColl)
-
-  # check wrong mounting of logger and correct (180° turned in sagittal plane)--
-
-  if (check) {
-    crit <- if (is.null(list(...)$crit_lie)) 0.5 else list(...)$crit_lie
-    check <- parse(text = "sum(acc_up > crit) < sum(acc_up < -1 * crit)")
-    up_inverted <- private$dataDT[, .(test = eval(check)), id]
-    if (any(up_inverted$test)) {
-      private$dataDT[, c("acc_up", "acc_fwd") := if(eval(check)) .(-acc_up, -acc_fwd) else .(acc_up, acc_fwd), id]
-      warning(paste("For the IDs listed below the upward- and forward-axis were automatically negated (multiplied by -1) because the data appeared to come from a logger that was mounted 180° rotated (see package documentation):\n\n"
-                    , paste(up_inverted$id[up_inverted$test], collapse = ", ")),
-              call. = FALSE)
-    }
-  }
 
   # determine lying (TRUE/FALSE) -----------------------------------------------
 
@@ -151,9 +164,9 @@ add_lying2 <- function(method = "simple", check = TRUE, ...) {
     k_short <- round(contr$window_size_short / as.numeric(private$sampInt, units = "secs"), digits = 0)
     k_short <- if ((k_short %% 2) == 0) k_short + 1 else k_short
 
-    private$dataDT[, lying := {lying_short <- as.logical(runmed(acc_up < contr$crit_lie, k_short, endrule = "constant"))
-                               lying_long  <- as.logical(runmed(acc_up < contr$crit_lie, k_long, endrule = "constant"))
-                               ifelse(lying_long & !lying_short, lying_short, lying_long)}, id]
+    private$dataDT[, lying := {lying_long  <- as.logical(runmed(acc_up < contr$crit_lie, k_long, endrule = "constant"))
+                               lying_short <- as.logical(runmed(acc_up < contr$crit_lie, k_short, endrule = "constant"))
+                               lying_long & lying_short}, id]
 
   }
 
