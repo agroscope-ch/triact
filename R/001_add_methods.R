@@ -116,15 +116,15 @@ add_lying2 <- function(method = "simple", check = TRUE, ...) {
 
   # argument checks ------------------------------------------------------------
 
-  assertColl <- checkmate::makeAssertCollection()
-
-  checkmate::assertChoice(method,
-                          choices = c("simple", "double_focus"),
-                          add = TRUE)
-
-  # stuff missing...
-
-  checkmate::reportAssertions(assertColl)
+  # assertColl <- checkmate::makeAssertCollection()
+  #
+  # checkmate::assertChoice(method,
+  #                         choices = c("simple", "double_focus"),
+  #                         add = TRUE)
+  #
+  # # stuff missing...
+  #
+  # checkmate::reportAssertions(assertColl)
 
   # determine lying (TRUE/FALSE) -----------------------------------------------
 
