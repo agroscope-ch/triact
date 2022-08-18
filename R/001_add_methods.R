@@ -9,18 +9,6 @@ add_lying <- function(crit_lie = 0.5, window_size = 120, check = TRUE) {
   checkmate::assertNumber(window_size, lower = 0, finite = TRUE)
   checkmate::assertFlag(check)
 
-  # Check for correct mounting of logger
-  if (check) {
-    check <- parse(text = "sum(acc_up > crit_lie) < sum(acc_up < -1 * crit_lie)")
-    up_inverted <- private$dataDT[, .(test = eval(check)), id]
-    if (any(up_inverted$test)) {
-      private$dataDT[, c("acc_up", "acc_fwd") := if(eval(check)) .(-acc_up, -acc_fwd) else .(acc_up, acc_fwd), id]
-      warning(paste("For the IDs listed below the upward- and forward-axis were automatically negated (multiplied by -1) because the data appeared to come from a logger that was mounted 180° rotated (see package documentation):\n\n"
-                    , paste(up_inverted$id[up_inverted$test], collapse = ", ")),
-              call. = FALSE)
-    }
-  }
-
   # determine k
   k <- round(window_size / as.numeric(private$sampInt, units = "secs"), digits = 0)
   k <- if ((k %% 2) == 0) k + 1 else k
