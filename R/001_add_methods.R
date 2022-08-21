@@ -21,6 +21,53 @@ add_lying <- function(crit_lie = 0.5, window_size = 120, check = TRUE) {
   return(invisible(self))
 }
 
+# -----------------------------------------
+
+add_lying3 <- function(crit_lie = 0.5,
+                       window_size = 10,
+                       minimum_lying = 60,
+                       minimum_standing = NULL) {
+  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
+  checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
+  checkmate::assertNumber(crit_lie)
+  checkmate::assertNumber(window_size, lower = 0, finite = TRUE)
+
+  # determine k
+  k <- round(window_size / as.numeric(private$sampInt, units = "secs"), digits = 0)
+  k <- if ((k %% 2) == 0) k + 1 else k
+
+  private$dataDT[, lying := as.logical(runmed(acc_up < crit_lie, k, endrule = "constant")), id]
+
+  if (!is.null(minimum_lying)) {
+    private$dataDT[, lying := if (lying[1] & difftime(time[.N], time[1], units = "secs") < minimum_lying) FALSE,
+                   by = .(id, cumsum(c(1, diff(lying) != 0)))]
+  }
+
+  if (!is.null(minimum_standing)) {
+    private$dataDT[, lying := if (!lying[1] & difftime(time[.N], time[1], units = "secs") < minimum_standing) TRUE,
+                   by = .(id, cumsum(c(1, diff(lying) != 0)))]
+  }
+
+  private$dataDT[, bout_nr := cumsum(c(1, diff(lying) != 0)), id]
+
+  nco <- ncol(private$dataDT)
+  data.table::setcolorder(private$dataDT, c(1:(nco - 2), nco, nco - 1))
+  private$has_lying <- TRUE
+  return(invisible(self))
+}
+
+# -----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 # ----------------------------------------------------------------
 
 add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5){
