@@ -23,10 +23,12 @@ add_lying <- function(crit_lie = 0.5, window_size = 120, check = TRUE) {
 
 # -----------------------------------------
 
-add_lying3 <- function(crit_lie = 0.5,
+add_lying4 <- function(crit_lie = 0.5,
                        window_size = 10,
-                       minimum_lying = 60,
-                       minimum_standing = NULL) {
+                       min_duration_lying = 60,
+                       max_median_activity_lying = 1.2, # needs a better name!
+                       min_duration_standing = NULL) {
+
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
   checkmate::assertNumber(crit_lie)
@@ -38,13 +40,17 @@ add_lying3 <- function(crit_lie = 0.5,
 
   private$dataDT[, lying := as.logical(runmed(acc_up < crit_lie, k, endrule = "constant")), id]
 
-  if (!is.null(minimum_lying)) {
-    private$dataDT[, lying := if (lying[1] & difftime(time[.N], time[1], units = "secs") < minimum_lying) FALSE,
+  if (!is.null(min_duration_lying) || !is.null(max_median_activity_lying)) {
+    private$dataDT[, lying := if (lying[1] && difftime(time[.N], time[1], units = "secs") < min_duration_lying) FALSE,
+                   by = .(id, cumsum(c(1, diff(lying) != 0)))]
+    private$dataDT[, lying := if (lying[1] && ((difftime(time[.N], time[1], units = "secs") < min_duration_lying) ||
+                                               (median(abs(diff(acc_up))) > max_median_activity_lying))
+                                 ) FALSE,
                    by = .(id, cumsum(c(1, diff(lying) != 0)))]
   }
 
-  if (!is.null(minimum_standing)) {
-    private$dataDT[, lying := if (!lying[1] & difftime(time[.N], time[1], units = "secs") < minimum_standing) TRUE,
+  if (!is.null(min_duration_standing)) {
+    private$dataDT[, lying := if (!lying[1] & difftime(time[.N], time[1], units = "secs") < min_duration_standing) TRUE,
                    by = .(id, cumsum(c(1, diff(lying) != 0)))]
   }
 
@@ -58,15 +64,39 @@ add_lying3 <- function(crit_lie = 0.5,
 
 # -----------------------------------------
 
+add_lying3 <- function(crit_lie = 0.5,
+                       window_size = 10,
+                       min_duration_lying = 30,
+                       min_duration_standing = NULL) {
 
+  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
+  checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
+  checkmate::assertNumber(crit_lie)
+  checkmate::assertNumber(window_size, lower = 0, finite = TRUE)
 
+  # determine k
+  k <- round(window_size / as.numeric(private$sampInt, units = "secs"), digits = 0)
+  k <- if ((k %% 2) == 0) k + 1 else k
 
+  private$dataDT[, lying := as.logical(runmed(acc_up < crit_lie, k, endrule = "constant")), id]
 
+  if (!is.null(min_duration_lying)) {
+    private$dataDT[, lying := if (lying[1] && difftime(time[.N], time[1], units = "secs") < min_duration_lying) FALSE,
+                   by = .(id, cumsum(c(1, diff(lying) != 0)))]
 
+  }
 
+  if (!is.null(min_duration_standing)) {
+    private$dataDT[, lying := if (!lying[1] & difftime(time[.N], time[1], units = "secs") < min_duration_standing) TRUE,
+                   by = .(id, cumsum(c(1, diff(lying) != 0)))]
+  }
 
+  private$dataDT[, bout_nr := cumsum(c(1, diff(lying) != 0)), id]
 
-
+  nco <- ncol(private$dataDT)
+  data.table::setcolorder(private$dataDT, c(1:(nco - 2), nco, nco - 1))
+  private$has_lying <- TRUE
+  return(invisible(self))
 
 # ----------------------------------------------------------------
 
