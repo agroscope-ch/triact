@@ -97,7 +97,7 @@ add_lying3 <- function(crit_lie = 0.5,
   data.table::setcolorder(private$dataDT, c(1:(nco - 2), nco, nco - 1))
   private$has_lying <- TRUE
   return(invisible(self))
-
+}
 # ----------------------------------------------------------------
 
 add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5){
