@@ -100,6 +100,59 @@ add_lying3 <- function(crit_lie = 0.5,
 }
 # ----------------------------------------------------------------
 
+# -----------------------------------------
+
+add_lying_butter <- function(crit_lie = 0.5,
+                             cutoff   = 0.1) {
+
+  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
+  checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
+  checkmate::assertNumber(crit_lie)
+  checkmate::assertNumber(cutoff, lower = 0, finite = TRUE)
+
+  # define Butterwoth filter
+
+  nyq = 0.5 * 1 / as.numeric(private$sampInt, units = "secs") # Nyquist frequency
+
+  normal_cutoff = cutoff / nyq #  Frequencies normalized to [0,1], corresponding to the range [0, Fs/2
+
+  order = 1
+
+  bf <- signal::butter(order, normal_cutoff, type = "low", plane = "z")
+
+  # ---------------
+
+  private$dataDT[, lying := signal::filtfilt(bf, acc_up) < crit_lie, id]
+
+  # if (!is.null(min_duration_lying)) {
+  #   private$dataDT[, lying := if (lying[1] && difftime(time[.N], time[1], units = "secs") < min_duration_lying) FALSE,
+  #                  by = .(id, cumsum(c(1, diff(lying) != 0)))]
+  #
+  # }
+  #
+  # if (!is.null(min_duration_standing)) {
+  #   private$dataDT[, lying := if (!lying[1] & difftime(time[.N], time[1], units = "secs") < min_duration_standing) TRUE,
+  #                  by = .(id, cumsum(c(1, diff(lying) != 0)))]
+  # }
+
+  private$dataDT[, bout_nr := cumsum(c(1, diff(lying) != 0)), id]
+
+  nco <- ncol(private$dataDT)
+  data.table::setcolorder(private$dataDT, c(1:(nco - 2), nco, nco - 1))
+  private$has_lying <- TRUE
+  return(invisible(self))
+}
+# ----------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
 add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5){
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
