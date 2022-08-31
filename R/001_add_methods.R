@@ -103,7 +103,7 @@ add_lying3 <- function(crit_lie = 0.5,
 # -----------------------------------------
 
 add_lying_butter <- function(crit_lie = 0.5,
-                             cutoff   = 0.1) {
+                             cutoff   = 0.01) {
 
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
@@ -122,7 +122,12 @@ add_lying_butter <- function(crit_lie = 0.5,
 
   # ---------------
 
-  private$dataDT[, lying := signal::filtfilt(bf, acc_up) < crit_lie, id]
+  #private$dataDT[, lying := signal::filtfilt(bf, acc_up) < crit_lie, id]
+
+  private$dataDT[, smooth := signal::filtfilt(bf, acc_up), id]
+
+  private$dataDT[, lying := smooth < crit_lie, id]
+
 
   # if (!is.null(min_duration_lying)) {
   #   private$dataDT[, lying := if (lying[1] && difftime(time[.N], time[1], units = "secs") < min_duration_lying) FALSE,

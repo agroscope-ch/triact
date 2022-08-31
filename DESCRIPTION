@@ -15,7 +15,7 @@ Imports:
     data.table (>= 1.14.0),
     parallel (>= 4.1.2),
     checkmate (>= 2.0.0),
-    lubridate (>= 1.7.10)
+    lubridate (>= 1.7.10),
     signal (>= 0.7-7)
 Suggests: 
     rmarkdown,
