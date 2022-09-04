@@ -102,62 +102,117 @@ add_lying3 <- function(crit_lie = 0.5,
 
 # -----------------------------------------
 
-add_lying_butter <- function(crit_lie = 0.5,
-                             cutoff   = 0.01,
-                             order = 1) {
+add_lying_butter <- function(filter_method = "median",
+                             crit_lie = 0.5,
+                             minimum_duration_lying,
+                             minimum_duration_standing,
+                             add_filtered = FALSE,
+                             ...) {
 
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
   checkmate::assertNumber(crit_lie)
-  checkmate::assertNumber(cutoff, lower = 0, finite = TRUE)
+  #checkmate::assertNumber(cutoff, lower = 0, finite = TRUE)
 
-  # define Butterworth low-pass filter
+  # list filter method's default values
 
-  nyq = 0.5 * 1 / as.numeric(private$sampInt, units = "secs") # Nyquist frequency
+  filterArgs_defaults <- list()
 
-  normal_cutoff = cutoff / nyq #  Frequencies normalized to [0,1], corresponding to the range [0, Fs/2
+  filterArgs_defaults["median"] = list(window_size = 10)
 
-  bf <- signal::butter(order, normal_cutoff, type = "low", plane = "z")
+  filterArgs_defaults["butter"] = list(cutoff = 0.01,
+                                       order = 1)
 
-  # wrapper around signal::filtfilt() that deals with artifacts at end/start
-  # vector to be filtered is padded with the reverse vector
-  fit_butter <- function(filter, x, max_n_pad) {
+  # get args for filter method passed via ... and complete with default values
 
-    n_pad <- if (length(x) < max_n_pad) length(x) else max_n_pad
+  filterArgs <- list(...)
 
-    return(signal::filtfilt(bf, c(rev(x[1:n_pad]), x, rev(x)[1:n_pad]))[(n_pad + 1):(length(x) + n_pad)])
+    for (arg in names(fArgs_defaults)) {
+      if (is.null(fArgs[[arg]])) {
+        fArgs[arg] <- fArgs_defaults[arg]
+      }
+    }
 
+  ## Step 1: filtering signal
+
+  if (method == "median") {
+
+    # determine k
+    k <- round(contr$window_size / as.numeric(private$sampInt, units = "secs"),
+               digits = 0)
+    k <- if ((k %% 2) == 0) k + 1 else k
+
+    private$dataDT[, acc_up_filtered := runmed(acc_up, k, endrule = "constant"), id]
+
+  } else if (method == "butter") {
+
+    # determine Nyquist freq
+    nyq = 0.5 * 1 / as.numeric(private$sampInt, units = "secs")
+
+    normal_cutoff = cutoff / nyq # freqs normalized to [0,1], where 1 is nyq
+
+    # define butterworth low-pass filter
+    bf <- signal::butter(order, normal_cutoff, type = "low", plane = "z")
+
+    # wrapper around signal::filtfilt() that deals with artifacts at end/start
+    # vector to be filtered is padded with the reverse vector
+    fit_butter <- function(filter, x, max_n_pad) {
+      np <- if (length(x) < max_n_pad) length(x) else max_n_pad
+      return(signal::filtfilt(bf, c(rev(x[1:np]), x, rev(x)[1:np]))[(np + 1):(length(x) + np)])
+    }
+
+    n_5min_pad <- round(5 * 60 / as.numeric(private$sampInt, units = "secs"))
+
+    private$dataDT[, acc_up_filtered := fit_butter(filter = bf,
+                                          x = acc_up,
+                                          max_n_pad = n_5min_pad), id]
   }
 
-  # ---------------
+  ## Step 2: thresholding (binarization)
 
-  n_5min_pad <- round(5 * 60 / as.numeric(private$sampInt, units = "secs"))
+  private$dataDT[, lying := acc_up_filtered < crit_lie, id]
 
-  private$dataDT[, smooth := fit_butter(filter = bf,
-                                        x = acc_up,
-                                        max_n_pad = n_5min_pad), id]
+  # Step 3: discard bouts shorter than minimum duration
 
-  private$dataDT[, lying := smooth < crit_lie, id]
+  if (!is.null(minimum_duration_lying)) {
+    private$dataDT[, lying := if (lying[1] && difftime(time[.N], time[1], units = "secs") < minimum_duration_lying) FALSE,
+                   by = .(id, cumsum(c(1, diff(lying) != 0)))]
+  }
+
+  if (!is.null(minimum_duration_standing)) {
+    private$dataDT[, lying := if (!lying[1] & difftime(time[.N], time[1], units = "secs") < minimum_duration_standing) TRUE,
+                   by = .(id, cumsum(c(1, diff(lying) != 0)))]
+  }
 
 
-  # if (!is.null(min_duration_lying)) {
-  #   private$dataDT[, lying := if (lying[1] && difftime(time[.N], time[1], units = "secs") < min_duration_lying) FALSE,
-  #                  by = .(id, cumsum(c(1, diff(lying) != 0)))]
-  #
-  # }
-  #
-  # if (!is.null(min_duration_standing)) {
-  #   private$dataDT[, lying := if (!lying[1] & difftime(time[.N], time[1], units = "secs") < min_duration_standing) TRUE,
-  #                  by = .(id, cumsum(c(1, diff(lying) != 0)))]
-  # }
+  # number bouts (uniquely per id)
 
   private$dataDT[, bout_nr := cumsum(c(1, diff(lying) != 0)), id]
 
-  nco <- ncol(private$dataDT)
-  data.table::setcolorder(private$dataDT, c(1:(nco - 2), nco, nco - 1))
+
+  ## tidy, update
+
+  # Order columns with lying information
+  l_cols <- c("bout_nr", "lying", "acc_up_filtered")
+  setcolorder(DT, c(colnames(DT)[!colnames(DT) %in% l_cols], l_cols))
+
+  # drop/keep filtered data
+  if (!add_filtered) {
+    private$dataDT[, acc_up_filtered := NULL]
+  }
+
+  # drop lying side data if present and warn user
+  if(private$has_side) {
+   private$dataDT[, side := NULL]
+   private$has_side <- FALSE
+   warning("Information on lying side removed. Please re-run $add_side().")
+  }
+
   private$has_lying <- TRUE
+
   return(invisible(self))
-}
+
+  }
 # ----------------------------------------------------------------
 
 
