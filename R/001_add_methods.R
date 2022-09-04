@@ -103,28 +103,39 @@ add_lying3 <- function(crit_lie = 0.5,
 # -----------------------------------------
 
 add_lying_butter <- function(crit_lie = 0.5,
-                             cutoff   = 0.01) {
+                             cutoff   = 0.01,
+                             order = 1) {
 
   checkmate::assertTRUE(private$has_data, .var.name = "has data?")
   checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
   checkmate::assertNumber(crit_lie)
   checkmate::assertNumber(cutoff, lower = 0, finite = TRUE)
 
-  # define Butterwoth filter
+  # define Butterworth low-pass filter
 
   nyq = 0.5 * 1 / as.numeric(private$sampInt, units = "secs") # Nyquist frequency
 
   normal_cutoff = cutoff / nyq #  Frequencies normalized to [0,1], corresponding to the range [0, Fs/2
 
-  order = 1
-
   bf <- signal::butter(order, normal_cutoff, type = "low", plane = "z")
+
+  # wrapper around signal::filtfilt() that deals with artifacts at end/start
+  # vector to be filtered is padded with the reverse vector
+  fit_butter <- function(filter, x, max_n_pad) {
+
+    n_pad <- if (length(x) < max_n_pad) length(x) else max_n_pad
+
+    return(signal::filtfilt(bf, c(rev(x[1:n_pad]), x, rev(x)[1:n_pad]))[(n_pad + 1):(length(x) + n_pad)])
+
+  }
 
   # ---------------
 
-  #private$dataDT[, lying := signal::filtfilt(bf, acc_up) < crit_lie, id]
+  n_5min_pad <- round(5 * 60 / as.numeric(private$sampInt, units = "secs"))
 
-  private$dataDT[, smooth := signal::filtfilt(bf, acc_up), id]
+  private$dataDT[, smooth := fit_butter(filter = bf,
+                                        x = acc_up,
+                                        max_n_pad = n_5min_pad), id]
 
   private$dataDT[, lying := smooth < crit_lie, id]
 
