@@ -104,8 +104,13 @@ add_lying3 <- function(crit_lie = 0.5,
 
 add_lying_butter <- function(filter_method = "median",
                              crit_lie = 0.5,
+<<<<<<< HEAD
                              minimum_duration_lying = 10,
                              minimum_duration_standing,
+=======
+                             minimum_duration_lying = 30,
+                             minimum_duration_standing = NULL,
+>>>>>>> 47da0115c3eb9a26352d42e630088536fb314c8a
                              add_filtered = FALSE,
                              ...) {
 
@@ -118,41 +123,43 @@ add_lying_butter <- function(filter_method = "median",
 
   filterArgs_defaults <- list()
 
-  filterArgs_defaults["median"] = list(window_size = 10)
+  filterArgs_defaults[["median"]] = list(window_size = 10)
 
-  filterArgs_defaults["butter"] = list(cutoff = 0.01,
-                                       order = 1)
+  filterArgs_defaults[["butter"]] = list(cutoff = 0.01,
+                                         order = 1)
 
   # get args for filter method passed via ... and complete with default values
 
-  filterArgs <- list(...)
+  fArgs <- list(...)
 
-    for (arg in names(fArgs_defaults)) {
-      if (is.null(fArgs[[arg]])) {
-        fArgs[arg] <- fArgs_defaults[arg]
-      }
+  for (a in names(filterArgs_defaults[[filter_method]])) {
+    if (is.null(fArgs[[a]])) {
+      fArgs[a] <- filterArgs_defaults[[filter_method]][a]
     }
+  }
+
+  print(fArgs)
 
   ## Step 1: filtering signal
 
-  if (method == "median") {
+  if (filter_method == "median") {
 
     # determine k
-    k <- round(contr$window_size / as.numeric(private$sampInt, units = "secs"),
+    k <- round(fArgs$window_size / as.numeric(private$sampInt, units = "secs"),
                digits = 0)
     k <- if ((k %% 2) == 0) k + 1 else k
 
     private$dataDT[, acc_up_filtered := runmed(acc_up, k, endrule = "constant"), id]
 
-  } else if (method == "butter") {
+  } else if (filter_method == "butter") {
 
     # determine Nyquist freq
     nyq = 0.5 * 1 / as.numeric(private$sampInt, units = "secs")
 
-    normal_cutoff = cutoff / nyq # freqs normalized to [0,1], where 1 is nyq
+    normal_cutoff = fArgs$cutoff / nyq # freqs normalized to [0,1], where 1 is nyq
 
     # define butterworth low-pass filter
-    bf <- signal::butter(order, normal_cutoff, type = "low", plane = "z")
+    bf <- signal::butter(fArgs$order, normal_cutoff, type = "low", plane = "z")
 
     # wrapper around signal::filtfilt() that deals with artifacts at end/start
     # vector to be filtered is padded with the reverse vector
@@ -193,8 +200,9 @@ add_lying_butter <- function(filter_method = "median",
   ## tidy, update
 
   # Order columns with lying information
-  l_cols <- c("bout_nr", "lying", "acc_up_filtered")
-  setcolorder(DT, c(colnames(DT)[!colnames(DT) %in% l_cols], l_cols))
+  co <- c("bout_nr", "lying", "acc_up_filtered")
+  co_ord <- c(colnames(private$dataDT)[!colnames(private$dataDT) %in% co], co)
+  setcolorder(private$dataDT, co_ord)
 
   # drop/keep filtered data
   if (!add_filtered) {
