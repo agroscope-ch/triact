@@ -104,8 +104,6 @@ add_lying3 <- function(crit_lie = 0.5,
 
 add_lying_butter <- function(filter_method = "median",
                              crit_lie = 0.5,
-                             minimum_duration_lying = 10,
-                             minimum_duration_standing,
                              minimum_duration_lying = 30,
                              minimum_duration_standing = NULL,
                              add_filtered = FALSE,
@@ -122,7 +120,7 @@ add_lying_butter <- function(filter_method = "median",
 
   filterArgs_defaults[["median"]] = list(window_size = 10)
 
-  filterArgs_defaults[["butter"]] = list(cutoff = 0.01,
+  filterArgs_defaults[["butter"]] = list(cutoff = 0.1,
                                          order = 1)
 
   # get args for filter method passed via ... and complete with default values
