@@ -104,13 +104,10 @@ add_lying3 <- function(crit_lie = 0.5,
 
 add_lying_butter <- function(filter_method = "median",
                              crit_lie = 0.5,
-<<<<<<< HEAD
                              minimum_duration_lying = 10,
                              minimum_duration_standing,
-=======
                              minimum_duration_lying = 30,
                              minimum_duration_standing = NULL,
->>>>>>> 47da0115c3eb9a26352d42e630088536fb314c8a
                              add_filtered = FALSE,
                              ...) {
 
