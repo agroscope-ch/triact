@@ -30,6 +30,16 @@ Triact <- R6::R6Class("Triact",
                  has_lying = FALSE,
                  has_side = FALSE,
                  has_activity = FALSE,
-                 sampInt = NA
+                 sampInt = NA,
+                 # fix deep cloning R6 with reference type objects (here dataDT)
+                 # gets invoked when x$clone(deep=TRUE) is called
+                 # see https://r6.r-lib.org/articles/Introduction.html
+                 deep_clone = function(name, value) {
+                   if (name == "dataDT") {
+                     return(data.table::copy(value))
+                   } else {
+                     return(value)
+                   }
+                 }
   )
 )
