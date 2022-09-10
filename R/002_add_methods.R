@@ -146,12 +146,12 @@ add_activity <- function(add_jerk = FALSE) {
 
   axis <- c(private$has_fwd, private$has_up, private$has_right)
 
-  private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] := lapply(.SD, function(x) {c(NA, diff(x)) / delta_time}),
+  private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] := lapply(.SD, \(x) {c(NA, diff(x)) / delta_time}),
                  .SDcols = c("acc_fwd", "acc_up", "acc_right")[axis]]
 
   private$dataDT[, delta_time := NULL]
 
-  private$dataDT[, activity := sqrt(rowSums(sapply(.SD, function(x) x^2))),
+  private$dataDT[, activity := sqrt(rowSums(sapply(.SD, \(x) x^2))),
                  .SDcols = c("jerk_fwd", "jerk_up", "jerk_right")[axis]]
 
   if (!add_jerk) {
