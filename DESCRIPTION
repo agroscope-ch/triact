@@ -10,14 +10,15 @@ Description: triact package for R: Analyzing the lying behavior of cows from acc
 License: GLP-3
 Encoding: UTF-8
 LazyData: true
+Depends: R (>= 4.1)
 Imports: 
-    R6(>= 2.5.0),
+    R6 (>= 2.5.0),
     data.table (>= 1.14.0),
     parallel (>= 4.1.2),
     checkmate (>= 2.0.0),
-    lubridate (>= 1.7.10),
-    signal (>= 0.7-7)
+    lubridate (>= 1.7.10)
 Suggests: 
+    signal (>= 0.7-7),
     rmarkdown,
     knitr
 VignetteBuilder: knitr
