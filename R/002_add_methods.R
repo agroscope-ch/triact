@@ -1,6 +1,6 @@
-# ----------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # add_... methods of Triact class
-# ----------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 ################################################################################
 
@@ -138,7 +138,8 @@ add_lying <- function(filter_method = "median",
     # vector to be filtered is padded with the reverse vector
     fit_butter <- function(filter, x, max_n_pad) {
       np <- if (length(x) < max_n_pad) length(x) else max_n_pad
-      return(signal::filtfilt(bf, c(rev(x[1:np]), x, rev(x)[1:np]))[(np + 1):(length(x) + np)])
+      return(signal::filtfilt(bf, c(rev(x[1:np]), x,
+                                    rev(x)[1:np]))[(np + 1):(length(x) + np)])
     }
 
     n_5min_pad <- round(5 * 60 / as.numeric(private$sampInt, units = "secs"))
@@ -155,12 +156,20 @@ add_lying <- function(filter_method = "median",
   # Step 3: discard bouts shorter than minimum duration
 
   if (!is.null(minimum_duration_lying)) {
-    private$dataDT[, lying := if (lying[1] && difftime(time[.N], time[1], units = "secs") < minimum_duration_lying) FALSE,
+    private$dataDT[, lying :=
+                     if (lying[1] && difftime(time[.N], time[1], units = "secs")
+                         < minimum_duration_lying) {
+                       FALSE
+                       },
                    by = .(id, cumsum(c(1, diff(lying) != 0)))]
   }
 
   if (!is.null(minimum_duration_standing)) {
-    private$dataDT[, lying := if (!lying[1] & difftime(time[.N], time[1], units = "secs") < minimum_duration_standing) TRUE,
+    private$dataDT[, lying :=
+                     if (!lying[1] & difftime(time[.N], time[1], units = "secs")
+                         < minimum_duration_standing) {
+                       TRUE
+                     },
                    by = .(id, cumsum(c(1, diff(lying) != 0)))]
   }
 
@@ -183,7 +192,7 @@ add_lying <- function(filter_method = "median",
   }
 
   # drop lying side data if present and warn user
-  if(private$has_side) {
+  if (private$has_side) {
    private$dataDT[, side := NULL]
    private$has_side <- FALSE
    warning("Information on lying side removed. Please re-run $add_side().")

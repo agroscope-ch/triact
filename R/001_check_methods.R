@@ -1,3 +1,8 @@
+# ------------------------------------------------------------------------------
+# check_... methods of Triact class
+# ------------------------------------------------------------------------------
+
+################################################################################
 
 check_orientation <- function(crit = 0.5) {
 
@@ -5,20 +10,56 @@ check_orientation <- function(crit = 0.5) {
 
   checkmate::assertNumber(crit)
 
-  # check wrong mounting of logger and correct (180° turned in sagittal plane)--
+  # check for 180° rotation in sag ital plain ----------------------------------
   check <- parse(text = "sum(acc_up > crit) < sum(acc_up < -1 * crit)")
+
   up_inverted <- private$dataDT[, .(test = eval(check)), id]
+
+  # correct and remove (previously added) analyses if dependent ----------------
+
+  message("This method checks for potential incorrect mounted accelerometers, rotated 180° in the sagital plane.\n")
+
   if (any(up_inverted$test)) {
 
-    message("This function checks for a specific type of incorrect mounting of the potentiometer, namely accidental mounting rotated by 180° in the sagittal plane.")
+    message(paste("For the IDs listed below the accelerometers seem to have been attached rotated:\n"
+                  , paste(up_inverted$id[up_inverted$test], collapse = ", "), "\n"))
 
-    warning(paste("For the IDs listed below the the logger seem to have been attached rotated:\n\n"
-                  , paste(up_inverted$id[up_inverted$test], collapse = ", ")),
-            call. = FALSE)
-    private$dataDT[, c("acc_up", "acc_fwd") := if(eval(check)) .(-acc_up, -acc_fwd) else .(acc_up, acc_fwd), id]
-    warning(paste("For the IDs listed below the upward- and forward-axis were automatically negated (multiplied by -1) because the data appeared to come from a logger that was mounted 180° rotated (see package documentation):\n\n"
-                  , paste(up_inverted$id[up_inverted$test], collapse = ", ")),
-            call. = FALSE)
+    message("Should the upward and forward axis be negative (multiplied by -1) to correct?")
+
+    ans <- NA
+    while (!ans %in% c(0, 1)) {
+      ans <- suppressWarnings(as.numeric(readline("0: no, 1: yes ")))
+    }
+
+    if (ans) {
+      private$dataDT[, c("acc_up", "acc_fwd") :=
+                       if(eval(check)) .(-acc_up, -acc_fwd) else .(acc_up, acc_fwd), id]
+
+      message("Correction done!")
+
+      if (private$has_lying) {
+        suppressWarnings(
+          private$dataDT[, c("bout_nr", "lying", "acc_up_filtered") := NULL])
+        private$has_lying <- FALSE
+        warning("Information on lying bouts removed. Please re-run $add_lying().",
+                call. = FALSE)
+      }
+
+      if (private$has_side) {
+        private$dataDT[, side := NULL]
+        private$has_side <- FALSE
+        warning("Information on lying side removed. Please re-run $add_side().",
+                call. = FALSE)
+      }
+
+      if ("jerk_up" %in% colnames(private$dataDT)) {
+        private$dataDT[, c("jerk_up", "jerk_fwd", "jerk_right") := NULL]
+        warning("Information on jerk removed. Please re-run $add_activity(add_jerk = TRUE).",
+                call. = FALSE)
+      }
+    }
+  } else{
+    message("No incorrectly mounted accelerometers found.")
   }
 }
 
