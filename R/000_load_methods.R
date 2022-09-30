@@ -305,28 +305,14 @@ load_files <- function(input,
 
    private$sampInt <- determine_sampInt(private$dataDT)
 
-   # --------------------------
-
-   # note availability of acceleration directions (for checks by other methods)
-   private$has_data <- checkmate::checkDataTable(private$dataDT)
-   private$has_fwd <- "acc_fwd" %in% colnames(private$dataDT)
-   private$has_up <- "acc_up" %in% colnames(private$dataDT)
-   private$has_right <- "acc_right" %in% colnames(private$dataDT)
-
    return(invisible(self))
 }
 
 # ----------------------------------------------------------------
 
 load_table <- function(table) {
-   private$dataDT <- as.data.table(table)
-   private$sampInt <- determine_sampInt(private$dataDT)
 
-   # note availability of acceleration directions (for checks by other methods)
-   private$has_data <-
-      checkmate::checkDataTable(private$dataDT, min.rows = 1)
-   private$has_fwd <- "acc_fwd" %in% colnames(private$dataDT)
-   private$has_up <- "acc_up" %in% colnames(private$dataDT)
-   private$has_right <- "acc_right" %in% colnames(private$dataDT)
+  private$dataDT <- as.data.table(table)
+  private$sampInt <- determine_sampInt(private$dataDT)
 
 }

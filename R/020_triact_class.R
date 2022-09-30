@@ -13,20 +13,16 @@ Triact <- R6::R6Class("Triact",
     add_lying = add_lying,
     add_side = add_side,
     add_activity = add_activity,
+    add_activity2 = add_activity2,
     extract_liedown = extract_liedown,
     extract_standup = extract_standup,
     summarize_intervals = summarize_intervals,
     summarize_bouts = summarize_bouts
   ),
   private = list(dataDT = NULL,
-                 has_data = FALSE,
-                 has_fwd = FALSE,
-                 has_up = FALSE,
-                 has_right = FALSE,
-                 has_lying = FALSE,
-                 has_side = FALSE,
-                 has_activity = FALSE,
                  sampInt = NA,
+                 has = has,
+                 filter_acc = filter_acc,
                  # fix deep cloning R6 with reference type objects (here dataDT)
                  # gets invoked when x$clone(deep=TRUE) is called
                  # see https://r6.r-lib.org/articles/Introduction.html

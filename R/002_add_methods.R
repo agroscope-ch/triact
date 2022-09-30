@@ -13,27 +13,16 @@ add_lying <- function(filter_method = "median",
 
   # check prerequisites --------------------------------------------------------
 
-  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
-  checkmate::assertTRUE(private$has_up, .var.name = "has upward acceleration?")
-
-  # collect "..." arguments to be past to filter method ------------------------
-  # and complete with default values
-
-  fArgs <- list(...)
-
-  fArgsDef <- list()
-
-  if (filter_method == "median") {
-
-    fArgsDef <- list(window_size = 10) # Defaults for "median"
-
-  } else if (filter_method == "butter") {
-
-    fArgsDef <- list(cutoff = 0.1, # Defaults for "butter"
-                     order = 1)
+  if (!private$has("data")) {
+    stop("No accelerometer data found.
+         Import data using methods $load_files() or $load_table().",
+         call. = FALSE)
   }
 
-  fArgs <- c(fArgs, fArgsDef[!names(fArgsDef) %in% names(fArgs)])
+  if (!private$has("acc_up")) {
+    stop("Lying data is missing. You need to call $add_lying() first.",
+         call. = FALSE)
+  }
 
   # argument checks ------------------------------------------------------------
 
@@ -64,49 +53,6 @@ add_lying <- function(filter_method = "median",
   checkmate::assertFlag(add_filtered,
                         add = assertColl)
 
-  # ---- check "..." arguments ----
-
-  if (filter_method == "median" && (length(fArgs) > 0)) {
-
-    checkmate::assertNames(names(fArgs),
-                           type = "unique",
-                           subset.of = names(fArgsDef),
-                           add = assertColl,
-                           what = "arguments for filter_method 'median'",
-                           .var.name = "...")
-
-    checkmate::assertNumber(fArgs$window_size,
-                            lower = 0,
-                            add = assertColl,
-                            .var.name = "window_size")
-
-
-  } else if (filter_method == "butter" && (length(fArgs) > 0)) {
-
-    checkmate::assertNames(names(fArgs),
-                           type = "unique",
-                           subset.of = names(fArgsDef),
-                           add = assertColl,
-                           what = "arguments for filter_method 'butter'",
-                           .var.name = "...")
-
-    if ("cutoff" %in% names(fArgs)) {
-      checkmate::assertNumber(fArgs$cutoff,
-                              lower = 0,
-                              # Nyquist freq
-                              upper = 0.5 * 1 / as.numeric(private$sampInt,
-                                                            units = "secs"),
-                              add = assertColl,
-                              .var.name = "cutoff")
-    }
-
-    if ("order" %in% names(fArgs)) {
-      checkmate::assertInt(fArgs$order,
-                           lower = 1,
-                           add = assertColl,
-                           .var.name = "order")
-    }
-  }
 
   checkmate::reportAssertions(assertColl)
 
@@ -115,43 +61,13 @@ add_lying <- function(filter_method = "median",
 
   ## Step 1: filtering signal
 
-  if (filter_method == "median") {
-
-    # determine k
-    k <- round(fArgs$window_size / as.numeric(private$sampInt, units = "secs"),
-               digits = 0)
-    k <- if ((k %% 2) == 0) k + 1 else k
-
-    private$dataDT[, acc_up_filtered := runmed(acc_up, k, endrule = "constant"), id]
-
-  } else if (filter_method == "butter") {
-
-    # determine Nyquist freq
-    nyq = 0.5 * 1 / as.numeric(private$sampInt, units = "secs")
-
-    normal_cutoff = fArgs$cutoff / nyq # freqs normalized to [0,1], where 1 is nyq
-
-    # define butterworth low-pass filter
-    bf <- signal::butter(fArgs$order, normal_cutoff, type = "low", plane = "z")
-
-    # wrapper around signal::filtfilt() that deals with artifacts at end/start
-    # vector to be filtered is padded with the reverse vector
-    fit_butter <- function(filter, x, max_n_pad) {
-      np <- if (length(x) < max_n_pad) length(x) else max_n_pad
-      return(signal::filtfilt(bf, c(rev(x[1:np]), x,
-                                    rev(x)[1:np]))[(np + 1):(length(x) + np)])
-    }
-
-    n_5min_pad <- round(5 * 60 / as.numeric(private$sampInt, units = "secs"))
-
-    private$dataDT[, acc_up_filtered := fit_butter(filter = bf,
-                                          x = acc_up,
-                                          max_n_pad = n_5min_pad), id]
-  }
+  private$filter_acc(filter_method = filter_method,
+                     axes = "acc_up",
+                     fArg = list(...))
 
   ## Step 2: thresholding (binarization)
 
-  private$dataDT[, lying := acc_up_filtered < crit_lie, id]
+  private$dataDT[, lying := gravity_up < crit_lie, id]
 
   # Step 3: discard bouts shorter than minimum duration
 
@@ -182,23 +98,20 @@ add_lying <- function(filter_method = "median",
   # Tidy and update ------------------------------------------------------------
 
   # Order columns with lying information
-  co <- c("bout_nr", "lying", "acc_up_filtered")
+  co <- c("bout_nr", "lying", "gravity_up")
   co_ord <- c(colnames(private$dataDT)[!colnames(private$dataDT) %in% co], co)
   setcolorder(private$dataDT, co_ord)
 
   # drop/keep filtered data
   if (!add_filtered) {
-    private$dataDT[, acc_up_filtered := NULL]
+    private$dataDT[, gravity_up := NULL]
   }
 
   # drop lying side data if present and warn user
-  if (private$has_side) {
+  if (private$has("side")) {
    private$dataDT[, side := NULL]
-   private$has_side <- FALSE
    warning("Information on lying side removed. Please re-run $add_side().")
   }
-
-  private$has_lying <- TRUE
 
   return(invisible(self))
 
@@ -210,9 +123,17 @@ add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5) {
 
   # check prerequisites --------------------------------------------------------
 
-  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
-  checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
-  checkmate::assertTRUE(private$has_right, .var.name = "has right-axis acceleration?")
+  if (!private$has("lying")) {
+    stop("No lying behaviour data found.
+         You need to call $add_lying() first.",
+         call. = FALSE)
+  }
+
+  if (!private$has("acc_right")) {
+    stop("No acceleration from 'right' axis found (acc_right)
+         This is prerequisite for determining lying side.",
+         call. = FALSE)
+  }
 
   # argument checks ------------------------------------------------------------
 
@@ -234,9 +155,7 @@ add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5) {
                                      else "R"),
                  by = .(id, bout_nr)]
 
-  # Tidy and update ------------------------------------------------------------
-
-  private$has_side <- TRUE
+  # return ---------------------------------------------------------------------
 
   return(invisible(self))
 
@@ -248,7 +167,11 @@ add_activity <- function(add_jerk = FALSE) {
 
   # check prerequisites --------------------------------------------------------
 
-  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
+  if (!private$has("data")) {
+    stop("No accelerometer data found.
+         Import data using methods $load_files() or $load_table().",
+         call. = FALSE)
+  }
 
   # argument checks ------------------------------------------------------------
 
@@ -259,25 +182,110 @@ add_activity <- function(add_jerk = FALSE) {
   private$dataDT[, delta_time := as.numeric(
     c(NA, difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
 
-  axis <- c(private$has_fwd, private$has_up, private$has_right)
+  axs <- private$has(c("acc_fwd", "acc_up", "acc_right"))
 
-  private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] :=
+  private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] :=
                    lapply(.SD, \(x) {c(NA, diff(x)) / delta_time}),
-                 .SDcols = c("acc_fwd", "acc_up", "acc_right")[axis]]
+                 .SDcols = c("acc_fwd", "acc_up", "acc_right")[axs]]
 
   private$dataDT[, delta_time := NULL]
 
   private$dataDT[, activity := sqrt(rowSums(sapply(.SD, \(x) x^2))),
-                 .SDcols = c("jerk_fwd", "jerk_up", "jerk_right")[axis]]
+                 .SDcols = c("jerk_fwd", "jerk_up", "jerk_right")[axs]]
 
   # Tidy and update ------------------------------------------------------------
 
   if (!add_jerk) {
-    private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axis] := NULL]
+    private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] := NULL]
   }
-
-  private$has_activity <- TRUE
 
   return(invisible(self))
 
 }
+
+################################################################################
+
+add_activity2 <- function(dynamic_parameter = "dba",
+                          norm = "L2",
+                          filter_method = "median",
+                          keep_filtered = FALSE,
+                          ...) {
+
+  calc_norm <- function(subdt, L) {
+    if (L == "L1") {
+      rowSums(sapply(subdt, abs))
+    } else if (L == "L2") {
+      sqrt(rowSums(sapply(subdt, \(x) x^2)))
+    }
+  }
+
+  # metrics <- expand.grid(para = dynamic_parameter,
+  #                        norm = norm)
+  #
+  # metrics$acronom <- paste0(norm_para$norm, norm_para$para)
+
+  # acronym <- paste0(norm, if (dynamic_parameter == "jerk") "Jerk" else "DBA")
+
+  axs <- private$has(c("acc_fwd", "acc_up", "acc_right"))
+
+  if ("jerk" %in% dynamic_parameter) {
+
+    private$dataDT[, delta_time := as.numeric(
+      c(NA, difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
+
+    private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] :=
+                        lapply(.SD, \(x) {c(NA, diff(x)) / delta_time}),
+                   by = id,
+                   .SDcols = c("acc_fwd", "acc_up", "acc_right")[axs]]
+
+    private$dataDT[, delta_time := NULL]
+
+    for (l in norm) {
+
+      private$dataDT[, paste0(l, "Jerk") := calc_norm(.SD, L = l),
+                      .SDcols = c("jerk_fwd", "jerk_up", "jerk_right")[axs]]
+
+    }
+
+    if (!keep_filtered) {
+      private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] := NULL]
+    }
+  }
+
+  if ("dba" %in% dynamic_parameter) {
+
+    fArgs <- list(...)
+
+    private$filter_acc(filter_method,
+                        axes = c("acc_fwd", "acc_up", "acc_right")[axs],
+                        fArgs,
+                        dba = TRUE)
+
+
+    for (l in norm) {
+
+      private$dataDT[, paste0(l, "DBA") := calc_norm(.SD, L = l),
+                     .SDcols = c("dba_fwd", "dba_up", "dba_right")[axs]]
+    }
+
+    if (!keep_filtered) {
+      private$dataDT[, c("dba_fwd", "dba_up", "dba_right")[axs] := NULL]
+    }
+
+  }
+
+
+  # Return ---------------------------------------------------------------------
+
+  return(invisible(self))
+
+}
+
+
+
+
+
+
+
+
+

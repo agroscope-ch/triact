@@ -4,8 +4,13 @@
 
 # internal function
 extract_updown <- function(self, private, sec_before, sec_after, updown) { # internal
-  checkmate::assertTRUE(private$has_data, .var.name = "has data?")
-  checkmate::assertTRUE(private$has_lying, .var.name = "lying added?")
+
+  if (!private$has("lying")) {
+    stop("No lying behaviour data found.
+         You need to call $add_lying() first.",
+         call. = FALSE)
+  }
+
   checkmate::assertNumber(sec_before, lower = 0)
   checkmate::assertNumber(sec_after, lower = 0)
 

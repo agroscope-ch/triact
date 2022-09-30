@@ -6,7 +6,7 @@ Maintainer: Michael Simmler <michael.simmler@agroscope.admin.ch>
 Authors@R: 
     person("Michael", "Simmler", , "michael.simmler@agroscope.admin.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4095-4111"))
-Description: triact package for R: Analyzing the lying behavior of cows from accelerometer data
+Description: The triact R package assists the analyses of lying behaviour of cows from triaxial accelerometer data. Starting from raw data files from a tri-axis accelerometer, the triact package allows to calculate lying time, number of bouts, and mean lying bout duration in total and broken down by the lying side (lying laterality). Furthermore, it allows the periods in standing posture to be described using the same measures. Finally, triact allows to calculate proxies for the level of physical activity of the cows.   
 License: GLP-3
 Encoding: UTF-8
 LazyData: true
@@ -19,6 +19,7 @@ Imports:
     lubridate (>= 1.7.10)
 Suggests: 
     signal (>= 0.7-7),
+    tibble,
     rmarkdown,
     knitr
 VignetteBuilder: knitr

@@ -37,17 +37,15 @@ check_orientation <- function(crit = 0.5) {
 
       message("Correction done!")
 
-      if (private$has_lying) {
+      if (private$has("lying")) {
         suppressWarnings(
           private$dataDT[, c("bout_nr", "lying", "acc_up_filtered") := NULL])
-        private$has_lying <- FALSE
         warning("Information on lying bouts removed. Please re-run $add_lying().",
                 call. = FALSE)
       }
 
-      if (private$has_side) {
+      if (private$has("side")) {
         private$dataDT[, side := NULL]
-        private$has_side <- FALSE
         warning("Information on lying side removed. Please re-run $add_side().",
                 call. = FALSE)
       }

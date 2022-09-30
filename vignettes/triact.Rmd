@@ -1,0 +1,24 @@
+---
+title: "triact"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{triact}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r}
+library(triact)
+```
+
+## Get the example data 
+Download the example data from https://xyz.com and unzip it. The data includes four raw data files from a triaxial accelerometer (MSR145, MSR Electronics, Switzerland) mounted to a hind leg of a dairy cow. The sampling frequency was 20 Hz. Each file represents one day of recording. 
+
+```{r}
+
+dir <-  "example_data" # adjust (path to the downloaded example data)
+
+list.files(dir)
+
+```
