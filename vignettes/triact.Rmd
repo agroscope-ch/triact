@@ -7,18 +7,82 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
+Load the triact package
 ```{r}
 library(triact)
+
+options(digits.secs = 3)
+
 ```
 
-## Get the example data 
+Getting help
+```{r, eval=FALSE}
+?Triact
+```
+
+
+
+
+## Get and inspect the example data 
 Download the example data from https://xyz.com and unzip it. The data includes four raw data files from a triaxial accelerometer (MSR145, MSR Electronics, Switzerland) mounted to a hind leg of a dairy cow. The sampling frequency was 20 Hz. Each file represents one day of recording. 
 
 ```{r}
 
 dir <-  "example_data" # adjust (path to the downloaded example data)
 
-list.files(dir)
+files <- list.files(dir)
+
+print(files)
 
 ```
+
+
+```{r}
+
+cat(paste(readLines(file.path(dir, files[1]), n = 30), collapse = "\n"))
+
+```
+
+```{r}
+
+my_triact <- Triact$new()
+
+```
+
+
+```{r}
+
+my_triact$load_files(input = dir,
+                     id_substring = c(12, 14),
+                     timeFwdUpRight_cols = c(1, 2 ,3, 4),
+                     skip = "*DATA")
+
+```
+
+```{r}
+
+head(my_triact$data)
+
+str(my_triact$data)
+
+```
+
+
+```{r}
+
+my_triact$add_lying()
+
+```
+
+
+```{r}
+
+my_triact$add_side(left_leg = TRUE)
+
+```
+
+
+
+
+
+
