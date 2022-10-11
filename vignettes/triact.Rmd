@@ -74,15 +74,22 @@ my_triact$add_lying()
 
 ```
 
-
 ```{r}
 
 my_triact$add_side(left_leg = TRUE)
 
 ```
 
+```{r}
 
+my_triact$add_activity()
 
+```
 
+```{r}
+
+str(my_triact$data)
+
+```
 
 
