@@ -164,7 +164,7 @@ add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5) {
 
 ################################################################################
 
-add_activity <- function(dynamic_parameter = "dba",
+add_activity <- function(dynamic_parameter = c("dba", "jerk"),
                           norm = "L2",
                           filter_method = "median",
                           keep_filtered = FALSE,
