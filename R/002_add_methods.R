@@ -161,9 +161,14 @@ add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5) {
 
 }
 
+
 ################################################################################
 
-add_activity <- function(add_jerk = FALSE) {
+add_activity <- function(dynamic_parameter = "dba",
+                          norm = "L2",
+                          filter_method = "median",
+                          keep_filtered = FALSE,
+                          ...) {
 
   # check prerequisites --------------------------------------------------------
 
@@ -173,43 +178,11 @@ add_activity <- function(add_jerk = FALSE) {
          call. = FALSE)
   }
 
-  # argument checks ------------------------------------------------------------
+  # check prerequisites -------------------------------------------------------
 
-  checkmate::assertFlag(add_jerk)
+  # .... missing
 
-  # determine activity  --------------------------------------------------------
-
-  private$dataDT[, delta_time := as.numeric(
-    c(NA, difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
-
-  axs <- private$has(c("acc_fwd", "acc_up", "acc_right"))
-
-  private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] :=
-                   lapply(.SD, \(x) {c(NA, diff(x)) / delta_time}),
-                 .SDcols = c("acc_fwd", "acc_up", "acc_right")[axs]]
-
-  private$dataDT[, delta_time := NULL]
-
-  private$dataDT[, activity := sqrt(rowSums(sapply(.SD, \(x) x^2))),
-                 .SDcols = c("jerk_fwd", "jerk_up", "jerk_right")[axs]]
-
-  # Tidy and update ------------------------------------------------------------
-
-  if (!add_jerk) {
-    private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] := NULL]
-  }
-
-  return(invisible(self))
-
-}
-
-################################################################################
-
-add_activity2 <- function(dynamic_parameter = "dba",
-                          norm = "L2",
-                          filter_method = "median",
-                          keep_filtered = FALSE,
-                          ...) {
+  # determine activity  ------------------------------------------------------
 
   calc_norm <- function(subdt, L) {
     if (L == "L1") {
@@ -218,13 +191,6 @@ add_activity2 <- function(dynamic_parameter = "dba",
       sqrt(rowSums(sapply(subdt, \(x) x^2)))
     }
   }
-
-  # metrics <- expand.grid(para = dynamic_parameter,
-  #                        norm = norm)
-  #
-  # metrics$acronom <- paste0(norm_para$norm, norm_para$para)
-
-  # acronym <- paste0(norm, if (dynamic_parameter == "jerk") "Jerk" else "DBA")
 
   axs <- private$has(c("acc_fwd", "acc_up", "acc_right"))
 
