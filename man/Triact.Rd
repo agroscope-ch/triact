@@ -2,13 +2,14 @@
 \alias{Triact}
 \title{R6 class for analyzing accelerometer data from cows}
 \description{
-  An object for containing and analyzing data from accelerometers attached to the leg of cows. Analyses focus on the lying behaviour and on the cow's 'activity'.
+  An object for containing and analyzing data from accelerometers attached to a hind leg of cows. Analyses focus on the lying behaviour and on the cow's level of physical activity as detailed in Simmler & Brouwers (2023).
 }
+
 
 \section{Active bindings}{
   \if{html}{\out{<div class="r6-active-bindings">}}
   \describe{
-    \item{\code{data}}{Raw accelerometer data and derived information. Modified by $load_data and the $add_... methods}
+    \item{\code{data}}{Raw accelerometer data and analysis results. Mainly modified by $load_... and the $add_... methods}
   }
   \if{html}{\out{</div>}}
 }
@@ -19,7 +20,9 @@
   \subsection{Public methods}{
     \itemize{
       \item \href{#method-new}{\code{Triact$new()}}
-      \item \href{#method-load_data}{\code{Triact$load_data()}}
+      \item \href{#method-load_files}{\code{Triact$load_files()}}
+      \item \href{#method-load_table}{\code{Triact$load_table()}}
+      \item \href{#method-check_orientation}{\code{Triact$check_orientation()}}
       \item \href{#method-add_lying}{\code{Triact$add_lying()}}
       \item \href{#method-add_side}{\code{Triact$add_side()}}
       \item \href{#method-add_activity}{\code{Triact$add_activity()}}
@@ -50,13 +53,13 @@
   %% ------------------------------
 
   \if{html}{\out{<hr>}}
-  \if{html}{\out{<a id="method-load_data"></a>}}
-  \if{latex}{\out{\hypertarget{method-load_data}{}}}
+  \if{html}{\out{<a id="method-load_files"></a>}}
+  \if{latex}{\out{\hypertarget{method-load_files}{}}}
 
-  \subsection{Method \code{load_data()}}{
+  \subsection{Method \code{load_files()}}{
     Import data from accelerometer data files from one or several cows to the 'Triact' object. Importing multiple files from the same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: id_substring). Sampling frequency must be consistent across the files. Triaxial, biaxial and uniaxial axelerometer data are allowed, but only triaxial data corresponding to relative body coordinates allow full functionality.
     \subsection{Usage}{
-      \if{html}{\out{<div class="r">}}\preformatted{Triact$load_data(
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$load_files(
         input,
         id_substring,
         timeFwdUpRight_cols = c(1, 2, 3, 4),
@@ -89,7 +92,7 @@
         }
 
         \item{\code{time_format}}{
-          Character vector specifying the date-time format corresponding to the acceleration files (syntax as in \code{\link[base]{strptime}}). If \code{NULL} a date-time format as tried by \link{as.POSIX*} is expected. \emph{Default:} \code{NULL}
+          Character vector specifying the date-time format corresponding to the acceleration files (syntax as in \code{\link[base]{strptime}}). If \code{NULL} a date-time format as tried by \link[=as.POSIXct]{as.POSIX*} is expected. \emph{Default:} \code{NULL}
         }
 
         \item{\code{tz}}{
@@ -97,12 +100,12 @@
         }
 
         \item{\code{start_time}}{
-          Time from which on the data should be considered. Formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or in another format automatically tried by \link{as.POSIX*}. \emph{Default:} \code{NULL}
+          Time from which on the data should be considered. Formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or in another format automatically tried by \link[=as.POSIXct]{as.POSIX*}. \emph{Default:} \code{NULL}
         }
 
 
         \item{\code{end_time}}{
-          Time up to which the data should be considered. Formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or in another format automatically tried by \link{as.POSIX*}. \emph{Default:} \code{NULL}
+          Time up to which the data should be considered. Formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or in another format automatically tried by \link[=as.POSIXct]{as.POSIX*}. \emph{Default:} \code{NULL}
         }
 
 
@@ -122,29 +125,62 @@
   }
 
   %% ------------------------------
+
+  \if{html}{\out{<hr>}}
+  \if{html}{\out{<a id="method-load_table"></a>}}
+  \if{latex}{\out{\hypertarget{method-load_table}{}}}
+
+  \subsection{Method \code{load_table()}}{
+    Create a new triact object.
+    \subsection{Usage}{
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$load_table()}\if{html}{\out{</div>}}
+    }
+    \if{html}{\out{</div>}}
+  }
+
+  %% ------------------------------
   \if{html}{\out{<hr>}}
   \if{html}{\out{<a id="method-add_lying"></a>}}
   \if{latex}{\out{\hypertarget{method-add_lying}{}}}
 
   \subsection{Method \code{add_lying()}}{
-    Classify data into lying and standing and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and standing) are uniquely numbered in column 'bout_id'. Classification procedure is composed of two steps: preliminary classification by evaluating ‘up-acceleration < \code{crit_lie}’ followed by majority filter with window size in seconds of \code{window_size}.
+    Classify data into lying and standing and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and standing) are uniquely numbered in column 'bout_id'.
+    The simple rule-based algorithm is composed of three steps: In the first step, the \emph{up} acceleration is filtered to obtain the gravity component of the signal. In the second step, a threshold is used to classify the filtered acceleration values into lying and standing. Finally, in the third step, lying bouts shorter than a given minimum duration are reclassifying as standing. The last step can be performed analogeous for standing bouts, but is not recommended by default. See Simmler & Brouwers (2023) for a detailed discussion.
 
     \subsection{Usage}{
-      \if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(crit_lie = 0.5, window_size = 120, check = TRUE)}\if{html}{\out{</div>}}
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(
+      filter_method = "median",
+      crit_lie = 0.5,
+      minimum_duration_lying = 30,
+      minimum_duration_standing = NULL,
+      add_filtered = FALSE,
+      ...)}\if{html}{\out{</div>}}
     }
 
     \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
+        \item{\code{filter_method}}{
+          Filter method to be applied to obtain the gravity component of the acceleration on the \emph{up} axis. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be pased via the '...' argument (see below). \emph{Default:} \code{"median"}
+        }
         \item{\code{crit_lie}}{
           Up-acceleration threshold for classifying into lying and standing. \emph{Default:} \code{0.5}
         }
-        \item{\code{window_size}}{
-          Window size for majority filter in seconds \emph{Default:} \code{120}
+        \item{\code{minimum_duration_lying}}{
+          Minimum duration for lying bouts in seconds. Lying bouts shorter than this threshold are considered false and reclassified as stading. \emph{Default:} \code{30}
         }
-        \item{\code{check}}{
-          A logical value that indicates whether the data should be checked for possible incorrect mounting of the logger (180° turned in saggital plane) and corrected accordingly (negation of forward and upward axis). \emph{Default:} \code{TRUE}
+        \item{\code{minimum_duration_standing}}{
+        Minimum duration for standing bouts in seconds. Standing bouts shorter than this threshold are considered false and reclassified as lying.
+           \emph{Default:} \code{NULL}
         }
+        \item{\code{add_filtered}}{
+        Logical value that indiates whether the filtered gravity component of the \emph{up} acceleration should be added to the 'Triact' object.
+           \emph{Default:} \code{FALSE}
+        }
+        \item{\code{...}}{
+        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument. For filter method 'median' the argument \code{window_size} specifies the window size in seconds (\emph{default:} \code{10}). For filter method 'butter the arguments \code{cutoff} specifies the cutoff frequency for low-pass filtering in Hz (\emph{default:} \code{0.1}) and argument \code{order} specifies the Butterworth filter order (\emph{default:} \code{1}).
+        }
+
       }
     }
   }
@@ -156,7 +192,7 @@
   \if{latex}{\out{\hypertarget{method-add_side}{}}}
 
   \subsection{Method \code{add_side()}}{
-    Classify lying bouts into left and right lying side and add results as column ‘side’ to the ‘Triact’ object. A lying bout is classified as 'L' (left) if 'right-acceleration < crit_left' is predominantly true, otherwise it is classified as 'R' (right).
+    Classify lying bouts into left and right lying side and add results as column ‘side’ to the ‘Triact’ object. For each lying bout, the median acceleration over the entire duration is calculated and compared to a threshold to classify the bout as 'L' (Left) or 'R' (right) lying side. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(left_leg, crit_left = if(left_leg) -0.5 else 0.5)}\if{html}{\out{</div>}}
@@ -178,17 +214,34 @@
   \if{latex}{\out{\hypertarget{method-add_activity}{}}}
 
   \subsection{Method \code{add_activity()}}{
-    Calculate the cow's 'activity' and add results as column to the 'Triact' object. Activity is defined as the magnitude of the jerk vector, which is estimated from the acceleration vector by approximating the derivatives using the finite differences.
+  Calculate proxies for the physical activity level. By default the L2 norm of the dynamic body acceleration (DBA) vector and the L2 norm of the jerk vector are calculate. Corresponding L1 norms are optionally available. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
-      \if{html}{\out{<div class="r">}}\preformatted{Triact$add_activity(add_jerk = FALSE)}\if{html}{\out{</div>}}
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$add_activity(
+      dynamic_parameter = c("dba", "jerk"),
+      norm = "L2",
+      filter_method = "median",
+      keep_dynamic_parameter = FALSE,
+      ...)}\if{html}{\out{</div>}}
     }
 
     \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
-        \item{\code{add_jerk}}{
-            A logical value that indicates whether the jerk vector (fwr_jerk, up_jerk, right_jerk) should be added to the 'Triact' object. \emph{Default:} \code{FALSE}
+        \item{\code{dynamic_parameter}}{
+            Type of dynamic parameter to base the activity measure on. Options are \code{"dba"}, for dynammic body acceleration, and \code{"jerk"}, for the jerk vector. One or both can be provided, e.g., \code{"dba"} or \code{c("dba", "jerk")}. \emph{Default:} \code{c("dba", "jerk")}
+        }
+                \item{\code{norm}}{
+            The type of norm to be calculated. Options are \code{"L1"} and \code{"L2"}. One or both can be provided, e.g., \code{"L1"} or \code{c("L1", "L2")}. \emph{Default:} \code{"L2"}
+        }
+                \item{\code{filter_method}}{
+                Filter method to be used to determine the gravity component subtracted from the raw acceleration to obtain the dynamic body acceleration. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be pased via the '...' argument (see below). \emph{Default:} \code{"median"}
+        }
+                \item{\code{keep_dynamic_parameter}}{
+            A logical value that indicates whether the intermediate data, being the dynamic body acceleration vector and/or the jerk verctor should be added to the 'Triact' object. \emph{Default:} \code{FALSE}
+        }
+                \item{\code{...}}{
+        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument. For filter method 'median' the argument \code{window_size} specifies the window size in seconds (\emph{default:} \code{10}). For filter method 'butter the arguments \code{cutoff} specifies the cutoff frequency for low-pass filtering in Hz (\emph{default:} \code{0.1}) and argument \code{order} specifies the Butterworth filter order (\emph{default:} \code{1}).
         }
       }
     }
@@ -202,37 +255,33 @@
   \if{latex}{\out{\hypertarget{method-summarize_intervals}{}}}
 
   \subsection{Method \code{summarize_intervals()}}{
-    Summarizes the data  in the 'Triact' object, activity and lying behaviour, by regular intervals. The information contained in the output table depends on the analysis you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods. With \code{bout = TRUE} information on bouts per interval (number and mean bout duration) will be returned additionally.
+    Summarizes the data  in the 'Triact' object, activity and lying behaviour, by regular intervals. The information contained in the output table depends on the analysis you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods. With \code{bout = TRUE} information on bouts per interval (number and mean bout duration) will be returned additionally. With \code{side = TRUE} summarized information such lying duration is additionally provided separately for the lying side (left/right). For measures such as the number of lying bouts or mean lying bout duration, a weighted mean ('wMean...') is calculated with the weights being the proportion of the individual bout overlapping with the respective interval. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_intervals(
-        interval = "hour",
-        lag_in_s = 0,
-        duration_units = "mins",
-        bouts = FALSE,
-        calc_for_incomplete = FALSE
-      )}\if{html}{\out{</div>}}
+      interval = "hour",
+      lag_in_s = 0,
+      duration_units = "mins",
+      bouts = FALSE,
+      side = FALSE,
+      calc_for_incomplete = FALSE)}\if{html}{\out{</div>}}
     }
 
     \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
         \item{\code{interval}}{Character string specifying the intervals to be analysed. Any unique English abbreviations as in \code{\link[=period]{lubridate::period}} are allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
-        \item{\code{lag_in_s}}{Lag in seconds with respect to the full hour. \emph{Default:} \code{0}}
+        \item{\code{lag_in_s}}{Lag in seconds with respect to the full hour or full day, respectively. \emph{Default:} \code{0}}
         \item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"} and \code{"hours"}. \emph{Default:} \code{"mins"}}
-        \item{\code{bouts}}{Logical indicating whether information on bouts should be additionally summarized. \emph{Default:} \code{FALSE}}
+        \item{\code{bouts}}{Logical indicating whether information on bouts should be additionally summarizede. \emph{Default:} \code{FALSE}}
+        \item{\code{side}}{Logical indicating whether lying side should be considered in the summary. \emph{Default:} \code{FALSE}}
         \item{\code{calc_for_incomplete}}{Logical indicating whether a complete summary should also be returned for the incompletely observed intervals (first and last interval for each cow) and for any parameter using information of incompletely observed bouts (first and last bout for each cow). Please note that these are ill-defined. \emph{Default:} \code{FALSE}}
       }
     }
     \if{html}{\out{</div>}}
 
     \subsection{Returns}{
-      A table with summaries by interval (rows) containing all or some of the following information (see method description above). \cr\cr
-      \strong{\code{duration}}\cr Duration with data avaiable. At the start/end of the data for each cow the interval might not be fully covered!\cr\cr
-      \strong{\code{duration...}}\cr Standing and (left/right) lying durations.\cr\cr
-      \strong{\code{meanActivity...}}\cr Mean activity overall and during standing and (left/right) lying. \cr\cr
-      \strong{\code{nBouts...}}\cr Number of standing and (left/right) lying bouts calculated as the sum of the proportions of the individual bouts in the respective interval, i.e., a bout completely in the interval contrubutes with 1, while a bout spanning more than one interval contributes <1 to this count.\cr\cr
-      \strong{\code{wMeanDuration...}}\cr Weighted mean of the duration of standing and (left/right) lying bouts. The weights are the proportions of the individual bouts in the respective interval, i.e., the weight is 1 when fully in the interval and <1 for bouts spanning more than one interval.
+      A table with summaries by interval (rows). Output depends on added analysis (see method description).
     }
   }
 
@@ -328,4 +377,7 @@
 
 }
 
+\references{
+Simmler. M., Brouwers S., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data.
+}
 

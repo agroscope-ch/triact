@@ -167,7 +167,7 @@ add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5) {
 add_activity <- function(dynamic_parameter = c("dba", "jerk"),
                           norm = "L2",
                           filter_method = "median",
-                          keep_filtered = FALSE,
+                          keep_dynamic_parameter = FALSE,
                           ...) {
 
   # check prerequisites --------------------------------------------------------
@@ -213,7 +213,7 @@ add_activity <- function(dynamic_parameter = c("dba", "jerk"),
 
     }
 
-    if (!keep_filtered) {
+    if (!keep_dynamic_parameter) {
       private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] := NULL]
     }
   }
@@ -234,7 +234,7 @@ add_activity <- function(dynamic_parameter = c("dba", "jerk"),
                      .SDcols = c("dba_fwd", "dba_up", "dba_right")[axs]]
     }
 
-    if (!keep_filtered) {
+    if (!keep_dynamic_parameter) {
       private$dataDT[, c("dba_fwd", "dba_up", "dba_right")[axs] := NULL]
     }
 
