@@ -255,7 +255,7 @@
   \if{latex}{\out{\hypertarget{method-summarize_intervals}{}}}
 
   \subsection{Method \code{summarize_intervals()}}{
-    Summarizes the data  in the 'Triact' object, activity and lying behaviour, by regular intervals. The information contained in the output table depends on the analysis you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods. With \code{bout = TRUE} information on bouts per interval (number and mean bout duration) will be returned additionally. With \code{side = TRUE} summarized information such lying duration is additionally provided separately for the lying side (left/right). For measures such as the number of lying bouts or mean lying bout duration, a weighted mean ('wMean...') is calculated with the weights being the proportion of the individual bout overlapping with the respective interval. See Simmler & Brouwers (2023) for details.
+    Summarizes the data  in the 'Triact' object, activity and lying behaviour, by regular intervals. The information contained in the output table depends on the analyses you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods. With \code{bout = TRUE} information on bouts per interval (number and mean bout duration) will be returned additionally. With \code{side = TRUE} summarized information such lying duration is additionally provided separately for the lying side (left/right). For measures such as the number of lying bouts or mean lying bout duration, a weighted mean ('wMean...') is calculated with the weights being the proportion of the individual bout overlapping with the respective interval. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_intervals(
@@ -281,7 +281,7 @@
     \if{html}{\out{</div>}}
 
     \subsection{Returns}{
-      A table with summaries by interval (rows). Output depends on added analysis (see method description).
+      A table with summaries by interval (rows). See \link{interval_summary} for a complete list.
     }
   }
 
@@ -292,10 +292,13 @@
   \if{latex}{\out{\hypertarget{method-summarize_bouts}{}}}
 
   \subsection{Method \code{summarize_bouts()}}{
-    Summarizes the data in the 'Triact' object, activity and lying behaviour, by lying/standing bouts.The information contained in the output table depends on the analysis you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods.
+    Summarizes the data in the 'Triact' object, activity and lying behaviour, by lying/standing bouts.The information contained in the output table depends on the analyses you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods.
 
     \subsection{Usage}{
-      \if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_bouts(bout_type = "both", duration_units = "mins", calc_for_incomplete = FALSE)}\if{html}{\out{</div>}}
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_bouts(
+      bout_type = "both",
+      duration_units = "mins",
+      calc_for_incomplete = FALSE)}\if{html}{\out{</div>}}
     }
 
     \subsection{Arguments}{
@@ -309,7 +312,7 @@
     \if{html}{\out{</div>}}
 
     \subsection{Returns}{
-    A table with summaries by bout (rows). Output depends on added analysis (see method description).
+    A table with summaries by bout (rows).  See \link{bout_summary} for a complete list.
     }
   }
 
@@ -377,7 +380,7 @@
 
 }
 
-\references{
+    \references{
 Simmler. M., Brouwers S., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data.
 }
 
