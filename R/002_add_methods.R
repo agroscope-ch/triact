@@ -164,10 +164,10 @@ add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5) {
 
 ################################################################################
 
-add_activity <- function(dynamic_parameter = c("dba", "jerk"),
+add_activity <- function(dynamic_measure = c("dba", "jerk"),
                           norm = "L2",
                           filter_method = "median",
-                          keep_dynamic_parameter = FALSE,
+                          keep_dynamic_measure = FALSE,
                           ...) {
 
   # check prerequisites --------------------------------------------------------
@@ -194,7 +194,7 @@ add_activity <- function(dynamic_parameter = c("dba", "jerk"),
 
   axs <- private$has(c("acc_fwd", "acc_up", "acc_right"))
 
-  if ("jerk" %in% dynamic_parameter) {
+  if ("jerk" %in% dynamic_measure) {
 
     private$dataDT[, delta_time := as.numeric(
       c(NA, difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
@@ -213,12 +213,12 @@ add_activity <- function(dynamic_parameter = c("dba", "jerk"),
 
     }
 
-    if (!keep_dynamic_parameter) {
+    if (!keep_dynamic_measure) {
       private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] := NULL]
     }
   }
 
-  if ("dba" %in% dynamic_parameter) {
+  if ("dba" %in% dynamic_measure) {
 
     fArgs <- list(...)
 
@@ -234,7 +234,7 @@ add_activity <- function(dynamic_parameter = c("dba", "jerk"),
                      .SDcols = c("dba_fwd", "dba_up", "dba_right")[axs]]
     }
 
-    if (!keep_dynamic_parameter) {
+    if (!keep_dynamic_measure) {
       private$dataDT[, c("dba_fwd", "dba_up", "dba_right")[axs] := NULL]
     }
 
