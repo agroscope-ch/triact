@@ -165,9 +165,10 @@ add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5) {
 ################################################################################
 
 add_activity <- function(dynamic_measure = c("dba", "jerk"),
-                          norm = "L2",
-                          filter_method = "median",
-                          keep_dynamic_measure = FALSE,
+                         norm = "L2",
+                         adjust = TRUE,
+                         filter_method = "median",
+                         keep_dynamic_measure = FALSE,
                           ...) {
 
   # check prerequisites --------------------------------------------------------
@@ -194,52 +195,63 @@ add_activity <- function(dynamic_measure = c("dba", "jerk"),
 
   axs <- private$has(c("acc_fwd", "acc_up", "acc_right"))
 
-  if ("jerk" %in% dynamic_measure) {
+  # --------------------------------------------
 
-    private$dataDT[, delta_time := as.numeric(
-      c(NA, difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
-
-    private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] :=
-                        lapply(.SD, \(x) {c(NA, diff(x)) / delta_time}),
-                   by = id,
-                   .SDcols = c("acc_fwd", "acc_up", "acc_right")[axs]]
-
-    private$dataDT[, delta_time := NULL]
-
-    for (l in norm) {
-
-      private$dataDT[, paste0(l, "Jerk") := calc_norm(.SD, L = l),
-                      .SDcols = c("jerk_fwd", "jerk_up", "jerk_right")[axs]]
-
-    }
-
-    if (!keep_dynamic_measure) {
-      private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] := NULL]
-    }
-  }
+  # calculate dynamic measures
 
   if ("dba" %in% dynamic_measure) {
 
     fArgs <- list(...)
 
     private$filter_acc(filter_method,
-                        axes = c("acc_fwd", "acc_up", "acc_right")[axs],
-                        fArgs,
-                        dba = TRUE)
+                       axes = c("acc_fwd", "acc_up", "acc_right")[axs],
+                       fArgs,
+                       dba = TRUE)
+  }
 
+  if ("jerk" %in% dynamic_measure) {
 
-    for (l in norm) {
+    private$dataDT[, delta_time := as.numeric(
+      c(NA, difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
 
-      private$dataDT[, paste0(l, "DBA") := calc_norm(.SD, L = l),
-                     .SDcols = c("dba_fwd", "dba_up", "dba_right")[axs]]
-    }
+    private$dataDT[, c("jerk_fwd", "jerk_up", "jerk_right")[axs] :=
+                     lapply(.SD, \(x) {c(NA, diff(x)) / delta_time}),
+                   by = id,
+                   .SDcols = c("acc_fwd", "acc_up", "acc_right")[axs]]
 
-    if (!keep_dynamic_measure) {
-      private$dataDT[, c("dba_fwd", "dba_up", "dba_right")[axs] := NULL]
-    }
+    private$dataDT[, delta_time := NULL]
 
   }
 
+  # calculate activity proxies, i.e., Norms of dynamic measures
+
+  for (dm in dynamic_measure) {
+
+    dm_col_names = paste(dm, c("fwd", "up", "right"), sep = "_")[axs]
+
+    adj_prfx = if (adjust) "adj" else NULL
+
+    for (l in norm) {
+
+      act_col_name = switch(dm,
+                            "dba" = paste0(adj_prfx, l, toupper(dm)),
+                            "jerk" = paste0(adj_prfx, l, chartr("j", "J", dm)))
+
+      private$dataDT[, (act_col_name) := calc_norm(.SD, L = l),
+                     .SDcols = dm_col_names]
+
+      if (adjust) {
+        private$dataDT[lying == TRUE, (act_col_name) := 0]
+
+      }
+
+    }
+
+    if (!keep_dynamic_measure) {
+      private$dataDT[, (dm_col_names) := NULL]
+    }
+
+  }
 
   # Return ---------------------------------------------------------------------
 
@@ -247,11 +259,5 @@ add_activity <- function(dynamic_measure = c("dba", "jerk"),
 
 }
 
-
-
-
-
-
-
-
+#  ---------------------------------------------------------------------
 
