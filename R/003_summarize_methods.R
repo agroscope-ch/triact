@@ -22,24 +22,52 @@ summarize_bouts <- function(bout_type = "both",
   } else if (bout_type == "standing") {
     !private$dataDT$lying
   }
+#
+#   col_calcs <- quote(list(startTime = minT,
+#                           endTime = maxT + private$sampInt,
+#                           duration  = {
+#                             interval_duration <- difftime(maxT, minT) + private$sampInt
+#                             units(interval_duration) <- duration_units
+#                             as.numeric(interval_duration)},
+#                           meanL1DBA   = mean(L1DBA, na.rm = TRUE),
+#                           meanL2DBA   = mean(L2DBA, na.rm = TRUE),
+#                           meanL1Jerk  = mean(L1Jerk, na.rm = TRUE),
+#                           meanL2Jerk  = mean(L2Jerk, na.rm = TRUE),
+#                           lying = unique(lying),
+#                           side = unique(side)))
+#
+#   for (act in c("L1DBA", "L2DBA", "L1Jerk", "L2Jerk")) {
+#     if (!private$has(act)) col_calcs[paste0("mean", act)] <- NULL
+#   }
+#
+#   if (!private$has("side")) col_calcs["side"] <- NULL
+
+  # -----------------
+
+  #idea!
 
   col_calcs <- quote(list(startTime = minT,
                           endTime = maxT + private$sampInt,
-                          duration  = {interval_duration <- difftime(maxT, minT) + private$sampInt
-                          units(interval_duration) <- duration_units
-                          as.numeric(interval_duration)},
-                          meanL1DBA   = mean(L1DBA, na.rm = TRUE),
-                          meanL2DBA   = mean(L2DBA, na.rm = TRUE),
-                          meanL1Jerk  = mean(L1Jerk, na.rm = TRUE),
-                          meanL2Jerk  = mean(L2Jerk, na.rm = TRUE),
-                          lying = unique(lying),
-                          side = unique(side)))
+                          duration  = {
+                            interval_duration <- difftime(maxT, minT) + private$sampInt
+                            units(interval_duration) <- duration_units
+                            as.numeric(interval_duration)},
+                          lying = unique(lying)))
 
-  for (activity in c("L1DBA", "L2DBA", "L1Jerk", "L2Jerk")) {
-    if (!private$has(activity)) col_calcs[paste0("mean", activity)] <- NULL
+  if (private$has("side")) col_calcs[["side"]] <- quote(unique(side))
+
+  act_names <- c("L1DBA", "L2DBA", "L1Jerk", "L2Jerk")
+
+  act_names <- c(act_names, paste0("Adj", act_names))
+
+  for (act in act_names) {
+    if (private$has(act)) {
+      col_calcs[[paste0("mean", act)]] <- substitute(mean(act, na.rm = TRUE),
+                                                     env = list(act = as.name(act)))
+    }
   }
 
-  if (!private$has("side")) col_calcs["side"] <- NULL
+  # -----------------
 
   analysis <- private$dataDT[bout_select, {{minT <- min(time); maxT <- max(time)} # block prepares temp vars
     eval(col_calcs)},                      # this is returned
@@ -53,11 +81,11 @@ summarize_bouts <- function(bout_type = "both",
       ifelse((bout_nr == max(bout_nr)), NA, endTime)),
       by = id]
 
-    for (activity in c("L1DBA", "L2DBA", "L1Jerk", "L2Jerk")) {
-      if (private$has(activity)) {
-        analysis[, paste0("mean", activity) :=
+    for (act in act_names) {
+      if (private$has(act)) {
+        analysis[, paste0("mean", act) :=
                    ifelse((bout_nr == 1) | (bout_nr == max(bout_nr)),
-                          NA, get(paste0("mean", activity))), by = id]
+                          NA, get(paste0("mean", act))), by = id]
       }
     }
 
@@ -132,17 +160,17 @@ summarize_intervals <- function(interval = "hour",
 
   if (!private$has("lying")) col_calcs[c("durationStanding", "durationLying")] <- NULL
 
-  for (activity in c("L1DBA", "L2DBA", "L1Jerk", "L2Jerk")) {
-    if (!private$has(activity)) {
-        col_calcs[grepl(activity, names(col_calcs))] <- NULL
+  for (act in c("L1DBA", "L2DBA", "L1Jerk", "L2Jerk")) {
+    if (!private$has(act)) {
+        col_calcs[grepl(act, names(col_calcs))] <- NULL
     }
-    if (!private$has(activity) | !private$has("lying")) {
-        col_calcs[c(paste0("mean", activity, "Standing"),
-                    paste0("mean", activity, "Lying"))] <- NULL
+    if (!private$has(act) | !private$has("lying")) {
+        col_calcs[c(paste0("mean", act, "Standing"),
+                    paste0("mean", act, "Lying"))] <- NULL
     }
-    if (!private$has(activity) | !private$has("side")) {
-        col_calcs[c(paste0("mean", activity, "LyingLeft"),
-                    paste0("mean", activity, "LyingRight"))] <- NULL
+    if (!private$has(act) | !private$has("side")) {
+        col_calcs[c(paste0("mean", act, "LyingLeft"),
+                    paste0("mean", act, "LyingRight"))] <- NULL
     }
   }
 

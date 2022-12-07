@@ -229,7 +229,7 @@ add_activity <- function(dynamic_measure = c("dba", "jerk"),
 
     dm_col_names = paste(dm, c("fwd", "up", "right"), sep = "_")[axs]
 
-    adj_prfx = if (adjust) "adj" else NULL
+    adj_prfx = if (adjust) "Adj" else NULL
 
     for (l in norm) {
 
