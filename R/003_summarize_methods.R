@@ -22,29 +22,8 @@ summarize_bouts <- function(bout_type = "both",
   } else if (bout_type == "standing") {
     !private$dataDT$lying
   }
-#
-#   col_calcs <- quote(list(startTime = minT,
-#                           endTime = maxT + private$sampInt,
-#                           duration  = {
-#                             interval_duration <- difftime(maxT, minT) + private$sampInt
-#                             units(interval_duration) <- duration_units
-#                             as.numeric(interval_duration)},
-#                           meanL1DBA   = mean(L1DBA, na.rm = TRUE),
-#                           meanL2DBA   = mean(L2DBA, na.rm = TRUE),
-#                           meanL1Jerk  = mean(L1Jerk, na.rm = TRUE),
-#                           meanL2Jerk  = mean(L2Jerk, na.rm = TRUE),
-#                           lying = unique(lying),
-#                           side = unique(side)))
-#
-#   for (act in c("L1DBA", "L2DBA", "L1Jerk", "L2Jerk")) {
-#     if (!private$has(act)) col_calcs[paste0("mean", act)] <- NULL
-#   }
-#
-#   if (!private$has("side")) col_calcs["side"] <- NULL
 
   # -----------------
-
-  #idea!
 
   col_calcs <- quote(list(startTime = minT,
                           endTime = maxT + private$sampInt,
