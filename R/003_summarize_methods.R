@@ -101,61 +101,75 @@ summarize_intervals <- function(interval = "hour",
          You need to call $add_lying() first.", call. = FALSE)
   }
 
+
+  #---------------------------------------------
+
   col_calcs <- quote(list(centerTime = startTime + (lubridate::duration(interval) / 2),
                           endTime = startTime + lubridate::duration(interval),
-                          duration = data_duration,
-                          durationStanding = mean(!lying) * data_duration,
-                          durationLying = mean(lying) * data_duration,
-                          durationLyingLeft = mean(lying * (!is.na(side) & (side == "L"))) * data_duration,
-                          durationLyingRight = mean(lying * (!is.na(side) & (side == "R"))) * data_duration,
+                          duration = data_duration))
 
-                          meanL1DBA = mean(L1DBA, na.rm = TRUE),
-                          meanL2DBA = mean(L2DBA, na.rm = TRUE),
-                          meanL1Jerk = mean(L1Jerk, na.rm = TRUE),
-                          meanL2Jerk = mean(L2Jerk, na.rm = TRUE),
-
-                          meanL1DBAStanding = mean(L1DBA[!lying], na.rm = TRUE),
-                          meanL2DBAStanding = mean(L2DBA[!lying], na.rm = TRUE),
-                          meanL1JerkStanding = mean(L1Jerk[!lying], na.rm = TRUE),
-                          meanL2JerkStanding = mean(L2Jerk[!lying], na.rm = TRUE),
-
-                          meanL1DBALying = mean(L1DBA[lying], na.rm = TRUE),
-                          meanL2DBALying = mean(L2DBA[lying], na.rm = TRUE),
-                          meanL1JerkLying = mean(L1Jerk[lying], na.rm = TRUE),
-                          meanL2JerkLying = mean(L2Jerk[lying], na.rm = TRUE),
-
-                          meanL1DBALyingLeft = mean(L1DBA[(!is.na(side) & (side == "L"))], na.rm = TRUE),
-                          meanL2DBALyingLeft = mean(L2DBA[(!is.na(side) & (side == "L"))], na.rm = TRUE),
-                          meanL1JerkLyingLeft = mean(L1Jerk[(!is.na(side) & (side == "L"))], na.rm = TRUE),
-                          meanL2JerkLyingLeft = mean(L2Jerk[(!is.na(side) & (side == "L"))], na.rm = TRUE),
-
-                          meanL1DBALyingRight = mean(L1DBA[(!is.na(side) & (side == "R"))], na.rm = TRUE),
-                          meanL2DBALyingRight = mean(L2DBA[(!is.na(side) & (side == "R"))], na.rm = TRUE),
-                          meanL1JerkLyingRight = mean(L1Jerk[(!is.na(side) & (side == "R"))], na.rm = TRUE),
-                          meanL2JerkLyingRight = mean(L2Jerk[(!is.na(side) & (side == "R"))], na.rm = TRUE)
-
-                     ))
-
-
-  if (!private$has("lying")) col_calcs[c("durationStanding", "durationLying")] <- NULL
-
-  for (act in c("L1DBA", "L2DBA", "L1Jerk", "L2Jerk")) {
-    if (!private$has(act)) {
-        col_calcs[grepl(act, names(col_calcs))] <- NULL
-    }
-    if (!private$has(act) | !private$has("lying")) {
-        col_calcs[c(paste0("mean", act, "Standing"),
-                    paste0("mean", act, "Lying"))] <- NULL
-    }
-    if (!private$has(act) | !private$has("side")) {
-        col_calcs[c(paste0("mean", act, "LyingLeft"),
-                    paste0("mean", act, "LyingRight"))] <- NULL
+  if (private$has("lying")) {
+    col_calcs[["durationStanding"]] <- quote(mean(!lying) * data_duration)
+    col_calcs[["durationLying"]] <- quote(mean(lying) * data_duration)
+    if (private$has("side")) {
+      col_calcs[["durationLyingLeft"]]  <-
+        quote(mean(lying * (!is.na(side) & (side == "L"))) * data_duration)
+      col_calcs[["durationLyingRight"]] <-
+        quote(mean(lying * (!is.na(side) & (side == "R"))) * data_duration)
     }
   }
 
-  if (!side) {
-    col_calcs[grepl("Right|Left", names(col_calcs))] <- NULL
+
+  act_names <- c("L1DBA", "L2DBA", "L1Jerk", "L2Jerk")
+
+  act_names <- c(act_names, paste0("Adj", act_names))
+
+  for (act in act_names) {
+    if (private$has(act)) {
+      col_calcs[[paste0("mean", act)]] <- substitute(mean(act, na.rm = TRUE),
+                               env = list(act = as.name(act)))
+    }
   }
+
+  if (private$has("lying")) {
+
+    for (act in act_names) {
+      if (private$has(act)) {
+        col_calcs[[paste0("mean", act, "Lying")]] <-
+          substitute(mean(act[lying], na.rm = TRUE),
+                     env = list(act = as.name(act)))
+      }
+    }
+
+    for (act in act_names) {
+      if (private$has(act)) {
+        col_calcs[[paste0("mean", act, "Standing")]] <-
+          substitute(mean(act[!lying], na.rm = TRUE),
+                     env = list(act = as.name(act)))
+      }
+    }
+
+    if (side) {
+
+      for (act in act_names) {
+        if (private$has(act)) {
+        col_calcs[[paste0("mean", act, "LyingLeft")]] <-
+          substitute(mean(act[(!is.na(side) & (side == "L"))], na.rm = TRUE),
+                     env = list(act = as.name(act)))
+        }
+      }
+
+      for (act in act_names) {
+        if (private$has(act)) {
+          col_calcs[[paste0("mean", act, "LyingRight")]] <-
+            substitute(mean(act[(!is.na(side) & (side == "R"))], na.rm = TRUE),
+                       env = list(act = as.name(act)))
+        }
+      }
+    }
+  }
+
+  # -------------------------------------------------------------
 
   analysis <- private$dataDT[ , {{minT = min(time); maxT = max(time)
                                   data_duration <- difftime(maxT, minT) + private$sampInt
