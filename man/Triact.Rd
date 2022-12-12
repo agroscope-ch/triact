@@ -214,12 +214,13 @@
   \if{latex}{\out{\hypertarget{method-add_activity}{}}}
 
   \subsection{Method \code{add_activity()}}{
-  Calculate proxies for the physical activity level. By default the L2 norm of the dynamic body acceleration (DBA) vector is calculate. Alternatively, L2 norm of the jerk vector can be calculated. Corresponding L1 norms are also available. See Simmler & Brouwers (2023) for details.
+  Calculate proxies for the physical activity level. By default, the L2 norm of the dynamic body acceleration (DBA) vector is calculated. Corresponding L1 norm is optionally available. Also, the L1 and L2 norms of the jerk vector can be calculated. By default, all activity values during lying bouts are ‘adjusted’ to zero. i.e., periods when cows are lying are considered as ‘inactive’ by definition.  See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_activity(
       dynamic_measure = "dba",
       norm = "L2",
+      adjust = TRUE,
       filter_method = "median",
       keep_dynamic_measure = FALSE,
       ...)}\if{html}{\out{</div>}}
@@ -234,6 +235,10 @@
                 \item{\code{norm}}{
             The type of norm to be calculated. Options are \code{"L1"} and \code{"L2"}. One or both can be provided, e.g., \code{"L1"} or \code{c("L1", "L2")}. \emph{Default:} \code{"L2"}
         }
+                \item{\code{adjust}}{
+            A logical value that indicates whether the proxies for physical activity should be 'adjusted' to 0 during lying bouts, i.e., whether cows should be considered inactive by definition when lying. \emph{Default:} \code{TRUE}
+            }
+
                 \item{\code{filter_method}}{
                 Filter method to be used to determine the gravity component subtracted from the raw acceleration to obtain the dynamic body acceleration. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be pased via the '...' argument (see below). \emph{Default:} \code{"median"}
         }
