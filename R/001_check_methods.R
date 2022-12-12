@@ -4,7 +4,7 @@
 
 ################################################################################
 
-check_orientation <- function(crit = 0.5) {
+check_orientation <- function(crit = 0.5, interactive = TRUE) {
 
   # argument checks ------------------------------------------------------------
 
@@ -24,12 +24,14 @@ check_orientation <- function(crit = 0.5) {
     message(paste("For the IDs listed below the accelerometers seem to have been attached rotated:\n"
                   , paste(up_inverted$id[up_inverted$test], collapse = ", "), "\n"))
 
-    message("Should the upward and forward axis be negative (multiplied by -1) to correct?")
-
     ans <- NA
-    while (!ans %in% c(0, 1)) {
-      ans <- suppressWarnings(as.numeric(readline("0: no, 1: yes ")))
-    }
+
+    if (interactive) {
+      message("Should the upward and forward axis be negative (multiplied by -1) to correct?")
+      while (!ans %in% c(0, 1)) {
+        ans <- suppressWarnings(as.numeric(readline("0: no, 1: yes ")))
+      }
+    } else ans <- 1
 
     if (ans) {
       private$dataDT[, c("acc_up", "acc_fwd") :=
