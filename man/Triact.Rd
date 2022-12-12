@@ -214,22 +214,22 @@
   \if{latex}{\out{\hypertarget{method-add_activity}{}}}
 
   \subsection{Method \code{add_activity()}}{
-  Calculate proxies for the physical activity level. By default the L2 norm of the dynamic body acceleration (DBA) vector and the L2 norm of the jerk vector are calculate. Corresponding L1 norms are optionally available. See Simmler & Brouwers (2023) for details.
+  Calculate proxies for the physical activity level. By default the L2 norm of the dynamic body acceleration (DBA) vector is calculate. Alternatively, L2 norm of the jerk vector can be calculated. Corresponding L1 norms are also available. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_activity(
-      dynamic_parameter = c("dba", "jerk"),
+      dynamic_measure = "dba",
       norm = "L2",
       filter_method = "median",
-      keep_dynamic_parameter = FALSE,
+      keep_dynamic_measure = FALSE,
       ...)}\if{html}{\out{</div>}}
     }
 
     \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
-        \item{\code{dynamic_parameter}}{
-            Type of dynamic parameter to base the activity measure on. Options are \code{"dba"}, for dynammic body acceleration, and \code{"jerk"}, for the jerk vector. One or both can be provided, e.g., \code{"dba"} or \code{c("dba", "jerk")}. \emph{Default:} \code{c("dba", "jerk")}
+        \item{\code{dynamic_measure}}{
+            Type of dynamic measure to base the activity proxy on. Options are \code{"dba"}, for dynammic body acceleration, and \code{"jerk"}, for the jerk vector. One or both can be provided, e.g., \code{"dba"} or \code{c("dba", "jerk")}. \emph{Default:} \code{"dba"}
         }
                 \item{\code{norm}}{
             The type of norm to be calculated. Options are \code{"L1"} and \code{"L2"}. One or both can be provided, e.g., \code{"L1"} or \code{c("L1", "L2")}. \emph{Default:} \code{"L2"}
@@ -237,7 +237,7 @@
                 \item{\code{filter_method}}{
                 Filter method to be used to determine the gravity component subtracted from the raw acceleration to obtain the dynamic body acceleration. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be pased via the '...' argument (see below). \emph{Default:} \code{"median"}
         }
-                \item{\code{keep_dynamic_parameter}}{
+                \item{\code{keep_dynamic_measure}}{
             A logical value that indicates whether the intermediate data, being the dynamic body acceleration vector and/or the jerk verctor should be added to the 'Triact' object. \emph{Default:} \code{FALSE}
         }
                 \item{\code{...}}{
