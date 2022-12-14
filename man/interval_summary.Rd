@@ -2,7 +2,9 @@
 \alias{interval_summary}
 \title{Output of \href{../../triact/html/Triact.html#method-summarize_intervals}{Triact$summarize_intervals()}}
 \description{
-  The information contained in the output table depends on the arguments \code{bouts} and \code{side} and on the analyses you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods. Some or all of the following columns might be present:
+  The information contained in the output table depends on the arguments \code{bouts} and \code{side} and on the analyses you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods.
+
+The asterisk (*) in the column names below stands for one of 'L1', 'L2', 'AdjL1', and 'AdjL2'. DBA is the abbreviation for the dynamic body acceleration.
 
   \tabular{ll}{
   \strong{Column} \tab  \strong{Description} \cr
@@ -15,26 +17,16 @@
   \code{durationLying} \tab Duration in lying posture. Units: As specified via the \code{duration_units} argument. \cr
   \code{durationLyingLeft} \tab Duration in lying posture with lying side left. Units: As specified via the \code{duration_units} argument.  \cr
   \code{durationLyingRight} \tab Duration in lying posture with lying side right. Units: As specified via the \code{duration_units} argument.\cr
-  \code{meanL1DBA} \tab Mean of the L1 norms of the dynamic body acceleration vectors. Units: \eqn{g} \cr
-  \code{meanL2DBA} \tab Mean of the L2 norms of the dynamic body acceleration vectors. Units: \eqn{g} \cr
-  \code{meanL1Jerk} \tab Mean of the L1 norms of the dynamic body acceleration vectors. Units: \eqn{g  s^{-1}} \cr
-  \code{meanL2Jerk} \tab Mean of the L2 norms of the dynamic body acceleration vectors. Units: \eqn{g  s^{-1}} \cr
-  \code{meanL1DBAStanding} \tab Mean of the L1 norms of the dynamic body acceleration vectors when in standing posture. Units: \eqn{g} \cr
-  \code{meanL2DBAStanding} \tab Mean of the L2 norms of the dynamic body acceleration vectors when in standing posture. Units: \eqn{g} \cr
-  \code{meanL1JerkStanding} \tab Mean of the L1 norms of the jerk vectors when in standing posture. Units: \eqn{g  s^{-1}} \cr
-  \code{meanL2JerkStanding} \tab Mean of the L2 norms of the jerk vectors when in standing posture. Units: \eqn{g  s^{-1}} \cr
-  \code{meanL1DBALying} \tab Mean of the L1 norms of the dynamic body acceleration vectors when in lying posture. Units: \eqn{g} \cr
-  \code{meanL2DBALying} \tab Mean of the L2 norms of the dynamic body acceleration vectors when in lying posture. Units: \eqn{g} \cr
-  \code{meanL1JerkLying} \tab Mean of the L1 norms of the jerk vectors when in lying posture. Units: \eqn{g  s^{-1}} \cr
-  \code{meanL2JerkLying} \tab Mean of the L2 norms of the jerk vectors when in lying posture. Units: \eqn{g  s^{-1}} \cr
-  \code{meanL1DBALyingLeft} \tab  Mean of the L1 norms of the dynamic body acceleration vectors when in lying posture with lying side left. Units: \eqn{g} \cr
-  \code{meanL2DBALyingLeft} \tab  Mean of the L2 norms of the dynamic body acceleration vectors when in lying posture with lying side left. Units: \eqn{g} \cr
-  \code{meanL1JerkLyingLeft} \tab Mean of the L1 norms of the jerk vectors when in lying posture with lying side left. Units: \eqn{g  s^{-1}} \cr
-  \code{meanL2JerkLyingLeft} \tab Mean of the L2 norms of the jerk vectors when in lying posture with lying side left. Units: \eqn{g  s^{-1}} \cr
-  \code{meanL1DBALyingRight} \tab Mean of the L1 norms of the dynamic body acceleration vectors when in lying posture with lying side right. Units: \eqn{g} \cr
-  \code{meanL2DBALyingRight} \tab Mean of the L2 norms of the dynamic body acceleration vectors when in lying posture with lying side right. Units: \eqn{g} \cr
-  \code{meanL1JerkLyingRight} \tab Mean of the L1 norms of the jerk vectors when in lying posture with lying side right. Units: \eqn{g  s^{-1}}  \cr
-  \code{meanL2JerkLyingRight} \tab Mean of the L2 norms of the jerk vectors when in lying posture with lying side right. Units: \eqn{g  s^{-1}}  \cr
+  \code{mean*DBA} \tab Mean of the DBA-based proxy for physical activity. Units: \eqn{g} \cr
+  \code{mean*Jerk} \tab Mean of the Jerk-based proxy for physical activity. Units: \eqn{g  s^{-1}} \cr
+  \code{mean*DBAStanding} \tab Mean of the DBA-based proxy for physical activity when in standing posture. Units: \eqn{g} \cr
+  \code{mean*JerkStanding} \tab Mean of the Jerk-based proxy for physical activity when in standing posture. Units: \eqn{g  s^{-1}} \cr
+  \code{mean*DBALying} \tab Mean of the DBA-based proxy for physical activity when in lying posture. Units: \eqn{g} \cr
+  \code{mean*JerkLying} \tab Mean of the Jerk-based proxy for physical activity when in lying posture. Units: \eqn{g  s^{-1}} \cr
+  \code{mean*DBALyingLeft} \tab  Mean of the DBA-based proxy for physical activity when in lying posture with lying side left. Units: \eqn{g} \cr
+  \code{mean*JerkLyingLeft} \tab Mean of the Jerk-based proxy for physical activity when in lying posture with lying side left. Units: \eqn{g  s^{-1}} \cr
+  \code{mean*DBALyingRight} \tab Mean of the DBA-based proxy for physical activity when in lying posture with lying side right. Units: \eqn{g} \cr
+  \code{mean*JerkLyingRight} \tab Mean of the Jerk-based proxy for physical activity when in lying posture with lying side right. Units: \eqn{g  s^{-1}}  \cr
   \code{nBoutsStanding} \tab Number of standing bouts (proportional if across intervals). \cr
   \code{nBoutsLying} \tab Number of lying bouts (proportional if across intervals). \cr
   \code{nBoutsLyingLeft} \tab Number of lying bouts with lying side left (proportional if across intervals). \cr
