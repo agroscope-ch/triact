@@ -10,8 +10,8 @@ check_orientation <- function(crit = 0.5, interactive = TRUE) {
 
   checkmate::assertNumber(crit)
 
-  # check for 180° rotation in sag ital plain ----------------------------------
-  check <- parse(text = "sum(acc_up > crit) < sum(acc_up < -1 * crit)")
+  # check for 180° rotation in sagittal plain ----------------------------------
+  check <- parse(text = "sum(acc_up > crit) < sum(acc_up < (-1 * crit))")
 
   up_inverted <- private$dataDT[, .(test = eval(check)), id]
 

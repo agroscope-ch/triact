@@ -139,6 +139,33 @@
   }
 
   %% ------------------------------
+
+  \if{html}{\out{<hr>}}
+  \if{html}{\out{<a id="method-check_orientation"></a>}}
+  \if{latex}{\out{\hypertarget{method-check_orientation}{}}}
+
+  \subsection{Method \code{check_orientation()}}{
+      Checks for each ID (unique identifier of the cow) whether the accelerometer may have been wrongly mounted 180° rotated in the sagittal plane to the hind leg. If identified as such, the mathematical correction is applied, i.e. the forward and up axes are negated (multiplied by -1), i.e. the axes are mathematical rotated in order to comply with the orientation as specified when loading in the data.
+      The check is \code{sum(acc_up > crit) < sum(acc_up < (-1 * crit))} with \code{crit = 0.5} by default.
+    \subsection{Usage}{
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$check_orientation(crit = 0.5, interactive = TRUE)}\if{html}{\out{</div>}}
+    }
+        \subsection{Arguments}{
+      \if{html}{\out{<div class="arguments">}}
+      \describe{
+        \item{\code{crit}}{
+          Critical value used in the check according to the expression noted in the description above.  \emph{Default:} \code{0.5}
+        }
+        \item{\code{interactive}}{
+                    A logical value that indicates whether the function should interactively prompts the user before applying the correction. \emph{Default:} \code{TRUE}
+        }
+      }
+    }
+    \if{html}{\out{</div>}}
+  }
+
+
+  %% ------------------------------
   \if{html}{\out{<hr>}}
   \if{html}{\out{<a id="method-add_lying"></a>}}
   \if{latex}{\out{\hypertarget{method-add_lying}{}}}
