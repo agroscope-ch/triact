@@ -302,7 +302,7 @@
     \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
-        \item{\code{interval}}{Character string specifying the intervals to be analysed. Any unique English abbreviations as in \code{\link[=period]{lubridate::period}} are allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
+        \item{\code{interval}}{Character string specifying the intervals to be analysed. Any unique English abbreviations valid for the 'unit' argument of \code{\link[=floor_date]{lubridate::floor_date}} is allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
         \item{\code{lag_in_s}}{Lag in seconds with respect to the full hour or full day, respectively. \emph{Default:} \code{0}}
         \item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"} and \code{"hours"}. \emph{Default:} \code{"mins"}}
         \item{\code{bouts}}{Logical indicating whether information on bouts should be additionally summarizede. \emph{Default:} \code{FALSE}}

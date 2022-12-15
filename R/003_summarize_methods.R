@@ -104,7 +104,6 @@ summarize_bouts <- function(bout_type = "both",
 
 ################################################################################
 
-
 summarize_intervals <- function(interval = "hour",
                                 lag_in_s = 0,
                                 duration_units = "mins",
@@ -112,27 +111,66 @@ summarize_intervals <- function(interval = "hour",
                                 side = FALSE,
                                 calc_for_incomplete = FALSE) {
 
+  # check prerequisites --------------------------------------------------------
 
-  # checkmate::assertTRUE(private$has_data, .var.name = "has data?")
-
-  checkmate::assertNumber(lag_in_s, finite = TRUE)
-  checkmate::assertChoice(duration_units, c("secs", "mins", "hours"))
-  checkmate::assertFlag(bouts)
-
-  if (side & !private$has("side")) {
-    stop("Summary by lying side requested (side = TRUE) but data on lying side is missing.
-         You need to call $add_side() first.", call. = FALSE)
+  if (!private$has("data")) {
+    stop("No accelerometer data found. ",
+         "Import data using methods $load_files() or $load_table().",
+         call. = FALSE)
   }
 
-  if (bouts & !private$has("lying")) {
-    stop("Summary of bouts requested (bouts = TRUE) but lying data is missing.
-         You need to call $add_lying() first.", call. = FALSE)
+  if (isTRUE(bouts) & !private$has("lying")) {
+    stop("Summary of bouts requested (bouts = TRUE) but lying data ",
+         "is missing. You need to call $add_lying() first.",
+         call. = FALSE)
   }
 
+  if (isTRUE(side) & !private$has("side")) {
+    stop("Summary by lying side requested (side = TRUE) but data ",
+         "on lying side is missing. You need to call $add_side() first.",
+         call. = FALSE)
+  }
 
-  #---------------------------------------------
+  # check arguments ------------------------------------------------------------
 
-  col_calcs <- quote(list(centerTime = startTime + (lubridate::duration(interval) / 2),
+  ## check interval
+  if (is(try(lubridate::floor_date(Sys.time(), interval), silent = TRUE),
+         "try-error")) {
+    stop(interval, " is not a valid interval. ",
+         "Valid intervals are valid values for the 'unit' argument",
+         "of lubridate::floor_date(). ",
+         "Examples are '2 min', '1 day', '4 hours'. See ?lubridate::floor_date",
+         call. = FALSE)
+  }
+
+  assertColl <- checkmate::makeAssertCollection()
+
+  ## check lag_in_s
+  checkmate::assertNumber(lag_in_s,
+                         finite = TRUE,
+                         add = assertColl)
+
+  ## check duration_units
+  checkmate::assertChoice(duration_units,
+                          choices = c("secs", "mins", "hours"),
+                          add = assertColl)
+  ## check bouts
+  checkmate::assertFlag(bouts,
+                        add = assertColl)
+  ## check side
+  checkmate::assertFlag(side,
+                        add = assertColl)
+
+  ## check calc_for_incomplete
+  checkmate::assertFlag(calc_for_incomplete,
+                        add = assertColl)
+
+  checkmate::reportAssertions(assertColl)
+
+  # summarize data -------------------------------------------------------------
+
+  col_calcs <- quote(list(centerTime = startTime +
+                            (lubridate::duration(interval) / 2),
                           endTime = startTime + lubridate::duration(interval),
                           duration = data_duration))
 
@@ -146,7 +184,6 @@ summarize_intervals <- function(interval = "hour",
         quote(mean(lying * (!is.na(side) & (side == "R"))) * data_duration)
     }
   }
-
 
   act_names <- c("L1DBA", "L2DBA", "L1Jerk", "L2Jerk")
 
@@ -197,40 +234,60 @@ summarize_intervals <- function(interval = "hour",
     }
   }
 
-  # -------------------------------------------------------------
+  analysis <- private$dataDT[ ,
+    {{minT = min(time); maxT = max(time)
+      data_duration <- difftime(maxT, minT) + private$sampInt
+      units(data_duration) <- duration_units
+      data_duration <- as.numeric(data_duration)} # block prepares temp vars
+     eval(col_calcs)},                            # this is returned
+    by = .(id, startTime =
+             lubridate::floor_date(time - lag_in_s, interval) + lag_in_s)]
 
-  analysis <- private$dataDT[ , {{minT = min(time); maxT = max(time)
-                                  data_duration <- difftime(maxT, minT) + private$sampInt
-                                  units(data_duration) <- duration_units
-                                  data_duration <- as.numeric(data_duration)} # block prepares temp vars
-                                 eval(col_calcs)},                                    # this is returned
-                              by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s)]
-
-  # --------
+  # summarize additional data on bouts -----------------------------------------
 
   if (bouts) {
 
-    # if (lubridate::duration(interval, units = "hours") < 6) {
-    #   message("For meaningful analysis of bouts per interval (bouts == TRUE) you might want to consider a larger interval, i.e. interval = 'day'.")
-    # }
+    bout_x_interval <-
+      private$dataDT[, .(lying = unique(lying),
+                     side = if (private$has("side")) unique(side)
+                            else character(), N = .N),
+                     by = .(id, startTime =
+                              lubridate::floor_date(time - lag_in_s, interval) +
+                              lag_in_s, bout_nr)]
 
-    bout_x_interval <- private$dataDT[, .(lying = unique(lying), side = if (private$has("side")) unique(side) else character(), N = .N),
-                                      by = .(id, startTime = lubridate::floor_date(time - lag_in_s, interval) + lag_in_s, bout_nr)]
+    bout_x_interval[, propI := N / sum(N), by = .(id, bout_nr)] # prop in interval
 
-    bout_x_interval[, proportion_in_interval := N / sum(N), by = .(id, bout_nr)]
-
-    bout_x_interval[self$summarize_bouts(bout_type = "both", duration_units = duration_units, calc_for_incomplete = calc_for_incomplete),
+    bout_x_interval[self$summarize_bouts(bout_type = "both",
+                                         duration_units = duration_units,
+                                         calc_for_incomplete = calc_for_incomplete),
                     boutDuration := duration,
                     on = .(id, bout_nr)]
 
-    col_calcs_b <- quote(list(nBoutsStanding = if (any(is.na(boutDuration[!lying]))) as.double(NA) else sum(proportion_in_interval[!lying]),
-                              nBoutsLying = if (any(is.na(boutDuration[lying]))) as.double(NA) else sum(proportion_in_interval[lying]),
-                              nBoutsLyingLeft = if (any(is.na(boutDuration[lying]))) as.double(NA) else sum(proportion_in_interval[lying & (!is.na(side) & (side == "L"))]),
-                              nBoutsLyingRight = if (any(is.na(boutDuration[lying]))) as.double(NA) else sum(proportion_in_interval[lying & (!is.na(side) & (side == "R"))]),
-                              wMeanDurationStandingBout = sum((boutDuration[!lying] * proportion_in_interval[!lying])) / sum(proportion_in_interval[!lying]),
-                              wMeanDurationLyingBout = sum((boutDuration[lying] * proportion_in_interval[lying])) / sum(proportion_in_interval[lying]),
-                              wMeanDurationLyingBoutLeft = sum((boutDuration[lying & (!is.na(side) & (side == "L"))] * proportion_in_interval[lying & (!is.na(side) & (side == "L"))])) / sum(proportion_in_interval[lying & (!is.na(side) & (side == "L"))]),
-                              wMeanDurationLyingBoutRight = sum((boutDuration[lying & (!is.na(side) & (side == "R"))] * proportion_in_interval[lying & (!is.na(side) & (side == "R"))])) / sum(proportion_in_interval[lying & (!is.na(side) & (side == "R"))]))
+    col_calcs_b <-
+      quote(list(nBoutsStanding =
+                   if (any(is.na(boutDuration[!lying]))) as.double(NA)
+                   else sum(propI[!lying]),
+                 nBoutsLying =
+                   if (any(is.na(boutDuration[lying]))) as.double(NA)
+                   else sum(propI[lying]),
+                 nBoutsLyingLeft =
+                   if (any(is.na(boutDuration[lying]))) as.double(NA)
+                   else sum(propI[lying & (!is.na(side) & (side == "L"))]),
+                 nBoutsLyingRight =
+                   if (any(is.na(boutDuration[lying]))) as.double(NA)
+                   else sum(propI[lying & (!is.na(side) & (side == "R"))]),
+                 wMeanDurationStandingBout =
+                   sum((boutDuration[!lying] * propI[!lying])) / sum(propI[!lying]),
+                 wMeanDurationLyingBout =
+                   sum((boutDuration[lying] * propI[lying])) / sum(propI[lying]),
+                 wMeanDurationLyingBoutLeft =
+                   sum((boutDuration[lying & (!is.na(side) & (side == "L"))] *
+                          propI[lying & (!is.na(side) & (side == "L"))])) /
+                   sum(propI[lying & (!is.na(side) & (side == "L"))]),
+                 wMeanDurationLyingBoutRight =
+                   sum((boutDuration[lying & (!is.na(side) & (side == "R"))] *
+                          propI[lying & (!is.na(side) & (side == "R"))])) /
+                   sum(propI[lying & (!is.na(side) & (side == "R"))]))
                        )
 
     if (!side) {
@@ -243,15 +300,21 @@ summarize_intervals <- function(interval = "hour",
 
   }
 
+
+  # set summaries that depend on incompletely observed bouts to NA -------------
+
   if (!calc_for_incomplete) {
 
-    not_afffected <- c("id", "startTime", "centerTime", "endTime", "Duration")
+    not_affected <- c("id", "startTime", "centerTime", "endTime", "Duration")
 
-    cols <- !colnames(analysis) %in% not_afffected
+    cols <- !colnames(analysis) %in% not_affected
 
-    analysis[startTime %in% c(min(startTime), max(startTime)), colnames(analysis)[cols] := NA, by = id]
+    analysis[startTime %in% c(min(startTime), max(startTime)),
+             colnames(analysis)[cols] := NA, by = id]
 
   }
+
+  # return  --------------------------------------------------------------------
 
   return(transform_table(analysis))
 }
