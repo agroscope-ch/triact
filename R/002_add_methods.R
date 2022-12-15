@@ -119,6 +119,12 @@ add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5) {
 
   # check prerequisites --------------------------------------------------------
 
+  if (!private$has("data")) {
+    stop("No accelerometer data found. ",
+         "Import data using methods $load_files() or $load_table().",
+         call. = FALSE)
+  }
+
   if (!private$has("lying")) {
     stop("No lying behaviour data found. ",
          "You need to call $add_lying() first.",
