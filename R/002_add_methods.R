@@ -1,7 +1,5 @@
-# ------------------------------------------------------------------------------
+################################################################################
 # add_... methods of Triact class
-# ------------------------------------------------------------------------------
-
 ################################################################################
 
 add_lying <- function(filter_method = "median",
@@ -14,50 +12,50 @@ add_lying <- function(filter_method = "median",
   # check prerequisites --------------------------------------------------------
 
   if (!private$has("data")) {
-    stop("No accelerometer data found.
-         Import data using methods $load_files() or $load_table().",
+    stop("No accelerometer data found. ",
+         "Import data using methods $load_files() or $load_table().",
          call. = FALSE)
   }
 
   if (!private$has("acc_up")) {
-    stop("Lying data is missing. You need to call $add_lying() first.",
+    stop("No acceleration from 'up' axis found (acc_up). ",
+         "This is prerequisite for determining lying/standing posture.",
          call. = FALSE)
   }
 
-  # argument checks ------------------------------------------------------------
+  # check arguments ------------------------------------------------------------
 
   assertColl <- checkmate::makeAssertCollection()
 
-  # ---- check filter_method ----
+  ## check filter_method
   checkmate::assertChoice(filter_method,
                           choices = c("median", "butter"),
                           add = assertColl)
 
-  # ---- check crit_lie ----
+  ## check crit_lie
   checkmate::assertNumber(crit_lie,
                           add = assertColl)
 
-  # ---- check minimum_duration_lying ----
+  ## check minimum_duration_lying
   checkmate::assertNumber(minimum_duration_lying,
                           lower = 0,
                           null.ok = TRUE,
                           add = assertColl)
 
-  # ---- check minimum_duration_standing ----
+  ## check minimum_duration_standing
   checkmate::assertNumber(minimum_duration_standing,
                           lower = 0,
                           null.ok = TRUE,
                           add = assertColl)
 
-  # ---- check add_filtered ----
+  ## check add_filtered
   checkmate::assertFlag(add_filtered,
                         add = assertColl)
 
 
   checkmate::reportAssertions(assertColl)
 
-
-  # determine lying/standing  and bouts ----------------------------------------
+  # determine lying/standing and bouts -----------------------------------------
 
   ## Step 1: filtering signal
 
@@ -69,7 +67,7 @@ add_lying <- function(filter_method = "median",
 
   private$dataDT[, lying := gravity_up < crit_lie, id]
 
-  # Step 3: discard bouts shorter than minimum duration
+  ## Step 3: discard bouts shorter than minimum duration
 
   if (!is.null(minimum_duration_lying)) {
     private$dataDT[, lying :=
@@ -89,20 +87,18 @@ add_lying <- function(filter_method = "median",
                    by = .(id, cumsum(c(1, diff(lying) != 0)))]
   }
 
-
-  # number bouts (uniquely per id)
+  # number bouts (uniquely per id) ---------------------------------------------
 
   private$dataDT[, bout_nr := cumsum(c(1, diff(lying) != 0)), id]
 
+  # Tidy, update, return -------------------------------------------------------
 
-  # Tidy and update ------------------------------------------------------------
-
-  # Order columns with lying information
+  ## order columns with lying information
   co <- c("bout_nr", "lying", "gravity_up")
   co_ord <- c(colnames(private$dataDT)[!colnames(private$dataDT) %in% co], co)
   setcolorder(private$dataDT, co_ord)
 
-  # drop/keep filtered data
+  ## drop/keep filtered data
   if (!add_filtered) {
     private$dataDT[, gravity_up := NULL]
   }
@@ -124,28 +120,30 @@ add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5) {
   # check prerequisites --------------------------------------------------------
 
   if (!private$has("lying")) {
-    stop("No lying behaviour data found.
-         You need to call $add_lying() first.",
+    stop("No lying behaviour data found. ",
+         "You need to call $add_lying() first.",
          call. = FALSE)
   }
 
   if (!private$has("acc_right")) {
-    stop("No acceleration from 'right' axis found (acc_right)
-         This is prerequisite for determining lying side.",
+    stop("No acceleration from 'right' axis found (acc_right). ",
+         "This is prerequisite for determining lying side.",
          call. = FALSE)
   }
 
-  # argument checks ------------------------------------------------------------
+  # check arguments ------------------------------------------------------------
 
+  ## check left_leg
   if (missing(crit_left)) {
     checkmate::assertFlag(left_leg)
   }
 
   checkmate::assertNumber(crit_left)
 
+  ## check crit_left
   if (!missing(crit_left) & !missing(left_leg)) {
-    warning("The argument 'left_leg' is ignored as
-            argument 'crit_left' was provided.", call. = FALSE)
+    warning("The argument 'left_leg' is ignored as ",
+            "argument 'crit_left' was provided.", call. = FALSE)
   }
 
   # determine lying side -------------------------------------------------------
@@ -174,14 +172,47 @@ add_activity <- function(dynamic_measure = "dba",
   # check prerequisites --------------------------------------------------------
 
   if (!private$has("data")) {
-    stop("No accelerometer data found.
-         Import data using methods $load_files() or $load_table().",
+    stop("No accelerometer data found. ",
+         "Import data using methods $load_files() or $load_table().",
          call. = FALSE)
   }
 
-  # check prerequisites -------------------------------------------------------
+  if (isTRUE(adjust) && !private$has("lying")) {
+    stop("'Adjusting' activity to 0 during lying bouts requested ",
+         "(adjust = TRUE) but no lying behaviour data found. You need to ",
+         "call $add_lying() first, or rerun with adjust = FALSE.")
+  }
 
-  # .... missing
+  # check arguments ------------------------------------------------------------
+
+  assertColl <- checkmate::makeAssertCollection()
+
+  ## check dynamic_measure
+  checkmate::assertSubset(dynamic_measure,
+                          choices = c("dba", "jerk"),
+                          empty.ok = FALSE,
+                          add = assertColl)
+
+  ## check norm
+  checkmate::assertSubset(norm,
+                          choices = c("L1", "L2"),
+                          empty.ok = FALSE,
+                          add = assertColl)
+
+  ## check adjust
+  checkmate::assertFlag(adjust,
+                        add = assertColl)
+
+  ## check filter_method
+  checkmate::assertChoice(filter_method,
+                          choices = c("median", "butter"),
+                          add = assertColl)
+
+  ## check keep_dynamic_measure
+  checkmate::assertFlag(keep_dynamic_measure,
+                        add = assertColl)
+
+  checkmate::reportAssertions(assertColl)
 
   # determine activity  ------------------------------------------------------
 
@@ -242,7 +273,6 @@ add_activity <- function(dynamic_measure = "dba",
 
       if (adjust) {
         private$dataDT[lying == TRUE, (act_col_name) := 0]
-
       }
 
     }
@@ -259,5 +289,4 @@ add_activity <- function(dynamic_measure = "dba",
 
 }
 
-#  ---------------------------------------------------------------------
-
+################################################################################
