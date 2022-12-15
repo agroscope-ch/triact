@@ -125,16 +125,13 @@ filter_acc <- function(filter_method, axes, fArgs, dba = FALSE) {
 
 has <- function(to_check) {
   if (to_check[1] == "data") {
-    return(checkmate::checkDataTable(private$dataDT))
+    return(checkmate::testDataTable(private$dataDT))
   } else {
     return(to_check %in% colnames(private$dataDT))
   }
 }
 
 ##########################################
-
-
-
 
 
 
