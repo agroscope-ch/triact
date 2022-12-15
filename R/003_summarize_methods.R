@@ -1,19 +1,46 @@
-# ----------------------------------------------------------------
+################################################################################
 # summarize_... methods of Triact class
-# ----------------------------------------------------------------
+################################################################################
 
 summarize_bouts <- function(bout_type = "both",
                             duration_units = "mins",
                             calc_for_incomplete = FALSE) {
 
-  if (!private$has("lying")) {
-    stop("No lying behaviour data found.
-         You need to call $add_lying() first.",
+  # check prerequisites --------------------------------------------------------
+
+  if (!private$has("data")) {
+    stop("No accelerometer data found. ",
+         "Import data using methods $load_files() or $load_table().",
          call. = FALSE)
   }
 
-  checkmate::assertChoice(bout_type, choices = c("both", "lying", "standing"))
-  checkmate::assert_choice(duration_units, c("secs", "mins", "hours"))
+  if (!private$has("lying")) {
+    stop("No lying behaviour data found. ",
+         "You need to call $add_lying() first.",
+         call. = FALSE)
+  }
+
+  # check arguments ------------------------------------------------------------
+
+  assertColl <- checkmate::makeAssertCollection()
+
+  ## check bout_type
+  checkmate::assertChoice(bout_type,
+                          choices = c("both", "lying", "standing"),
+                          add = assertColl)
+
+  ## check duration_units
+  checkmate::assertChoice(duration_units,
+                          choices = c("secs", "mins", "hours"),
+                          add = assertColl)
+
+  ## check calc_for_incomplete
+  checkmate::assertFlag(calc_for_incomplete,
+                          add = assertColl)
+
+  checkmate::reportAssertions(assertColl)
+
+  # summarize data  ------------------------------------------------------------
 
   bout_select <- if (bout_type == "both") {
     TRUE
@@ -22,8 +49,6 @@ summarize_bouts <- function(bout_type = "both",
   } else if (bout_type == "standing") {
     !private$dataDT$lying
   }
-
-  # -----------------
 
   col_calcs <- quote(list(startTime = minT,
                           endTime = maxT + private$sampInt,
@@ -46,11 +71,12 @@ summarize_bouts <- function(bout_type = "both",
     }
   }
 
-  # -----------------
-
-  analysis <- private$dataDT[bout_select, {{minT <- min(time); maxT <- max(time)} # block prepares temp vars
+  analysis <- private$dataDT[bout_select, {
+    {minT <- min(time); maxT <- max(time)} # block prepares temp vars
     eval(col_calcs)},                      # this is returned
     by = .(id, bout_nr)]
+
+  # set summaries that depend on incompletely observed bouts to NA -------------
 
   if (!calc_for_incomplete) {
 
@@ -70,11 +96,13 @@ summarize_bouts <- function(bout_type = "both",
 
   }
 
+  # return  --------------------------------------------------------------------
+
   return(transform_table(analysis))
 }
 
 
-#------------------------------------------------------------------------------------------
+################################################################################
 
 
 summarize_intervals <- function(interval = "hour",
