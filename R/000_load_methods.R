@@ -312,7 +312,7 @@ load_files <- function(input,
 
 load_table <- function(table) {
 
-  # argument check -------------------------------------------------------------
+  # check arguments ------------------------------------------------------------
 
   assertColl <- checkmate::makeAssertCollection()
 
@@ -362,5 +362,9 @@ load_table <- function(table) {
   private$dataDT <- as.data.table(table)
 
   private$sampInt <- determine_sampInt(private$dataDT)
+
+  # return ---------------------------------------------------------------------
+
+  return(invisible(self))
 
 }
