@@ -57,7 +57,10 @@
   \if{latex}{\out{\hypertarget{method-load_files}{}}}
 
   \subsection{Method \code{load_files()}}{
-    Import data from accelerometer data files from one or several cows to the 'Triact' object. Importing multiple files from the same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: id_substring). Sampling frequency must be consistent across the files. Triaxial, biaxial and uniaxial axelerometer data are allowed, but only triaxial data corresponding to relative body coordinates allow full functionality.
+    Import data from accelerometer data files from one or several cows to the 'Triact' object. Importing multiple files from the same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: \code{id_substring}). Accelerometer sampling frequency must be consistent across the files. Acceleration should be in units of \emph{g}. Triaxial, biaxial and uniaxial axelerometer data are allowed, but only triaxial data corresponding to relative body directions allow full functionality.
+
+\emph{Important}: Make sure to correctly specify how to map the axes as named by the accelerometer (e.g., x, y, z) to the body relative axes as used in triact (parameter: \code{timeFwdUpRight_cols}). See Simmler & Brouwers (2023) for an illustration.
+
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$load_files(
         input,
@@ -131,11 +134,40 @@
   \if{latex}{\out{\hypertarget{method-load_table}{}}}
 
   \subsection{Method \code{load_table()}}{
-    Create a new triact object.
+    Import accelerometer data from a data.frame-like table. The table should contain the following columns:
+      \tabular{llll}{
+    \emph{colname} \tab \emph{type} \tab \emph{description} \cr
+    id \tab Factor \tab unique id for the cow \cr
+    time \tab POSIXct \tab timestamp \cr
+    acc_fwd \tab numeric \tab acceleration from \emph{forward} axis (units: \emph{g}) \cr
+    acc_up \tab numeric \tab acceleration from \emph{up} axis (units: \emph{g}) \cr
+    acc_right \tab numeric \tab acceleration from \emph{right} axis (units: \emph{g}) \cr
+
+  }
+
+The accelerometer sampling frequency must be the same across all cows (id). No time gaps are allowed (within data of one id). One or two of the acceleration columns may be missing, but the analyses possible is then limited.
+
+\emph{Important}: Make sure the accelerometer axis correctly represent body relative axes (foward, up, right). See Simmler & Brouwers (2023) for an illustration.
+
+
     \subsection{Usage}{
-      \if{html}{\out{<div class="r">}}\preformatted{Triact$load_table()}\if{html}{\out{</div>}}
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$load_table(table)
+      }\if{html}{\out{</div>}}
     }
+    \subsection{Usage (alternative syntax)}{
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$data <- table
+      }\if{html}{\out{</div>}}
+    }
+
     \if{html}{\out{</div>}}
+
+        \subsection{Arguments}{
+      \if{html}{\out{<div class="arguments">}}
+      \describe{
+        \item{\code{table}}{Data frame-like table containing the data to import. Must follow the requirements detailed in the description above.}
+      }
+    }
+
   }
 
   %% ------------------------------
