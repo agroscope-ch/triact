@@ -78,234 +78,260 @@ load_files <- function(input,
                        parallel     = 1,
                        ...) {
 
-   # argument checks -----------------------------------------------------------
+  # check arguments ------------------------------------------------------------
 
-   assertColl <- checkmate::makeAssertCollection()
+  assertColl <- checkmate::makeAssertCollection()
 
-   # ---- input ----
-   if (checkmate::testDirectory(input[1])) {
-      checkmate::assertDirectory(input,
-                                 access = "r",
-                                 add = assertColl)
-   } else if (checkmate::testFile(input[1])) {
-      checkmate::assertFile(
-         input,
-         access = "r",
-         extension = c("csv", "tsv", "txt"),
-         add = assertColl
-      )
-   } else {
-      assertColl$push("'input' not found, must be directory or file names. See ?Triact")
-   }
+  ## check input
+  if (checkmate::testDirectory(input[1])) {
+    checkmate::assertDirectory(input,
+                               access = "r",
+                               add = assertColl)
+  } else if (checkmate::testFile(input[1])) {
+    checkmate::assertFile(input,
+                          access = "r",
+                          extension = c("csv", "tsv", "txt"),
+                          add = assertColl)
+  } else {
+    assertColl$push("'input' not found, must be directory or file names. See ?Triact")
+  }
 
-   # ---- id_substring ----
-   if (checkmate::testNumeric(id_substring)) {
-      msg <- checkmate::checkIntegerish(
-         id_substring,
-         len = 2,
-         sorted = TRUE,
-         any.missing = FALSE,
-         lower = 1
-      )
-      if (!isTRUE(msg)) {
-         assertColl$push(paste0(
-            "Variable 'id_substring' as integer c(first, last): ",
-            msg
-         ))
+  ## check id_substring
+  if (checkmate::testNumeric(id_substring)) {
+    msg <- checkmate::checkIntegerish(id_substring,
+                                      len = 2,
+                                      sorted = TRUE,
+                                      any.missing = FALSE,
+                                      lower = 1)
+    if (!isTRUE(msg)) {
+      assertColl$push(paste0(
+        "Variable 'id_substring' as integer c(first, last): ", msg))
       }
-   } else if (checkmate::testCharacter(id_substring)) {
-      msg <- checkmate::checkCharacter(
-         id_substring,
-         len = 1,
-         min.chars = 1,
-         all.missing = FALSE
-      )
-      if (!isTRUE(msg)) {
-         assertColl$push(paste0(
-            "Variable 'id_substring' as character (Perl-like regex): ",
-            msg
-         ))
+  } else if (checkmate::testCharacter(id_substring)) {
+    msg <- checkmate::checkCharacter(id_substring,
+                                     len = 1,
+                                     min.chars = 1,
+                                     all.missing = FALSE)
+    if (!isTRUE(msg)) {
+      assertColl$push(paste0(
+        "Variable 'id_substring' as character (Perl-like regex): ", msg))
+    }
+  } else {
+    assertColl$push("Variable 'id_substring': Misspecified. See ?Triact")
+  }
+
+  ## check timeFwdUpRight_cols
+  msg <- checkmate::checkIntegerish(timeFwdUpRight_cols,
+                                    len = 4, lower = 1)
+
+  if (!isTRUE(msg)) {
+    assertColl$push(paste0("Variable 'timeFwdUpRight_cols': ", msg))
+  } else {
+    if (is.na(timeFwdUpRight_cols[1])) {
+    assertColl$push("Variable 'timeFwdUpRight_cols': First element (time column) cannot be NA.")
+    }
+    if (sum(is.na(timeFwdUpRight_cols[2:4])) == 3) {
+      assertColl$push("Variable 'timeFwdUpRight_cols': At least one of the acceleration columns must be non-NA.")
+    }
+  }
+
+  ## check time_format
+
+
+  ##### CHECK STILL MISSING
+
+
+  ## check tz
+  if (inherits(try(lubridate::force_tz(Sys.time(), tz), silent = TRUE),
+              "try-error")) {
+    assertColl$push(paste0("Variable 'tz': Unrecognized time zone"))
+  }
+
+  ## check start_time & stop_time
+  for (tp in c("start_time", "end_time")) {
+    if (!is.null(get(tp))) {
+      if (inherits(try(as.POSIXct(get(tp)), silent = TRUE), "try-error") ||
+          !checkmate::testPOSIXct(as.POSIXct(get(tp)),
+                                  len = 1,
+                                  any.missing = FALSE)) {
+        print(tp)
+        assertColl$push(paste0(
+          "Variable '", tp, "': Not interpretable as POSIXct of length 1"))
       }
-   } else {
-      assertColl$push("'id_substring' misspecified. See ?Triact")
-   }
+    }
+  }
 
-   # ---- timeFwdUpRight_cols ----
-   msg <- checkmate::checkIntegerish(
-      timeFwdUpRight_cols,
-      len = 4,
-      lower = 1,
-      all.missing = FALSE
-   )
 
-   if (!isTRUE(msg)) {
-      assertColl$push(paste0("Variable 'timeFwdUpRight_cols': ", msg))
-   } else if (is.na(timeFwdUpRight_cols[1])) {
-      assertColl$push("Variable 'timeFwdUpRight_cols': First element (time column) cannot be NA.")
-   }
+  ## check sep
+
+  ## check skip
+
+  ## check parallel
 
 
 
-   checkmate::reportAssertions(assertColl)
+  checkmate::reportAssertions(assertColl)
 
 
-   # new title  ----------------------------------------------------------------
 
 
-   # list files if input is dir
-   if (dir.exists(input[1])) {
-      input <- list.files(input, full.names = TRUE, recursive = TRUE)
-   }
+  # new title  ----------------------------------------------------------------
 
-   # extracts ID from file names
-   if (is.character(id_substring)) {
-      names(input) <-
-         sapply(regmatches(
-            basename(input),
-            regexec(id_substring, basename(input), perl = TRUE)
-         ), \(i) i[1])
-   } else if (is.numeric(id_substring)) {
-      names(input) <-
-         substring(basename(input), id_substring[1], id_substring[2])
-   }
 
-   # extract math sign of accel cols to new var and strip it from timeFwdUpRight_cols
+  # list files if input is dir
+  if (dir.exists(input[1])) {
+    input <- list.files(input, full.names = TRUE, recursive = TRUE)
+  }
 
-   acc_col_sign <- na.omit(sign(timeFwdUpRight_cols[-1]))
+  # extracts ID from file names
+  if (is.character(id_substring)) {
+    names(input) <-
+      sapply(regmatches(
+        basename(input),
+        regexec(id_substring, basename(input), perl = TRUE)
+      ), \(i) i[1])
+  } else if (is.numeric(id_substring)) {
+    names(input) <-
+      substring(basename(input), id_substring[1], id_substring[2])
+  }
 
-   timeFwdUpRight_cols <- abs(timeFwdUpRight_cols)
+  # extract math sign of accel cols to new var and strip it from timeFwdUpRight_cols
 
-   # prepare col names
-   colnms <-
-      c("time", "acc_fwd", "acc_up", "acc_right")[!is.na(timeFwdUpRight_cols)]
+  acc_col_sign <- na.omit(sign(timeFwdUpRight_cols[-1]))
 
-   # prepare col classes: when user does not supply time_format then POSIXct for time col, otherwise character
-   colcls <- as.list(na.omit(timeFwdUpRight_cols))
-   if (is.null(time_format)) {
-      names(colcls) <- c("POSIXct", rep("numeric", length(colcls) - 1))
-   } else {
-      names(colcls) <- c("character", rep("numeric", length(colcls) - 1))
-   }
+  timeFwdUpRight_cols <- abs(timeFwdUpRight_cols)
 
-   # -----------------------------------------------------------
+  # prepare col names
+  colnms <-
+    c("time", "acc_fwd", "acc_up", "acc_right")[!is.na(timeFwdUpRight_cols)]
 
-   read_file <- function(f, fread_args, tformat = time_format) {
-      file_dt <- do.call(data.table::fread, c(list(file = f), fread_args))
+  # prepare col classes: when user does not supply time_format then POSIXct for time col, otherwise character
+  colcls <- as.list(na.omit(timeFwdUpRight_cols))
+  if (is.null(time_format)) {
+    names(colcls) <- c("POSIXct", rep("numeric", length(colcls) - 1))
+  } else {
+    names(colcls) <- c("character", rep("numeric", length(colcls) - 1))
+  }
 
-      if (!is.null(tformat)) {
-         file_dt[, time := lubridate::parse_date_time(
-            time,
-            orders = tformat,
-            tz = tz,
-            exact = TRUE,
-            quiet = TRUE
-         )]
-      }
+  # -----------------------------------------------------------
 
-      if ((!lubridate::is.POSIXct(file_dt$time)) ||
-          (sum(is.na(file_dt$time)) > 0)) {
-         stop_custom("time_parse_error", basename(f))
-      }
-      return(file_dt)
-   }
+  read_file <- function(f, fread_args, tformat = time_format) {
+    file_dt <- do.call(data.table::fread, c(list(file = f), fread_args))
 
-   arguments <- c(
-      list(
-         select = timeFwdUpRight_cols,
-         tz = if (tz == "UTC")
-            "UTC"
-         else
-            "",
-         # fread only takes "UTC" or "" (system tz) --> extra step below needed
-         col.names = colnms,
-         colClasses = colcls,
-         sep = sep,
-         skip = skip,
-         header = FALSE
-      ),
-      list(...)
-   )
+    if (!is.null(tformat)) {
+      file_dt[, time := lubridate::parse_date_time(
+        time,
+        orders = tformat,
+        tz = tz,
+        exact = TRUE,
+        quiet = TRUE
+      )]
+    }
 
-   # Note on parallelization: when parallel > 1 files are read in parallel via parLapply
-   # in this case nThread in data.table::fread is set to zero to avoid nested parallelization
-   # this behavior can be overwritten by passing nTread via the ... argument
+    if ((!lubridate::is.POSIXct(file_dt$time)) ||
+        (sum(is.na(file_dt$time)) > 0)) {
+      stop_custom("time_parse_error", basename(f))
+    }
+    return(file_dt)
+  }
 
-   if (parallel > 1) {
-      if (is.null(arguments$nThread)) {
-         # to avoid nested parallelization
-         arguments$nThread <- 1
-      }
-      fread_cls <- parallel::makeCluster(parallel)
-      on.exit(parallel::stopCluster(fread_cls))
-      dataList <- parallel::parLapply(cl = fread_cls,
-                                      X = input,
-                                      fun = \(f) {
-                                         tryCatch(
-                                            expr = read_file(f, arguments),
-                                            time_parse_error = identity
-                                         )
-                                      })
-   } else {
-      dataList <- lapply(X = input,
-                         FUN = \(f) tryCatch(
-                            expr = read_file(f, arguments),
-                            time_parse_error = identity
-                         ))
-   }
+  arguments <- c(
+    list(
+      select = timeFwdUpRight_cols,
+      tz = if (tz == "UTC")
+        "UTC"
+      else
+        "",
+      # fread only takes "UTC" or "" (system tz) --> extra step below needed
+      col.names = colnms,
+      colClasses = colcls,
+      sep = sep,
+      skip = skip,
+      header = FALSE
+    ),
+    list(...)
+  )
 
-   tErrMsg <- unlist(dataList[vapply(dataList,
-                                     FUN = is,
-                                     FUN.VALUE = logical(1),
-                                     class2 = "time_parse_error")])
-   if (!is.null(tErrMsg)) {
-      stop(paste0(
-         "Problem coersing time column to POSIXct for files: ",
-         paste(tErrMsg, collapse = ", ")
-      ))
-   }
-   private$dataDT <- data.table::rbindlist(dataList, idcol = "id")
+  # Note on parallelization: when parallel > 1 files are read in parallel via parLapply
+  # in this case nThread in data.table::fread is set to zero to avoid nested parallelization
+  # this behavior can be overwritten by passing nTread via the ... argument
 
-   # ---------------------------
-   # Negation of the acceleration data (opposing direction)
-   # according to the math sign specified via the timeFwdUpRight_cols argument
+  if (parallel > 1) {
+    if (is.null(arguments$nThread)) {
+      # to avoid nested parallelization
+      arguments$nThread <- 1
+    }
+    fread_cls <- parallel::makeCluster(parallel)
+    on.exit(parallel::stopCluster(fread_cls))
+    dataList <- parallel::parLapply(cl = fread_cls,
+                                    X = input,
+                                    fun = \(f) {
+                                      tryCatch(
+                                        expr = read_file(f, arguments),
+                                        time_parse_error = identity
+                                      )
+                                    })
+  } else {
+    dataList <- lapply(X = input,
+                       FUN = \(f) tryCatch(
+                         expr = read_file(f, arguments),
+                         time_parse_error = identity
+                       ))
+  }
 
-   expr <- str2lang(paste0("list(" ,
-                           paste(
-                              ifelse(acc_col_sign == -1, paste0("-", colnms[-1]), colnms[-1]),
-                              collapse = ", "
-                           ),
-                           ")"))
+  tErrMsg <- unlist(dataList[vapply(dataList,
+                                    FUN = is,
+                                    FUN.VALUE = logical(1),
+                                    class2 = "time_parse_error")])
+  if (!is.null(tErrMsg)) {
+    stop(paste0(
+      "Problem coersing time column to POSIXct for files: ",
+      paste(tErrMsg, collapse = ", ")
+    ))
+  }
+  private$dataDT <- data.table::rbindlist(dataList, idcol = "id")
 
-   private$dataDT[, colnms[-1] := eval(expr)]
+  # ---------------------------
+  # Negation of the acceleration data (opposing direction)
+  # according to the math sign specified via the timeFwdUpRight_cols argument
 
-   # ---------------------------
-   private$dataDT[, id := as.factor(id)]
+  expr <- str2lang(paste0("list(" ,
+                          paste(
+                            ifelse(acc_col_sign == -1, paste0("-", colnms[-1]), colnms[-1]),
+                            collapse = ", "
+                          ),
+                          ")"))
 
-   private$dataDT <-
-      private$dataDT[complete.cases(private$dataDT),]
+  private$dataDT[, colnms[-1] := eval(expr)]
 
-   private$dataDT <- private$dataDT[!duplicated(private$dataDT),]
+  # ---------------------------
+  private$dataDT[, id := as.factor(id)]
 
-   attr(private$dataDT$time, "tzone") <- tz
+  private$dataDT <-
+    private$dataDT[complete.cases(private$dataDT),]
 
-   # filter time range according to user-provided start and/or end time
-   if (!is.null(start_time) && is.null(start_time)) {
-      private$dataDT <-
-         private$dataDT[time >= as.POSIXct(start_time, tz = tz),]
-   } else if (is.null(start_time) && !is.null(end_time)) {
-      private$dataDT <-
-         private$dataDT[time <= as.POSIXct(end_time, tz = tz)]
-   } else if (!is.null(start_time) && !is.null(end_time)) {
-      private$dataDT <-
-         private$dataDT[(time >= as.POSIXct(start_time, tz = tz)) &
-                           (time <= as.POSIXct(end_time, tz = tz))]
-   }
+  private$dataDT <- private$dataDT[!duplicated(private$dataDT),]
 
-   # --------------------------
+  attr(private$dataDT$time, "tzone") <- tz
 
-   private$sampInt <- determine_sampInt(private$dataDT)
+  # filter time range according to user-provided start and/or end time
+  if (!is.null(start_time) && is.null(start_time)) {
+    private$dataDT <-
+      private$dataDT[time >= as.POSIXct(start_time, tz = tz),]
+  } else if (is.null(start_time) && !is.null(end_time)) {
+    private$dataDT <-
+      private$dataDT[time <= as.POSIXct(end_time, tz = tz)]
+  } else if (!is.null(start_time) && !is.null(end_time)) {
+    private$dataDT <-
+      private$dataDT[(time >= as.POSIXct(start_time, tz = tz)) &
+                       (time <= as.POSIXct(end_time, tz = tz))]
+  }
 
-   return(invisible(self))
+  # --------------------------
+
+  private$sampInt <- determine_sampInt(private$dataDT)
+
+  return(invisible(self))
 }
 
 ################################################################################
