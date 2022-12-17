@@ -308,11 +308,59 @@ load_files <- function(input,
    return(invisible(self))
 }
 
-# ----------------------------------------------------------------
+################################################################################
 
 load_table <- function(table) {
 
+  # argument check -------------------------------------------------------------
+
+  assertColl <- checkmate::makeAssertCollection()
+
+  checkmate::assertDataFrame(table)
+
+  checkmate::assertNames(colnames(table),
+                         what = "colnames",
+                         type = "strict",
+                         must.include = c("id", "time"),
+                         subset.of = c("id", "time", "acc_fwd",
+                                       "acc_up", "acc_right"),
+                         add = assertColl)
+
+  checkmate::assertSubset(grep("^acc_fwd$|^acc_up$|^acc_right$", colnames(table),
+                               value = TRUE, perl = TRUE),
+                          choices = c("acc_fwd", "acc_up", "acc_right"),
+                          empty.ok = FALSE,
+                          .var.name = "'acc_...' columns",
+                          add = assertColl)
+
+  checkmate::assertFactor(table$id,
+                          empty.levels.ok = FALSE,
+                          null.ok = TRUE, # is already tested above
+                          any.missing = FALSE,
+                          .var.name = "'id' column",
+                          add = assertColl)
+
+  checkmate::assertPOSIXct(table$time,
+                           any.missing = FALSE,
+                           null.ok = TRUE, # is already tested above
+                           .var.name = "'time' column",
+                           add = assertColl)
+
+  for (col in c("acc_up", "acc_fwd", "acc_right")) {
+
+    checkmate::assertNumeric(table[[col]],
+                             any.missing = FALSE,
+                             null.ok = TRUE,
+                             .var.name = paste0("'", acc_up, "' column"),
+                             add = assertColl)
+  }
+
+  checkmate::reportAssertions(assertColl)
+
+  # assign data to private$dataDT and determine sampling interval
+
   private$dataDT <- as.data.table(table)
+
   private$sampInt <- determine_sampInt(private$dataDT)
 
 }
