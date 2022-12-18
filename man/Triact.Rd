@@ -123,6 +123,9 @@
         \item{\code{parallel}}{
           An integer indicating the number of files that are read in parallel. For \code{parallel > 1} the reading of the individual file is set to single-threaded to avoid nested parallelization. This behavior can be overwritten by additionally passing \code{nThread} via \code{...}  argument, which is passed on to \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{1}
         }
+        \item{\code{...}}{
+        Further arguments passed to \code{\link[=fread]{data.table::fread}}.
+        }
       }
     }
   }
