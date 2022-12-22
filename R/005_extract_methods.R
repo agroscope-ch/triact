@@ -2,8 +2,10 @@
 # extract_... methods of the Triact class
 ################################################################################
 
-# internal function
-extract_updown <- function(self, private, sec_before, sec_after, updown) { # internal
+# internal (actual user-facing methods below)
+extract_updown <- function(self, private, sec_before, sec_after, updown) {
+
+  # check prerequisites --------------------------------------------------------
 
   if (!private$has("lying")) {
     stop("No lying behaviour data found.
@@ -11,8 +13,15 @@ extract_updown <- function(self, private, sec_before, sec_after, updown) { # int
          call. = FALSE)
   }
 
+  # check arguments ------------------------------------------------------------
+
+  # check sec_before
   checkmate::assertNumber(sec_before, lower = 0)
+
+  # check sec_after
   checkmate::assertNumber(sec_after, lower = 0)
+
+  # extract and return ---------------------------------------------------------
 
   L <- switch(updown, "down" = FALSE, "up" = TRUE)
 
@@ -30,14 +39,18 @@ extract_updown <- function(self, private, sec_before, sec_after, updown) { # int
   } else {
 
     updown_results <- lapply(1:nrow(updown_times), \(r) {
-      private$dataDT[(id == updown_times[[r, "id"]]) & (time >= (updown_times[[r, "time"]] - sec_before) & time <= (updown_times[[r, "time"]] + sec_after))]
+      private$dataDT[(id == updown_times[[r, "id"]]) &
+                       (time >= (updown_times[[r, "time"]] - sec_before) &
+                          time <= (updown_times[[r, "time"]] + sec_after))]
     })
 
     return(lapply(updown_results, transform_table))
   }
 }
 
-# ----------------------------------------------------------------
+################################################################################
+
+# actual user-facing methods
 
 extract_liedown <- function(sec_before = 0, sec_after = 0) {
   return(extract_updown(self, private, sec_before, sec_after, updown = "down"))
@@ -48,7 +61,5 @@ extract_liedown <- function(sec_before = 0, sec_after = 0) {
 extract_standup <- function(sec_before = 0, sec_after = 0) {
   return(extract_updown(self, private, sec_before, sec_after, updown = "up"))
 }
-
-
 
 
