@@ -1,7 +1,5 @@
-# ------------------------------------------------------------------------------
-# check_... methods of Triact class
-# ------------------------------------------------------------------------------
-
+################################################################################
+# check_... methods of the Triact class
 ################################################################################
 
 check_orientation <- function(crit = 0.5, interactive = TRUE) {
@@ -17,7 +15,7 @@ check_orientation <- function(crit = 0.5, interactive = TRUE) {
 
   # correct and remove (previously added) analyses if dependent ----------------
 
-  message("This method checks for potential incorrect mounted accelerometers, rotated 180° in the sagital plane.\n")
+  message("This method checks for potential incorrect mounted accelerometers, rotated 180\u00B0 in the sagital plane.\n")
 
   if (any(up_inverted$test)) {
 

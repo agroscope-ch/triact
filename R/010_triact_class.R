@@ -1,10 +1,14 @@
-# ----------------------------------------------------------------
+################################################################################
 # Triact class
-# ----------------------------------------------------------------
+################################################################################
 
 Triact <- R6::R6Class("Triact",
   active = list(
-    data = return_data
+    data = function(value) {
+      if (missing(value)) {
+        return(transform_table(private$dataDT))
+      } else return(self$load_table(value))
+    }
   ),
   public = list(
     load_files = load_files,
@@ -20,8 +24,14 @@ Triact <- R6::R6Class("Triact",
   ),
   private = list(dataDT = NULL,
                  sampInt = NA,
-                 has = has,
                  filter_acc = filter_acc,
+                 has = function(to_check) {
+                   if (to_check[1] == "data") {
+                     return(checkmate::testDataTable(private$dataDT))
+                   } else {
+                     return(to_check %in% colnames(private$dataDT))
+                   }
+                 },
                  # fix deep cloning R6 with reference type objects (here dataDT)
                  # gets invoked when x$clone(deep=TRUE) is called
                  # see https://r6.r-lib.org/articles/Introduction.html

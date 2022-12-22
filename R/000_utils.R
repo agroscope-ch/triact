@@ -1,3 +1,65 @@
+################################################################################
+# Internal (non-exported) functions
+################################################################################
+
+# source: https://adv-r.hadley.nz/conditions.html
+stop_custom <- function(.subclass, message, call = NULL, ...) {
+  err <- structure(list(message = message,
+                        call = call,
+                        ...),
+                   class = c(.subclass, "error", "condition"))
+  stop(err)
+}
+
+################################################################################
+# transforms a table to data.frame, tibble, or data.table depending
+# on the global option 'triact_table'
+# used in all methods of the Triact class which return a table
+
+transform_table <- function(x, table_class = getOption("triact_table", default = "data.frame")) {
+  checkmate::assertChoice(table_class, choices = c("data.frame", "data.table", "tibble"), .var.name = "Global option triact_table")
+  if (table_class == "data.frame") {
+    return(as.data.frame(x))
+  } else if (table_class == "data.table") {
+    return(data.table::as.data.table(x))
+  } else if (table_class == "tibble") {
+    return(tibble::as_tibble(x))
+  }
+}
+
+################################################################################
+# determined accelerometer sampling frequency
+
+determine_sampInt <- function(tbl) {
+  sInt_by_id <-
+    tbl[, .(sInt = unique(difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
+
+  freq_grid = 1 / (1:1000)
+
+  round_to_freq_interv <-
+    function(x) {
+      sapply(x, \(x) freq_grid[which.min(abs(freq_grid - x))])
+    }
+
+  sInt <- unique(sInt_by_id[, round_to_freq_interv(sInt)])
+
+  checkmate::assertNumber(
+    sInt,
+    finite = TRUE,
+    lower = 0,
+    null.ok = FALSE,
+    na.ok = FALSE,
+    .var.name = "PROBLEM WITH YOUR SAMPLING FREQ - Maebe you use data with
+        differrent freqs? Or your cow id is not unique?..."
+  )
+
+  return(as.difftime(sInt, units = "secs"))
+
+}
+
+################################################################################
+# (low pass) filtering of acceleration data
+
 filter_acc <- function(filter_method, axes, fArgs, dba = FALSE) {
 
   fArgsDef <- list()
@@ -121,18 +183,4 @@ filter_acc <- function(filter_method, axes, fArgs, dba = FALSE) {
 
 }
 
-##########################################
-
-has <- function(to_check) {
-  if (to_check[1] == "data") {
-    return(checkmate::testDataTable(private$dataDT))
-  } else {
-    return(to_check %in% colnames(private$dataDT))
-  }
-}
-
-##########################################
-
-
-
-
+################################################################################

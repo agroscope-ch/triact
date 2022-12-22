@@ -1,5 +1,5 @@
 ################################################################################
-# summarize_... methods of Triact class
+# summarize_... methods of the Triact class
 ################################################################################
 
 summarize_bouts <- function(bout_type = "both",

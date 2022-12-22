@@ -57,7 +57,7 @@
   \if{latex}{\out{\hypertarget{method-load_files}{}}}
 
   \subsection{Method \code{load_files()}}{
-    Import data from accelerometer data files from one or several cows to the 'Triact' object. Importing multiple files from the same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: \code{id_substring}). Accelerometer sampling frequency must be consistent across the files. Acceleration should be in units of \emph{g}. Triaxial, biaxial and uniaxial axelerometer data are allowed, but only triaxial data corresponding to relative body directions allow full functionality.
+    Import acceleration data files from one or several cows to the 'Triact' object. Importing multiple files from the same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: \code{id_substring}). Accelerometer sampling frequency must be consistent across the files. Acceleration should be in units of \emph{g}. Triaxial, biaxial and uniaxial accelerometer data are allowed, but only triaxial data corresponding to relative body directions allows full functionality.
 
 \emph{Important}: Make sure to correctly specify how to map the axes as named by the accelerometer (e.g., x, y, z) to the body relative axes as used in triact (parameter: \code{timeFwdUpRight_cols}). See Simmler & Brouwers (2023) for an illustration.
 
@@ -137,7 +137,7 @@
   \if{latex}{\out{\hypertarget{method-load_table}{}}}
 
   \subsection{Method \code{load_table()}}{
-    Import accelerometer data from a data.frame-like table. The table should contain the following columns:
+    Import acceleration data from a data.frame-like table. The table should contain the following columns:
       \tabular{llll}{
     \emph{colname} \tab \emph{type} \tab \emph{description} \cr
     id \tab Factor \tab unique id for the cow \cr
@@ -145,12 +145,10 @@
     acc_fwd \tab numeric \tab acceleration from \emph{forward} axis (units: \emph{g}) \cr
     acc_up \tab numeric \tab acceleration from \emph{up} axis (units: \emph{g}) \cr
     acc_right \tab numeric \tab acceleration from \emph{right} axis (units: \emph{g}) \cr
-
   }
+The accelerometer sampling frequency must be the same across all cows (id). No time gaps are allowed (within data of one id). One or two of the acceleration columns may be missing, but the possible analyses are then limited.
 
-The accelerometer sampling frequency must be the same across all cows (id). No time gaps are allowed (within data of one id). One or two of the acceleration columns may be missing, but the analyses possible is then limited.
-
-\emph{Important}: Make sure the accelerometer axis correctly represent body relative axes (foward, up, right). See Simmler & Brouwers (2023) for an illustration.
+\emph{Important}: Make sure the accelerometer axes correctly represent body relative axes (foward, up, right). See Simmler & Brouwers (2023) for an illustration.
 
 
     \subsection{Usage}{
@@ -180,7 +178,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
   \if{latex}{\out{\hypertarget{method-check_orientation}{}}}
 
   \subsection{Method \code{check_orientation()}}{
-      Checks for each ID (unique identifier of the cow) whether the accelerometer may have been wrongly mounted 180° rotated in the sagittal plane to the hind leg. If identified as such, the mathematical correction is applied, i.e. the forward and up axes are negated (multiplied by -1), i.e. the axes are mathematical rotated in order to comply with the orientation as specified when loading in the data.
+      Checks for each ID (unique identifier of the cow) whether the accelerometer may have been unintentionally mounted 180° rotated in the sagittal plane to the hind leg. If identified as such, the mathematical correction is applied, i.e. the forward and up axes are negated (multiplied by -1), i.e. the axes are mathematically rotated in order to comply with the orientation as specified when loading in the data.
       The check is \code{sum(acc_up > crit) < sum(acc_up < (-1 * crit))} with \code{crit = 0.5} by default.
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$check_orientation(crit = 0.5, interactive = TRUE)}\if{html}{\out{</div>}}
@@ -207,7 +205,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
 
   \subsection{Method \code{add_lying()}}{
     Classify data into lying and standing and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and standing) are uniquely numbered in column 'bout_id'.
-    The simple rule-based algorithm is composed of three steps: In the first step, the \emph{up} acceleration is filtered to obtain the gravity component of the signal. In the second step, a threshold is used to classify the filtered acceleration values into lying and standing. Finally, in the third step, lying bouts shorter than a given minimum duration are reclassifying as standing. The last step can be performed analogeous for standing bouts, but is not recommended by default. See Simmler & Brouwers (2023) for a detailed discussion.
+    The simple rule-based algorithm is composed of three steps: In the first step, the \emph{up} acceleration is filtered to obtain the gravity component of the signal. In the second step, a threshold is used to classify the filtered acceleration values into lying and standing. Finally, in the third step, lying bouts shorter than a given minimum duration are reclassified as standing. The last step can be performed analogeous for standing bouts, but is not recommended by default. See Simmler & Brouwers (2023) for a detailed discussion.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(
@@ -229,7 +227,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
           Up-acceleration threshold for classifying into lying and standing. \emph{Default:} \code{0.5}
         }
         \item{\code{minimum_duration_lying}}{
-          Minimum duration for lying bouts in seconds. Lying bouts shorter than this threshold are considered false and reclassified as stading. \emph{Default:} \code{30}
+          Minimum duration for lying bouts in seconds. Lying bouts shorter than this threshold are considered false and reclassified as standing. \emph{Default:} \code{30}
         }
         \item{\code{minimum_duration_standing}}{
         Minimum duration for standing bouts in seconds. Standing bouts shorter than this threshold are considered false and reclassified as lying.
@@ -240,7 +238,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
            \emph{Default:} \code{FALSE}
         }
         \item{\code{...}}{
-        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument. For filter method 'median' the argument \code{window_size} specifies the window size in seconds (\emph{default:} \code{10}). For filter method 'butter the arguments \code{cutoff} specifies the cutoff frequency for low-pass filtering in Hz (\emph{default:} \code{0.1}) and argument \code{order} specifies the Butterworth filter order (\emph{default:} \code{1}).
+        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument. For filter method 'median' the argument \code{window_size} specifies the window size in seconds (\emph{default:} \code{10}). For filter method 'butter' the argument \code{cutoff} specifies the cutoff frequency for low-pass filtering in Hz (\emph{default:} \code{0.1}) and the argument \code{order} specifies the Butterworth filter order (\emph{default:} \code{1}).
         }
 
       }
@@ -254,7 +252,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
   \if{latex}{\out{\hypertarget{method-add_side}{}}}
 
   \subsection{Method \code{add_side()}}{
-    Classify lying bouts into left and right lying side and add results as column ‘side’ to the ‘Triact’ object. For each lying bout, the median acceleration over the entire duration is calculated and compared to a threshold to classify the bout as 'L' (Left) or 'R' (right) lying side. See Simmler & Brouwers (2023) for details.
+    Classify lying bouts into left and right lying side and add results as column ‘side’ to the ‘Triact’ object. For each lying bout, the median acceleration over the entire duration is calculated and compared to a threshold to classify the bout as 'L' (left) or 'R' (right) lying side. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(left_leg, crit_left = if(left_leg) -0.5 else 0.5)}\if{html}{\out{</div>}}
@@ -263,7 +261,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
     \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
-        \item{\code{left_leg}}{Logical indicating whether the loggers were attached to the left hind leg (\code{TRUE}) or to the right hind leg (\code{FALSE}). This information is used to choose the default value for \code{crit_left}. It is ignored if \code{crit_left} is specified by the user.}
+        \item{\code{left_leg}}{Logical indicating whether the accelerometers were attached to the left hind leg (\code{TRUE}) or to the right hind leg (\code{FALSE}). This information is used to choose the default value for \code{crit_left}. It is ignored if \code{crit_left} is specified by the user.}
         \item{\code{crit_left}}{Right-acceleration threshold for classifying lying on left versus right side. \emph{Default:} \code{-0.5} if \code{left_leg} is \code{TRUE}, else \code{0.5}}
       }
     }
@@ -276,7 +274,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
   \if{latex}{\out{\hypertarget{method-add_activity}{}}}
 
   \subsection{Method \code{add_activity()}}{
-  Calculate proxies for the physical activity level. By default, the L2 norm of the dynamic body acceleration (DBA) vector is calculated. Corresponding L1 norm is optionally available. Also, the L1 and L2 norms of the jerk vector can be calculated. By default, all activity values during lying bouts are ‘adjusted’ to zero. i.e., periods when cows are lying are considered as ‘inactive’ by definition.  See Simmler & Brouwers (2023) for details.
+  Calculate proxies for the physical activity level. By default, the L2 norm of the dynamic body acceleration (DBA) vector is calculated. The corresponding L1 norm is optionally available. Also, the L1 and L2 norms of the jerk vector can be calculated. By default, all activity values during lying bouts are ‘adjusted’ to zero, i.e., periods when cows are lying are considered as ‘inactive’ by definition. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_activity(
@@ -298,17 +296,17 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
             The type of norm to be calculated. Options are \code{"L1"} and \code{"L2"}. One or both can be provided, e.g., \code{"L1"} or \code{c("L1", "L2")}. \emph{Default:} \code{"L2"}
         }
                 \item{\code{adjust}}{
-            A logical value that indicates whether the proxies for physical activity should be 'adjusted' to 0 during lying bouts, i.e., whether cows should be considered inactive by definition when lying. \emph{Default:} \code{TRUE}
+            A logical value that indicates whether the proxies for physical activity should be 'adjusted' to 0 during lying bouts, i.e., whether cows should be considered as inactive by definition when lying. \emph{Default:} \code{TRUE}
             }
 
                 \item{\code{filter_method}}{
                 Filter method to be used to determine the gravity component subtracted from the raw acceleration to obtain the dynamic body acceleration. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be pased via the '...' argument (see below). \emph{Default:} \code{"median"}
         }
                 \item{\code{keep_dynamic_measure}}{
-            A logical value that indicates whether the intermediate data, being the dynamic body acceleration vector and/or the jerk verctor should be added to the 'Triact' object. \emph{Default:} \code{FALSE}
+            A logical value that indicates whether the intermediate data, being the dynamic body acceleration vector and/or the jerk verctor, should be added to the 'Triact' object. \emph{Default:} \code{FALSE}
         }
                 \item{\code{...}}{
-        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument. For filter method 'median' the argument \code{window_size} specifies the window size in seconds (\emph{default:} \code{10}). For filter method 'butter the arguments \code{cutoff} specifies the cutoff frequency for low-pass filtering in Hz (\emph{default:} \code{0.1}) and argument \code{order} specifies the Butterworth filter order (\emph{default:} \code{1}).
+        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument. For filter method 'median' the argument \code{window_size} specifies the window size in seconds (\emph{default:} \code{10}). For filter method 'butter' the argument \code{cutoff} specifies the cutoff frequency for low-pass filtering in Hz (\emph{default:} \code{0.1}) and argument \code{order} specifies the Butterworth filter order (\emph{default:} \code{1}).
         }
       }
     }
@@ -337,10 +335,10 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
     \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
-        \item{\code{interval}}{Character string specifying the intervals to be analysed. Any unique English abbreviations valid for the 'unit' argument of \code{\link[=floor_date]{lubridate::floor_date}} is allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
-        \item{\code{lag_in_s}}{Lag in seconds with respect to the full hour or full day, respectively. \emph{Default:} \code{0}}
+        \item{\code{interval}}{Character string specifying the intervals to be analysed. Any unique English abbreviation valid for the 'unit' argument of \code{\link[=floor_date]{lubridate::floor_date}} is allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
+        \item{\code{lag_in_s}}{Lag in seconds with respect to the full hour or full day. \emph{Default:} \code{0}}
         \item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"} and \code{"hours"}. \emph{Default:} \code{"mins"}}
-        \item{\code{bouts}}{Logical indicating whether information on bouts should be additionally summarizede. \emph{Default:} \code{FALSE}}
+        \item{\code{bouts}}{Logical indicating whether information on bouts should be additionally summarized. \emph{Default:} \code{FALSE}}
         \item{\code{side}}{Logical indicating whether lying side should be considered in the summary. \emph{Default:} \code{FALSE}}
         \item{\code{calc_for_incomplete}}{Logical indicating whether a complete summary should also be returned for the incompletely observed intervals (first and last interval for each cow) and for any parameter using information of incompletely observed bouts (first and last bout for each cow). Please note that these are ill-defined. \emph{Default:} \code{FALSE}}
       }
@@ -359,7 +357,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
   \if{latex}{\out{\hypertarget{method-summarize_bouts}{}}}
 
   \subsection{Method \code{summarize_bouts()}}{
-    Summarizes the data in the 'Triact' object, activity and lying behaviour, by lying/standing bouts.The information contained in the output table depends on the analyses you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods.
+    Summarizes the data in the 'Triact' object, activity and lying behaviour, by lying/standing bouts. The information contained in the output table depends on the analyses you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_bouts(
@@ -372,7 +370,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
       \if{html}{\out{<div class="arguments">}}
       \describe{
         \item{\code{bout_type}}{ Type of bout to be considered. Options are \code{"both"}, \code{"lying"}, and \code{"standing"}. \emph{Default:} \code{"both"}}
-        \item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"}, and \code{"hours"}. \emph{Default:} \code{"mins"}}
+        \item{\code{duration_units}}{Units in which durations should be returned. Options are \code{"secs"}, \code{"mins"}, and \code{"hours"}. \emph{Default:} \code{"mins"}}
         \item{\code{calc_for_incomplete}}{Logical indicating whether a complete summary should also be returned for the incompletely observed bouts (first and last bout for each cow). Please note that these are ill-defined. \emph{Default:} \code{FALSE}}
       }
     }
