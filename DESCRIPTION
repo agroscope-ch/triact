@@ -1,11 +1,11 @@
 Package: triact
 Type: Package
 Title: triact package for R: Analyzing the lying behavior of cows from accelerometer data
-Version: 0.1.0.9003
+Version: 0.2.0
 Authors@R: c(
-    person("Michael", "Simmler", email = "michael.simmler@agroscope.admin.com", role = c("aut", "cre"),
+    person("Michael", "Simmler", email = "michael.simmler@agroscope.admin.ch", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4095-4111")),
-    person("Stijn", "Brouwers", email = "stijn.brouwers@agroscope.admin.com", role = c("ctb"),
+    person("Stijn", "Brouwers", email = "stijn.brouwers@agroscope.admin.ch", role = c("ctb"),
            comment = c(ORCID = "0000-0002-7028-7823")))
 Description: The triact R package assists in analyzing the lying behavior of cows from raw data 
     recorded with a triaxial accelerometer attached to the hind leg of a cow. The package allows 

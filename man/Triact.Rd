@@ -148,7 +148,7 @@
   }
 The accelerometer sampling frequency must be the same across all cows (id). No time gaps are allowed (within data of one id). One or two of the acceleration columns may be missing, but the possible analyses are then limited.
 
-\emph{Important}: Make sure the accelerometer axes correctly represent body relative axes (foward, up, right). See Simmler & Brouwers (2023) for an illustration.
+\emph{Important}: Make sure the accelerometer axes correctly represent body relative axes (forward, up, right). See Simmler & Brouwers (2023) for an illustration.
 
 
     \subsection{Usage}{
@@ -204,8 +204,8 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
   \if{latex}{\out{\hypertarget{method-add_lying}{}}}
 
   \subsection{Method \code{add_lying()}}{
-    Classify data into lying and standing and add results as column ‘lying’ to the ‘Triact’ object. Additionally, bouts (lying and standing) are uniquely numbered in column 'bout_id'.
-    The simple rule-based algorithm is composed of three steps: In the first step, the \emph{up} acceleration is filtered to obtain the gravity component of the signal. In the second step, a threshold is used to classify the filtered acceleration values into lying and standing. Finally, in the third step, lying bouts shorter than a given minimum duration are reclassified as standing. The last step can be performed analogeous for standing bouts, but is not recommended by default. See Simmler & Brouwers (2023) for a detailed discussion.
+    Classify data into lying and standing and add results as column 'lying' to the ‘Triact’ object. Additionally, bouts (lying and standing) are uniquely numbered in column 'bout_id'.
+    The simple rule-based algorithm is composed of three steps: In the first step, the \emph{up} acceleration is filtered to obtain the gravity component of the signal. In the second step, a threshold is used to classify the filtered acceleration values into lying and standing. Finally, in the third step, lying bouts shorter than a given minimum duration are reclassified as standing. The last step can be performed analogous for standing bouts, but is not recommended by default. See Simmler & Brouwers (2023) for a detailed discussion.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(
@@ -221,7 +221,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
       \if{html}{\out{<div class="arguments">}}
       \describe{
         \item{\code{filter_method}}{
-          Filter method to be applied to obtain the gravity component of the acceleration on the \emph{up} axis. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be pased via the '...' argument (see below). \emph{Default:} \code{"median"}
+          Filter method to be applied to obtain the gravity component of the acceleration on the \emph{up} axis. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be passed via the '...' argument (see below). \emph{Default:} \code{"median"}
         }
         \item{\code{crit_lie}}{
           Up-acceleration threshold for classifying into lying and standing. \emph{Default:} \code{0.5}
@@ -234,7 +234,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
            \emph{Default:} \code{NULL}
         }
         \item{\code{add_filtered}}{
-        Logical value that indiates whether the filtered gravity component of the \emph{up} acceleration should be added to the 'Triact' object.
+        Logical value that indicates whether the filtered gravity component of the \emph{up} acceleration should be added to the 'Triact' object.
            \emph{Default:} \code{FALSE}
         }
         \item{\code{...}}{
@@ -252,7 +252,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
   \if{latex}{\out{\hypertarget{method-add_side}{}}}
 
   \subsection{Method \code{add_side()}}{
-    Classify lying bouts into left and right lying side and add results as column ‘side’ to the ‘Triact’ object. For each lying bout, the median acceleration over the entire duration is calculated and compared to a threshold to classify the bout as 'L' (left) or 'R' (right) lying side. See Simmler & Brouwers (2023) for details.
+    Classify lying bouts into left and right lying side and add results as column 'side' to the 'Triact' object. For each lying bout, the median acceleration over the entire duration is calculated and compared to a threshold to classify the bout as 'L' (left) or 'R' (right) lying side. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(left_leg, crit_left = if(left_leg) -0.5 else 0.5)}\if{html}{\out{</div>}}
@@ -274,7 +274,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
   \if{latex}{\out{\hypertarget{method-add_activity}{}}}
 
   \subsection{Method \code{add_activity()}}{
-  Calculate proxies for the physical activity level. By default, the L2 norm of the dynamic body acceleration (DBA) vector is calculated. The corresponding L1 norm is optionally available. Also, the L1 and L2 norms of the jerk vector can be calculated. By default, all activity values during lying bouts are ‘adjusted’ to zero, i.e., periods when cows are lying are considered as ‘inactive’ by definition. See Simmler & Brouwers (2023) for details.
+  Calculate proxies for the physical activity level. By default, the L2 norm of the dynamic body acceleration (DBA) vector is calculated. The corresponding L1 norm is optionally available. Also, the L1 and L2 norms of the jerk vector can be calculated. By default, all activity values during lying bouts are 'adjusted' to zero, i.e., periods when cows are lying are considered as 'inactive' by definition. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_activity(
@@ -290,7 +290,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
       \if{html}{\out{<div class="arguments">}}
       \describe{
         \item{\code{dynamic_measure}}{
-            Type of dynamic measure to base the activity proxy on. Options are \code{"dba"}, for dynammic body acceleration, and \code{"jerk"}, for the jerk vector. One or both can be provided, e.g., \code{"dba"} or \code{c("dba", "jerk")}. \emph{Default:} \code{"dba"}
+            Type of dynamic measure to base the activity proxy on. Options are \code{"dba"}, for dynamic body acceleration, and \code{"jerk"}, for the jerk vector. One or both can be provided, e.g., \code{"dba"} or \code{c("dba", "jerk")}. \emph{Default:} \code{"dba"}
         }
                 \item{\code{norm}}{
             The type of norm to be calculated. Options are \code{"L1"} and \code{"L2"}. One or both can be provided, e.g., \code{"L1"} or \code{c("L1", "L2")}. \emph{Default:} \code{"L2"}
@@ -300,10 +300,10 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
             }
 
                 \item{\code{filter_method}}{
-                Filter method to be used to determine the gravity component subtracted from the raw acceleration to obtain the dynamic body acceleration. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be pased via the '...' argument (see below). \emph{Default:} \code{"median"}
+                Filter method to be used to determine the gravity component subtracted from the raw acceleration to obtain the dynamic body acceleration. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be passed via the '...' argument (see below). \emph{Default:} \code{"median"}
         }
                 \item{\code{keep_dynamic_measure}}{
-            A logical value that indicates whether the intermediate data, being the dynamic body acceleration vector and/or the jerk verctor, should be added to the 'Triact' object. \emph{Default:} \code{FALSE}
+            A logical value that indicates whether the intermediate data, being the dynamic body acceleration vector and/or the jerk vector, should be added to the 'Triact' object. \emph{Default:} \code{FALSE}
         }
                 \item{\code{...}}{
         Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument. For filter method 'median' the argument \code{window_size} specifies the window size in seconds (\emph{default:} \code{10}). For filter method 'butter' the argument \code{cutoff} specifies the cutoff frequency for low-pass filtering in Hz (\emph{default:} \code{0.1}) and argument \code{order} specifies the Butterworth filter order (\emph{default:} \code{1}).
@@ -335,7 +335,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
     \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
-        \item{\code{interval}}{Character string specifying the intervals to be analysed. Any unique English abbreviation valid for the 'unit' argument of \code{\link[=floor_date]{lubridate::floor_date}} is allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
+        \item{\code{interval}}{Character string specifying the intervals to be analyzed. Any unique English abbreviation valid for the 'unit' argument of \code{\link[=floor_date]{lubridate::floor_date}} is allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
         \item{\code{lag_in_s}}{Lag in seconds with respect to the full hour or full day. \emph{Default:} \code{0}}
         \item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"} and \code{"hours"}. \emph{Default:} \code{"mins"}}
         \item{\code{bouts}}{Logical indicating whether information on bouts should be additionally summarized. \emph{Default:} \code{FALSE}}

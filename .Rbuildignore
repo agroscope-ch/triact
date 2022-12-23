@@ -1,3 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
+^vignettes/example_data$
+^vignettes/triact_working\.Rmd\.orig$
+^vignettes/prerender_vignettes\.R$
