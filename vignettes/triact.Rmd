@@ -1,12 +1,13 @@
 ---
-title: "triact package for R: Analyzing the lying behavior of cows from accelerometer data"
+title: 'triact package for R: Analyzing the lying behavior of cows from accelerometer
+  data'
 author: "Michael Simmler, Stijn Brouwers"
 date: "23.12.2022"
-output: pdf_document
-vignette: >
-  %\VignetteIndexEntry{triact}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+vignette: "%\\VignetteIndexEntry{triact} %\\VignetteEngine{knitr::rmarkdown} %\\VignetteEncoding{UTF-8}\n"
 ---
 
 
@@ -251,7 +252,7 @@ legend(x = "center",
        lwd = 1, bty = "n", title = "lying side") 
 ```
 
-![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16-1.png)
+![](unnamed-chunk-16-1.png){width=350px}
 
 \
 

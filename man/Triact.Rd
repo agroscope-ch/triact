@@ -44,7 +44,6 @@
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$new()}\if{html}{\out{</div>}}
     }
-    \if{html}{\out{</div>}}
     \subsection{Returns}{
       A new `Triact` object.
     }
@@ -127,6 +126,7 @@
         Further arguments passed to \code{\link[=fread]{data.table::fread}}.
         }
       }
+      \if{html}{\out{</div>}}
     }
   }
 
@@ -160,15 +160,13 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
       }\if{html}{\out{</div>}}
     }
 
-    \if{html}{\out{</div>}}
-
         \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
         \item{\code{table}}{Data frame-like table containing the data to import. Must follow the requirements detailed in the description above.}
       }
+      \if{html}{\out{</div>}}
     }
-
   }
 
   %% ------------------------------
@@ -193,8 +191,8 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
                     A logical value that indicates whether the function should interactively prompts the user before applying the correction. \emph{Default:} \code{TRUE}
         }
       }
+      \if{html}{\out{</div>}}
     }
-    \if{html}{\out{</div>}}
   }
 
 
@@ -242,6 +240,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
         }
 
       }
+      \if{html}{\out{</div>}}
     }
   }
 
@@ -266,6 +265,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
       }
     }
   }
+  \if{html}{\out{</div>}}
 
   %% ------------------------------
 
@@ -309,6 +309,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
         Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument. For filter method 'median' the argument \code{window_size} specifies the window size in seconds (\emph{default:} \code{10}). For filter method 'butter' the argument \code{cutoff} specifies the cutoff frequency for low-pass filtering in Hz (\emph{default:} \code{0.1}) and argument \code{order} specifies the Butterworth filter order (\emph{default:} \code{1}).
         }
       }
+      \if{html}{\out{</div>}}
     }
   }
 
@@ -444,6 +445,8 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
   }
 
 }
+
+  %% ------------------------------
 
     \references{
 Simmler. M., Brouwers S., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data.
