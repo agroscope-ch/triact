@@ -4,3 +4,5 @@
 ^vignettes/example_data$
 ^vignettes/prerender_vignettes\.R$
 
+^doc$
+^Meta$

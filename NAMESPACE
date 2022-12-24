@@ -1,3 +1,5 @@
 exportPattern(Triact)
 import(data.table) # needed for :=
-
+importFrom("R6", "R6Class") # not sure why needed as R6::R6Class is used
+import(methods)
+import(stats)

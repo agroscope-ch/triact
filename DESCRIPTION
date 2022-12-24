@@ -1,6 +1,6 @@
 Package: triact
 Type: Package
-Title: triact package for R: Analyzing the lying behavior of cows from accelerometer data
+Title: Analyzing the Lying Behavior of Cows from Accelerometer Data
 Version: 0.2.0
 Authors@R: c(
     person("Michael", "Simmler", email = "michael.simmler@agroscope.admin.ch", role = c("aut", "cre"),
@@ -22,7 +22,9 @@ Imports:
     data.table (>= 1.14.0),
     parallel (>= 4.1.2),
     checkmate (>= 2.0.0),
-    lubridate (>= 1.7.10)
+    lubridate (>= 1.7.10),
+    methods,
+    stats
 Suggests: 
     signal (>= 0.7-7),
     tibble,
