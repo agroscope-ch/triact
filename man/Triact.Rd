@@ -614,7 +614,7 @@ my_triact <- Triact$new()
 ## -------------------------
 # method '$load_files'
 ## -------------------------
-
+\dontrun{
 # create a Triact object
 my_triact <- Triact$new()
 
@@ -627,7 +627,7 @@ my_triact$load_files(input = dir,
 
 # inspect imported data
 head(my_triact$data)
-
+}
 ## -------------------------
 # method 'load_table'
 ## -------------------------
