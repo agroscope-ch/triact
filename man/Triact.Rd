@@ -47,6 +47,12 @@
     \subsection{Returns}{
       A new `Triact` object.
     }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
+      }
+    }
   }
 
   %% ------------------------------
@@ -128,6 +134,22 @@
       }
       \if{html}{\out{</div>}}
     }
+    \subsection{Examples}{
+      \preformatted{
+## does not run -- see package vignette 'introduction' for a working example
+
+# create a Triact object
+my_triact <- Triact$new()
+
+dir <- "dat_dir"
+
+my_triact$load_files(input = dir,
+                     id_substring = c(1, 9))
+
+# inspect imported data
+head(my_triact$data)
+      }
+    }
   }
 
   %% ------------------------------
@@ -160,12 +182,23 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
       }\if{html}{\out{</div>}}
     }
 
-        \subsection{Arguments}{
+    \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
         \item{\code{table}}{Data frame-like table containing the data to import. Must follow the requirements detailed in the description above.}
       }
       \if{html}{\out{</div>}}
+    }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(accel_data)
+
+# inspect imported data
+head(my_triact$data)
+      }
     }
   }
 
@@ -192,6 +225,16 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
         }
       }
       \if{html}{\out{</div>}}
+    }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(accel_data)
+
+my_triact$check_orientation()
+      }
     }
   }
 
@@ -242,6 +285,19 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
       }
       \if{html}{\out{</div>}}
     }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(accel_data)
+
+my_triact$add_lying()
+
+# inspect result
+head(my_triact$data)
+      }
+    }
   }
 
   %% ------------------------------
@@ -263,9 +319,26 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
         \item{\code{left_leg}}{Logical indicating whether the accelerometers were attached to the left hind leg (\code{TRUE}) or to the right hind leg (\code{FALSE}). This information is used to choose the default value for \code{crit_left}. It is ignored if \code{crit_left} is specified by the user.}
         \item{\code{crit_left}}{Right-acceleration threshold for classifying lying on left versus right side. \emph{Default:} \code{-0.5} if \code{left_leg} is \code{TRUE}, else \code{0.5}}
       }
+      \if{html}{\out{</div>}}
+    }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(accel_data)
+
+my_triact$add_lying()
+
+my_triact$add_side(left_leg = TRUE)
+
+# inspect result
+head(my_triact$data)
+      }
     }
   }
-  \if{html}{\out{</div>}}
+
+
 
   %% ------------------------------
 
@@ -311,6 +384,21 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
       }
       \if{html}{\out{</div>}}
     }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(accel_data)
+
+my_triact$add_lying()
+
+my_triact$add_activity()
+
+# inspect result
+head(my_triact$data)
+      }
+    }
   }
 
 
@@ -349,6 +437,21 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
     \subsection{Returns}{
       A table with summaries by interval (rows). See \link{interval_summary} for a complete list.
     }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(accel_data)
+
+my_triact$add_lying()
+
+int_summary <- my_triact$summarize_intervals()
+
+# inspect result
+head(int_summary)
+      }
+    }
   }
 
   %% ------------------------------
@@ -379,6 +482,21 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
 
     \subsection{Returns}{
     A table with summaries by bout (rows).  See \link{bout_summary} for a complete list.
+    }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(accel_data)
+
+my_triact$add_lying()
+
+bouts_summary <- my_triact$summarize_bouts()
+
+# inspect result
+head(bouts_summary)
+      }
     }
   }
 
@@ -411,6 +529,21 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
     \subsection{Returns}{
       With default settings, a table with one entry per liedown event, with timestamp and bout_id of the lying bout, plus lying side information (if available). With parameters \code{sec_before} and/or \code{sec_after} > 0, a list containing individual tables per liedown event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the liedown events.
     }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(accel_data)
+
+my_triact$add_lying()
+
+l_downs <- my_triact$extract_liedown()
+
+# inspect result
+print(l_downs)
+      }
+    }
   }
 
   %% ------------------------------
@@ -442,8 +575,22 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
     \subsection{Returns}{
       With default settings, a table with one entry per standup event, with timestamp and bout_id of the lying bout, plus lying side information (if available). With parameters \code{sec_before} and/or \code{sec_after} > 0, a list containing individual tables per standup event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the standup events.
     }
-  }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
 
+my_triact$load_table(accel_data)
+
+my_triact$add_lying()
+
+st_ups <- my_triact$extract_standup()
+
+# inspect result
+print(st_ups)
+      }
+    }
+  }
 }
 
   %% ------------------------------
@@ -451,4 +598,5 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
     \references{
 Simmler. M., Brouwers S., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data.
 }
+
 
