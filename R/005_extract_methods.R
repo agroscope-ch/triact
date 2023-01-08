@@ -28,9 +28,9 @@ extract_updown <- function(self, private, sec_before, sec_after, updown) {
   private$dataDT[, switch := data.table::frollapply(lying, 2, \(i) {i[1] == L & i[2] == !L},
                                                      align = if (L) "left" else "right"), by = id, ]
 
-  cols <- c("id", "time", "bout_nr", if (private$has("side")) "side")
-
-  updown_times <- private$dataDT[as.logical(switch), ..cols]
+  updown_times <- private$dataDT[as.logical(switch), .SD,
+                                 .SDcols = c("id", "time", "bout_nr",
+                                             if (private$has("side")) "side")]
 
   private$dataDT[, switch := NULL]
 
