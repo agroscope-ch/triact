@@ -5,7 +5,6 @@
   An object for containing and analyzing data from accelerometers attached to a hind leg of cows. Analyses focus on the lying behaviour and on the cow's level of physical activity as detailed in Simmler & Brouwers (2023).
 }
 
-
 \section{Active bindings}{
   \if{html}{\out{<div class="r6-active-bindings">}}
   \describe{
@@ -13,6 +12,7 @@
   }
   \if{html}{\out{</div>}}
 }
+
 
 %% ------------------------------
 
@@ -136,8 +136,6 @@ my_triact <- Triact$new()
     }
     \subsection{Examples}{
       \preformatted{
-## does not run -- see package vignette 'introduction' for a working example
-
 # create a Triact object
 my_triact <- Triact$new()
 
@@ -161,7 +159,7 @@ head(my_triact$data)
   \if{latex}{\out{\hypertarget{method-load_table}{}}}
 
   \subsection{Method \code{load_table()}}{
-    Import acceleration data from a data.frame-like table. The table should contain the following columns:
+    Import acceleration data from a data.frame-like table (see \code{\link[=cows_5hz]{cows_5hz}} as an example). The table should contain the following columns:
       \tabular{llll}{
     \emph{colname} \tab \emph{type} \tab \emph{description} \cr
     id \tab Factor \tab unique id for the cow \cr
@@ -601,4 +599,166 @@ print(st_ups)
 Simmler. M., Brouwers S., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data.
 }
 
+    \examples{
+
+## Please read the "introduction" vignette for more detailed examples
+
+## -------------------------
+# method '$new'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+## -------------------------
+# method '$load_files'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+dir <- system.file("extdata", package = "triact")
+
+my_triact$load_files(input = dir,
+                     id_substring = c(1, 5),
+                     timeFwdUpRight_cols = c(1, 2 ,3, 4),
+                     skip = "*DATA")
+
+# inspect imported data
+head(my_triact$data)
+
+## -------------------------
+# method 'load_table'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+# inspect imported data
+head(my_triact$data)
+
+## -------------------------
+# method 'check_orientation'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+my_triact$check_orientation()
+
+## -------------------------
+# method 'add_lying'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+my_triact$add_lying()
+
+# inspect result
+head(my_triact$data)
+
+## -------------------------
+# method 'add_side'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+my_triact$add_lying()
+
+my_triact$add_side(left_leg = TRUE)
+
+# inspect result
+head(my_triact$data)
+
+## -------------------------
+# method 'add_activity'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+my_triact$add_lying()
+
+my_triact$add_activity()
+
+# inspect result
+head(my_triact$data)
+
+## -------------------------
+# method 'summarize_intervals'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+my_triact$add_lying()
+
+int_summary <- my_triact$summarize_intervals()
+
+# inspect result
+head(int_summary)
+
+## -------------------------
+# method 'summarize_bouts'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+my_triact$add_lying()
+
+bouts_summary <- my_triact$summarize_bouts()
+
+# inspect result
+head(bouts_summary)
+
+## -------------------------
+# method 'extract_liedown'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+my_triact$add_lying()
+
+l_downs <- my_triact$extract_liedown()
+
+# inspect result
+print(l_downs)
+
+## -------------------------
+# method 'extract_standup'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+my_triact$add_lying()
+
+st_ups <- my_triact$extract_standup()
+
+# inspect result
+print(st_ups)
+
+}
 
