@@ -141,10 +141,12 @@ my_triact <- Triact$new()
 # create a Triact object
 my_triact <- Triact$new()
 
-dir <- "dat_dir"
+dir <- system.file("extdata", package = "triact")
 
 my_triact$load_files(input = dir,
-                     id_substring = c(1, 9))
+                     id_substring = c(1, 5),
+                     timeFwdUpRight_cols = c(1, 2 ,3, 4),
+                     skip = "*DATA")
 
 # inspect imported data
 head(my_triact$data)
@@ -194,7 +196,7 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
 # create a Triact object
 my_triact <- Triact$new()
 
-my_triact$load_table(accel_data)
+my_triact$load_table(cows_5hz)
 
 # inspect imported data
 head(my_triact$data)
@@ -231,7 +233,7 @@ head(my_triact$data)
 # create a Triact object
 my_triact <- Triact$new()
 
-my_triact$load_table(accel_data)
+my_triact$load_table(cows_5hz)
 
 my_triact$check_orientation()
       }
@@ -290,7 +292,7 @@ my_triact$check_orientation()
 # create a Triact object
 my_triact <- Triact$new()
 
-my_triact$load_table(accel_data)
+my_triact$load_table(cows_5hz)
 
 my_triact$add_lying()
 
@@ -326,7 +328,7 @@ head(my_triact$data)
 # create a Triact object
 my_triact <- Triact$new()
 
-my_triact$load_table(accel_data)
+my_triact$load_table(cows_5hz)
 
 my_triact$add_lying()
 
@@ -389,7 +391,7 @@ head(my_triact$data)
 # create a Triact object
 my_triact <- Triact$new()
 
-my_triact$load_table(accel_data)
+my_triact$load_table(cows_5hz)
 
 my_triact$add_lying()
 
@@ -442,7 +444,7 @@ head(my_triact$data)
 # create a Triact object
 my_triact <- Triact$new()
 
-my_triact$load_table(accel_data)
+my_triact$load_table(cows_5hz)
 
 my_triact$add_lying()
 
@@ -488,7 +490,7 @@ head(int_summary)
 # create a Triact object
 my_triact <- Triact$new()
 
-my_triact$load_table(accel_data)
+my_triact$load_table(cows_5hz)
 
 my_triact$add_lying()
 
@@ -534,7 +536,7 @@ head(bouts_summary)
 # create a Triact object
 my_triact <- Triact$new()
 
-my_triact$load_table(accel_data)
+my_triact$load_table(cows_5hz)
 
 my_triact$add_lying()
 
@@ -580,7 +582,7 @@ print(l_downs)
 # create a Triact object
 my_triact <- Triact$new()
 
-my_triact$load_table(accel_data)
+my_triact$load_table(cows_5hz)
 
 my_triact$add_lying()
 
