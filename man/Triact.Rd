@@ -646,21 +646,11 @@ head(my_triact$data)
 # method 'check_orientation'
 ## -------------------------
 
-# create a Triact object
-my_triact <- Triact$new()
-
-my_triact$load_table(cows_5hz)
-
 my_triact$check_orientation()
 
 ## -------------------------
 # method 'add_lying'
 ## -------------------------
-
-# create a Triact object
-my_triact <- Triact$new()
-
-my_triact$load_table(cows_5hz)
 
 my_triact$add_lying()
 
@@ -671,13 +661,6 @@ head(my_triact$data)
 # method 'add_side'
 ## -------------------------
 
-# create a Triact object
-my_triact <- Triact$new()
-
-my_triact$load_table(cows_5hz)
-
-my_triact$add_lying()
-
 my_triact$add_side(left_leg = TRUE)
 
 # inspect result
@@ -686,13 +669,6 @@ head(my_triact$data)
 ## -------------------------
 # method 'add_activity'
 ## -------------------------
-
-# create a Triact object
-my_triact <- Triact$new()
-
-my_triact$load_table(cows_5hz)
-
-my_triact$add_lying()
 
 my_triact$add_activity()
 
@@ -703,13 +679,6 @@ head(my_triact$data)
 # method 'summarize_intervals'
 ## -------------------------
 
-# create a Triact object
-my_triact <- Triact$new()
-
-my_triact$load_table(cows_5hz)
-
-my_triact$add_lying()
-
 int_summary <- my_triact$summarize_intervals()
 
 # inspect result
@@ -718,13 +687,6 @@ head(int_summary)
 ## -------------------------
 # method 'summarize_bouts'
 ## -------------------------
-
-# create a Triact object
-my_triact <- Triact$new()
-
-my_triact$load_table(cows_5hz)
-
-my_triact$add_lying()
 
 bouts_summary <- my_triact$summarize_bouts()
 
@@ -735,13 +697,6 @@ head(bouts_summary)
 # method 'extract_liedown'
 ## -------------------------
 
-# create a Triact object
-my_triact <- Triact$new()
-
-my_triact$load_table(cows_5hz)
-
-my_triact$add_lying()
-
 l_downs <- my_triact$extract_liedown()
 
 # inspect result
@@ -750,13 +705,6 @@ print(l_downs)
 ## -------------------------
 # method 'extract_standup'
 ## -------------------------
-
-# create a Triact object
-my_triact <- Triact$new()
-
-my_triact$load_table(cows_5hz)
-
-my_triact$add_lying()
 
 st_ups <- my_triact$extract_standup()
 
