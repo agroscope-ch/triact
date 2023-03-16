@@ -57,14 +57,16 @@ load_files <- function(input,
   }
 
   ## check timeFwdUpRight_cols
-  msg <- checkmate::checkIntegerish(timeFwdUpRight_cols,
-                                    len = 4, lower = 1)
+  msg <- checkmate::checkIntegerish(timeFwdUpRight_cols, len = 4)
 
   if (!isTRUE(msg)) {
     assertColl$push(paste0("Variable 'timeFwdUpRight_cols': ", msg))
   } else {
     if (is.na(timeFwdUpRight_cols[1])) {
-    assertColl$push("Variable 'timeFwdUpRight_cols': First element (time column) cannot be NA.")
+      assertColl$push("Variable 'timeFwdUpRight_cols': First element (time column) cannot be NA.")
+    }
+    if (timeFwdUpRight_cols[1] < 0) {
+      assertColl$push("Variable 'timeFwdUpRight_cols': First element (time column) cannot be negative.")
     }
     if (checkmate::allMissing(timeFwdUpRight_cols[2:4])) {
       assertColl$push("Variable 'timeFwdUpRight_cols': At least one of the acceleration columns must be non-NA.")
