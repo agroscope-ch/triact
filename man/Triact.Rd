@@ -134,6 +134,9 @@ my_triact <- Triact$new()
       }
       \if{html}{\out{</div>}}
     }
+    \subsection{Returns}{
+      Returns the `Triact` object itself, but modified by reference.
+    }
     \subsection{Examples}{
       \preformatted{
 # create a Triact object
@@ -189,6 +192,9 @@ The accelerometer sampling frequency must be the same across all cows (id). No t
       }
       \if{html}{\out{</div>}}
     }
+    \subsection{Returns}{
+      Returns the `Triact` object itself, but modified by reference.
+    }
     \subsection{Examples}{
       \preformatted{
 # create a Triact object
@@ -225,6 +231,9 @@ head(my_triact$data)
         }
       }
       \if{html}{\out{</div>}}
+    }
+    \subsection{Returns}{
+      Returns the `Triact` object itself, but modified by reference.
     }
     \subsection{Examples}{
       \preformatted{
@@ -285,6 +294,9 @@ my_triact$check_orientation()
       }
       \if{html}{\out{</div>}}
     }
+    \subsection{Returns}{
+      Returns the `Triact` object itself, but modified by reference.
+    }
     \subsection{Examples}{
       \preformatted{
 # create a Triact object
@@ -320,6 +332,9 @@ head(my_triact$data)
         \item{\code{crit_left}}{Right-acceleration threshold for classifying lying on left versus right side. \emph{Default:} \code{-0.5} if \code{left_leg} is \code{TRUE}, else \code{0.5}}
       }
       \if{html}{\out{</div>}}
+    }
+    \subsection{Returns}{
+      Returns the `Triact` object itself, but modified by reference.
     }
     \subsection{Examples}{
       \preformatted{
@@ -383,6 +398,9 @@ head(my_triact$data)
         }
       }
       \if{html}{\out{</div>}}
+    }
+    \subsection{Returns}{
+      Returns the `Triact` object itself, but modified by reference.
     }
     \subsection{Examples}{
       \preformatted{
