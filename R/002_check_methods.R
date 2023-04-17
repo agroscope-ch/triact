@@ -59,5 +59,10 @@ check_orientation <- function(crit = 0.5, interactive = TRUE) {
   } else{
     message("No incorrectly mounted accelerometers found.")
   }
+
+  # Return ---------------------------------------------------------------------
+
+  return(invisible(self))
+
 }
 
