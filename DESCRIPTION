@@ -1,7 +1,7 @@
 Package: triact
 Type: Package
 Title: Analyzing the Lying Behavior of Cows from Accelerometer Data
-Version: 0.3.0_dev
+Version: 0.3.0
 Authors@R: c(
     person("Michael", "Simmler", email = "michael.simmler@agroscope.admin.ch", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4095-4111")),
