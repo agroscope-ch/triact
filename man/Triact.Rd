@@ -288,8 +288,20 @@ my_triact$check_orientation()
            \emph{Default:} \code{FALSE}
         }
         \item{\code{...}}{
-        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument. For filter method 'median' the argument \code{window_size} specifies the window size in seconds (\emph{default:} \code{10}). For filter method 'butter' the argument \code{cutoff} specifies the cutoff frequency for low-pass filtering in Hz (\emph{default:} \code{0.1}) and the argument \code{order} specifies the Butterworth filter order (\emph{default:} \code{1}).
+        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument.
+
+      \describe{
+        \item{\code{window_size}}{
+        window size in seconds for filter method 'median'  (\emph{default:} \code{10})
         }
+        \item{\code{cutoff}}{
+        cutoff frequency for low-pass filtering in Hz for filter method 'butter' (\emph{default:} \code{0.1})
+        }
+        \item{\code{order}}{
+        filter order for filter method 'butter' (\emph{default:} \code{1})
+        }
+        }
+      }
 
       }
       \if{html}{\out{</div>}}
@@ -394,8 +406,21 @@ head(my_triact$data)
             A logical value that indicates whether the intermediate data, being the dynamic body acceleration vector and/or the jerk vector, should be added to the 'Triact' object. \emph{Default:} \code{FALSE}
         }
                 \item{\code{...}}{
-        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument. For filter method 'median' the argument \code{window_size} specifies the window size in seconds (\emph{default:} \code{10}). For filter method 'butter' the argument \code{cutoff} specifies the cutoff frequency for low-pass filtering in Hz (\emph{default:} \code{0.1}) and argument \code{order} specifies the Butterworth filter order (\emph{default:} \code{1}).
+        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument.
+
+                  \describe{
+                    \item{\code{window_size}}{
+                    window size in seconds for filter method 'median'  (\emph{default:} \code{10})
+                    }
+                    \item{\code{cutoff}}{
+                    cutoff frequency for low-pass filtering in Hz for filter method 'butter' (\emph{default:} \code{0.1})
+                    }
+                    \item{\code{order}}{
+                    filter order for filter method 'butter' (\emph{default:} \code{1})
+                    }
         }
+      }
+
       }
       \if{html}{\out{</div>}}
     }
