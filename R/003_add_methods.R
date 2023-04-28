@@ -115,7 +115,7 @@ add_lying <- function(filter_method = "median",
 
 ################################################################################
 
-add_side <- function(left_leg, crit_left = if(left_leg) -0.5 else 0.5) {
+add_side <- function(left_leg, crit_left = if(left_leg) 0.5 else -0.5) {
 
   # check prerequisites --------------------------------------------------------
 
