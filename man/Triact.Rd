@@ -143,9 +143,9 @@ my_triact <- Triact$new()
 # create a Triact object
 my_triact <- Triact$new()
 
-dir <- system.file("extdata", package = "triact")
+input_dir <- system.file("extdata", package = "triact")
 
-my_triact$load_files(input = dir,
+my_triact$load_files(input = input_dir,
                      id_substring = c(1, 5),
                      timeFwdUpRight_cols = c(1, -2 ,3, -4),
                      skip = "*DATA")
@@ -663,9 +663,9 @@ my_triact <- Triact$new()
 # create a Triact object
 my_triact <- Triact$new()
 
-dir <- system.file("extdata", package = "triact")
+input_dir <- system.file("extdata", package = "triact")
 
-my_triact$load_files(input = dir,
+my_triact$load_files(input = input_dir,
                      id_substring = c(1, 5),
                      timeFwdUpRight_cols = c(1, -2 ,3, -4),
                      skip = "*DATA")
