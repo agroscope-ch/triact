@@ -2,7 +2,7 @@
 \alias{Triact}
 \title{R6 class for analyzing accelerometer data from cows}
 \description{
-  An object for containing and analyzing data from accelerometers attached to a hind leg of cows. Analyses focus on the lying behaviour and on the cow's level of physical activity as detailed in Simmler & Brouwers (2023).
+  An object for containing and analyzing data from accelerometers attached to a hind leg of cows. Analyses focus on the lying behaviour and on the cow's level of physical activity as detailed in Simmler & Brouwers (2023). For a usage example see \code{vignette("introduction", package = "triact").
 }
 
 \section{Active bindings}{
@@ -62,15 +62,16 @@ my_triact <- Triact$new()
   \if{latex}{\out{\hypertarget{method-load_files}{}}}
 
   \subsection{Method \code{load_files()}}{
-    Import acceleration data files from one or several cows to the 'Triact' object. Importing multiple files from the same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: \code{id_substring}). Accelerometer sampling frequency must be consistent across the files. Acceleration should be in units of \emph{g}. Triaxial, biaxial and uniaxial accelerometer data are allowed, but only triaxial data corresponding to relative body directions allows full functionality.
+    Import acceleration data files from one or several cows to the 'Triact' object. Importing multiple files from the same cows is possible but data should follow each other without any gaps in time (overlap is allowed as duplicates after concatenation will be removed). The filenames must allow unique identification of the cow (parameter: \code{id_substring}). Accelerometer sampling frequency must be consistent across the files. Acceleration should be in units of \emph{g} and represent \emph{proper acceleration}. Triaxial, biaxial and uniaxial accelerometer data are allowed, but only triaxial data corresponding to relative body directions allows full functionality.
 
-\emph{Important}: Make sure to correctly specify how to map the axes as named by the accelerometer (e.g., x, y, z) to the body relative axes as used in triact (parameter: \code{timeFwdUpRight_cols}). See Simmler & Brouwers (2023) for an illustration.
+\emph{Important}: Make sure to correctly specify how to map the axes as named by the accelerometer (e.g., x, y, z) to the body relative axes as used in triact (parameter: \code{timeFwdUpRight_cols}). For an example see \code{vignette("introduction", package = "triact")}.
+
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$load_files(
         input,
         id_substring,
-        timeFwdUpRight_cols = c(1, 2, 3, 4),
+        timeFwdUpRight_cols,
         time_format  = NULL,
         tz           = Sys.timezone(),
         start_time   = NULL,
@@ -96,7 +97,7 @@ my_triact <- Triact$new()
         }
 
         \item{\code{timeFwdUpRight_cols}}{
-          Integer vector specifying the columns containing the time, and the forward, up, and right axis acceleration data: c(time, fwd, up, right). Missing acceleration axes are specified as \code{NA}. A negative mathematical sign is used to indicate that the recorded data reflects the opposite direction (e.g., for backward acceleration, specify the forward acceleration column with a negative mathematical sign). \emph{Default:} \code{c(1, 2, 3, 4)}
+          Integer vector specifying the columns containing the time, and the forward, up, and right axis acceleration data: c(time, fwd, up, right). Missing acceleration axes are specified as \code{NA}. A negative mathematical sign is used to indicate that the recorded data reflects the opposite direction (e.g., for backward acceleration, specify the forward acceleration column with a negative mathematical sign).
         }
 
         \item{\code{time_format}}{
@@ -146,7 +147,7 @@ dir <- system.file("extdata", package = "triact")
 
 my_triact$load_files(input = dir,
                      id_substring = c(1, 5),
-                     timeFwdUpRight_cols = c(1, 2 ,3, 4),
+                     timeFwdUpRight_cols = c(1, -2 ,3, -4),
                      skip = "*DATA")
 
 # inspect imported data
@@ -666,7 +667,7 @@ dir <- system.file("extdata", package = "triact")
 
 my_triact$load_files(input = dir,
                      id_substring = c(1, 5),
-                     timeFwdUpRight_cols = c(1, 2 ,3, 4),
+                     timeFwdUpRight_cols = c(1, -2 ,3, -4),
                      skip = "*DATA")
 
 # inspect imported data
