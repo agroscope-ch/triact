@@ -2,7 +2,7 @@
 \alias{Triact}
 \title{R6 class for analyzing accelerometer data from cows}
 \description{
-  An object for containing and analyzing data from accelerometers attached to a hind leg of cows. Analyses focus on the lying behaviour and on the cow's level of physical activity as detailed in Simmler & Brouwers (2023). For a usage example see \code{vignette("introduction", package = "triact").
+  An object for containing and analyzing data from accelerometers attached to a hind leg of cows. Analyses focus on the lying behaviour and on the cow's level of physical activity as detailed in Simmler & Brouwers (2023). For a usage example see \code{vignette("introduction", package = "triact")}.
 }
 
 \section{Active bindings}{
