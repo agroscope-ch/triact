@@ -148,7 +148,7 @@ input_dir <- system.file("extdata", package = "triact")
 my_triact$load_files(input = input_dir,
                      id_substring = c(1, 5),
                      timeFwdUpRight_cols = c(1, -2 ,3, -4),
-                     skip = "*DATA")
+                     skip = "DATA")
 
 # inspect imported data
 head(my_triact$data)
@@ -668,7 +668,7 @@ input_dir <- system.file("extdata", package = "triact")
 my_triact$load_files(input = input_dir,
                      id_substring = c(1, 5),
                      timeFwdUpRight_cols = c(1, -2 ,3, -4),
-                     skip = "*DATA")
+                     skip = "DATA")
 
 # inspect imported data
 head(my_triact$data)
