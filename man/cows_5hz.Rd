@@ -2,7 +2,7 @@
 \alias{cows_5hz}
 \title{cow acceleration data}
 \description{
-  Data collected with a triaxial accelerometers (MSR145, MSR Electronics, Switzerland) attached to the left hind leg of two dairy cows (cow01, cow02). The accelerometer sampling frequency was 5 Hz.
+  Acceleration data collected with triaxial accelerometers (MSR145, MSR Electronics, Switzerland) attached to the left hind leg of two dairy cows (cow01, cow02). The accelerometer sampling frequency was 5 Hz. The \emph{forward}, \emph{up}, and \emph{right} acceleration correspond to body relative directions as used in \emph{triact} (see Simmler & Brouwers, 2023).
 
   \tabular{llll}{
     \emph{colname} \tab \emph{type} \tab \emph{description} \cr
@@ -26,9 +26,12 @@ From the raw data files distributed with the triact package, \code{cows_5hz} can
 # create a Triact object
 my_triact <- Triact$new()
 
-dir <- system.file("extdata", package = "triact")
+input_dir <- system.file("extdata", package = "triact")
 
-my_triact$load_files(input = dir,
+# load data from files
+# note the mapping of X, Y, Z to forward, up, right (parameter timeFwdUpRight)
+
+my_triact$load_files(input = input_dir,
                      id_substring = c(1, 5),
                      timeFwdUpRight_cols = c(1, -2 ,3, -4),
                      skip = "DATA")
@@ -42,3 +45,8 @@ identical(cows_5hz_recreated, cows_5hz)
 }
 
 \source{Agroscope, 8356 Ettenhausen, Switzerland}
+
+    \references{
+Simmler. M., Brouwers S., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data. \href{https://gitlab.com/AgroSimi/triact_manuscript}{pdf}
+
+}
