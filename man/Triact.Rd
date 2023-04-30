@@ -335,7 +335,7 @@ head(my_triact$data)
     Classify lying bouts into left and right lying side and add results as column 'side' to the 'Triact' object. For each lying bout, the median acceleration over the entire duration is calculated and compared to a threshold to classify the bout as 'L' (left) or 'R' (right) lying side. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
-      \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(left_leg, crit_left = if(left_leg) -0.5 else 0.5)}\if{html}{\out{</div>}}
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(left_leg, crit_left = if(left_leg) 0.5 else -0.5)}\if{html}{\out{</div>}}
     }
 
     \subsection{Arguments}{
