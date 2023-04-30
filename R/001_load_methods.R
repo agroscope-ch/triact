@@ -273,7 +273,7 @@ load_files <- function(input,
   private$dataDT <- private$dataDT[!duplicated(private$dataDT),]
 
   ## set timezone
-  attr(private$dataDT$time, "tzone") <- tz
+  private$dataDT[, time := lubridate::force_tz(time, tz)]
 
   ## filter time range according to user-provided start and/or end time
   if (!is.null(start_time) && is.null(end_time)) {
