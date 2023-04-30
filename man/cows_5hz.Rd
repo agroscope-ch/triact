@@ -34,6 +34,7 @@ input_dir <- system.file("extdata", package = "triact")
 my_triact$load_files(input = input_dir,
                      id_substring = c(1, 5),
                      timeFwdUpRight_cols = c(1, -2 ,3, -4),
+                     tz = "CEST",
                      skip = "DATA")
 
 cows_5hz_recreated <- my_triact$data
