@@ -72,15 +72,16 @@ my_triact <- Triact$new()
         input,
         id_substring,
         timeFwdUpRight_cols,
+        skip         = "__auto__",
         time_format  = NULL,
         tz           = Sys.timezone(),
+        sep          = "auto",
+        header       = "auto",
+        dec          = ".",
         start_time   = NULL,
         end_time     = NULL,
-        sep          = "auto",
-        skip         = "__auto__",
         parallel     = 1,
-        ...
-      )}
+                       ...)}
       \if{html}{\out{</div>}}
     }
 
@@ -100,6 +101,10 @@ my_triact <- Triact$new()
           Integer vector specifying the columns containing the time, and the forward, up, and right axis acceleration data: c(time, fwd, up, right). Missing acceleration axes are specified as \code{NA}. A negative mathematical sign is used to indicate that the recorded data reflects the opposite direction (e.g., for backward acceleration, specify the forward acceleration column with a negative mathematical sign).
         }
 
+        \item{\code{skip}}{
+          An integer indicating the number of lines to skip before reading data from the files. Alternatively, a (sub)string indicating the line to start reading data, or "__auto__" for the automatic detection by \code{\link[=fread]{data.table::fread}}, which finds the first row with a consistent number of columns. \emph{Default:} \code{"__auto__"}
+        }
+
         \item{\code{time_format}}{
           Character vector specifying the date-time format corresponding to the acceleration files (syntax as in \code{\link[base]{strptime}}). If \code{NULL} a date-time format as tried by \link[=as.POSIXct]{as.POSIX*} is expected. \emph{Default:} \code{NULL}
         }
@@ -108,22 +113,24 @@ my_triact <- Triact$new()
           Character vector specifying the \link[=timezones]{time zone} \emph{Default:} \code{Sys.timezone()}
         }
 
+        \item{\code{sep}}{
+          The separator between columns in the acceleration data files. If "auto", it is automatically detected by \code{\link[=fread]{data.table::fread}} according to the character in the set [,\\t |;:] that separates the sample of rows into the most number of lines with the same number of fields. \emph{Default:} \code{"auto"}
+        }
+
+        \item{\code{header}}{
+          A logical value that indicates whether the first data line (afer considering \code{skip}!)contains column names. Alternatively, "auto" to autmatically detect by \code{\link[=fread]{data.table::fread}} according to whether every non-empty field on the first data line is type character. \emph{Default:} \code{"auto"}
+        }
+
+        \item{\code{dec}}{
+          The decimal separator as in \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{"."}
+        }
+
         \item{\code{start_time}}{
           Time from which on the data should be considered. Formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or in another format automatically tried by \link[=as.POSIXct]{as.POSIX*}. \emph{Default:} \code{NULL}
         }
 
-
         \item{\code{end_time}}{
           Time up to which the data should be considered. Formatted as "\%Y-\%m-\%d \%H:\%M:\%OS" or in another format automatically tried by \link[=as.POSIXct]{as.POSIX*}. \emph{Default:} \code{NULL}
-        }
-
-
-        \item{\code{sep}}{
-          The separator between columns in the acceleration data files. If "auto", it is automatically detected by \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{"auto"}
-        }
-
-        \item{\code{skip}}{
-          An integer indicating the number of lines to skip before reading data from the files. Alternatively, a (sub)string indicating the line to start reading data, or "__auto__" for the automatic detection by \code{\link[=fread]{data.table::fread}}.\emph{Default:} \code{"__auto__"}
         }
 
         \item{\code{parallel}}{
@@ -147,7 +154,7 @@ input_dir <- system.file("extdata", package = "triact")
 
 my_triact$load_files(input = input_dir,
                      id_substring = c(1, 5),
-                     timeFwdUpRight_cols = c(1, -2 ,3, -4),
+                     timeFwdUpRight_cols = c(1, -2, 3, -4),
                      skip = "DATA")
 
 # inspect imported data
