@@ -72,9 +72,9 @@ my_triact <- Triact$new()
         input,
         id_substring,
         timeFwdUpRight_cols,
-        skip         = "__auto__",
         time_format  = NULL,
         tz           = Sys.timezone(),
+        skip         = "__auto__",
         sep          = "auto",
         header       = "auto",
         dec          = ".",
@@ -101,16 +101,16 @@ my_triact <- Triact$new()
           Integer vector specifying the columns containing the time, and the forward, up, and right axis acceleration data: c(time, fwd, up, right). Missing acceleration axes are specified as \code{NA}. A negative mathematical sign is used to indicate that the recorded data reflects the opposite direction (e.g., for backward acceleration, specify the forward acceleration column with a negative mathematical sign).
         }
 
-        \item{\code{skip}}{
-          An integer indicating the number of lines to skip before reading data from the files. Alternatively, a (sub)string indicating the line to start reading data, or "__auto__" for the automatic detection by \code{\link[=fread]{data.table::fread}}, which finds the first row with a consistent number of columns. \emph{Default:} \code{"__auto__"}
-        }
-
         \item{\code{time_format}}{
           Character vector specifying the date-time format corresponding to the acceleration files (syntax as in \code{\link[base]{strptime}}). If \code{NULL} a date-time format as tried by \link[=as.POSIXct]{as.POSIX*} is expected. \emph{Default:} \code{NULL}
         }
 
         \item{\code{tz}}{
           Character vector specifying the \link[=timezones]{time zone} \emph{Default:} \code{Sys.timezone()}
+        }
+
+        \item{\code{skip}}{
+          An integer indicating the number of lines to skip before starting the search for the first data line, which is the first row with a consistent number of columns. Alternatively, a (sub)string specifying the line at which to start the search, or "__auto__" to leave the decision to \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{"__auto__"}
         }
 
         \item{\code{sep}}{

@@ -5,9 +5,9 @@
 load_files <- function(input,
                        id_substring,
                        timeFwdUpRight_cols,
-                       skip         = "__auto__",
                        time_format  = NULL,
                        tz           = Sys.timezone(),
+                       skip         = "__auto__",
                        sep          = "auto",
                        header       = "auto",
                        dec          = ".",
@@ -78,15 +78,6 @@ load_files <- function(input,
     }
   }
 
-  ## check skip
-  if (!checkmate::testCharacter(skip,
-                                len = 1,
-                                all.missing = FALSE) &&
-      !checkmate::testInt(skip,
-                          na.ok = FALSE)) {
-    assertColl$push("Variable 'skip': Must be integer or character of
-                    length 1 ('__auto__' for automatic detection).")
-  }
 
   ## check time_format
   try_err <-
@@ -106,6 +97,16 @@ load_files <- function(input,
   if (inherits(try(lubridate::force_tz(Sys.time(), tz), silent = TRUE),
               "try-error")) {
     assertColl$push(paste0("Variable 'tz': Unrecognized time zone"))
+  }
+
+  ## check skip
+  if (!checkmate::testCharacter(skip,
+                                len = 1,
+                                all.missing = FALSE) &&
+      !checkmate::testInt(skip,
+                          na.ok = FALSE)) {
+    assertColl$push("Variable 'skip': Must be integer or character of
+                    length 1 ('__auto__' for automatic detection).")
   }
 
   ## check sep
