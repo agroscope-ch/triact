@@ -257,9 +257,9 @@ summarize_intervals <- function(interval = "hour",
 
     bout_x_interval[, propI := N / sum(N), by = .(id, bout_nr)] # prop in interval
 
-    bout_x_interval[self$summarize_bouts(bout_type = "both",
+    bout_x_interval[as.data.table(self$summarize_bouts(bout_type = "both",
                                          duration_units = duration_units,
-                                         calc_for_incomplete = calc_for_incomplete),
+                                         calc_for_incomplete = calc_for_incomplete)),
                     boutDuration := duration,
                     on = .(id, bout_nr)]
 
