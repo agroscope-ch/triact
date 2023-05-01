@@ -193,7 +193,6 @@ load_files <- function(input,
   # read files & concatenate ---------------------------------------------------
 
   read_file <- function(f, fread_args, tformat = time_format) {
-    print(c(list(file = f), fread_args))
     file_dt <- do.call(data.table::fread, c(list(file = f), fread_args))
 
     if (!is.null(tformat)) {
