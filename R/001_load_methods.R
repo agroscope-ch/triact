@@ -4,13 +4,15 @@
 
 load_files <- function(input,
                        id_substring,
-                       timeFwdUpRight_cols = c(1, 2, 3, 4),
+                       timeFwdUpRight_cols,
+                       skip         = "__auto__",
                        time_format  = NULL,
                        tz           = Sys.timezone(),
+                       sep          = "auto",
+                       header       = "auto",
+                       dec          = ".",
                        start_time   = NULL,
                        end_time     = NULL,
-                       sep          = "auto",
-                       skip         = "__auto__",
                        parallel     = 1,
                        ...) {
 
@@ -63,14 +65,27 @@ load_files <- function(input,
     assertColl$push(paste0("Variable 'timeFwdUpRight_cols': ", msg))
   } else {
     if (is.na(timeFwdUpRight_cols[1])) {
-      assertColl$push("Variable 'timeFwdUpRight_cols': First element (time column) cannot be NA.")
+      assertColl$push("Variable 'timeFwdUpRight_cols':
+                      First element (time column) cannot be NA.")
     }
     if (timeFwdUpRight_cols[1] < 0) {
-      assertColl$push("Variable 'timeFwdUpRight_cols': First element (time column) cannot be negative.")
+      assertColl$push("Variable 'timeFwdUpRight_cols':
+                      First element (time column) cannot be negative.")
     }
     if (checkmate::allMissing(timeFwdUpRight_cols[2:4])) {
-      assertColl$push("Variable 'timeFwdUpRight_cols': At least one of the acceleration columns must be non-NA.")
+      assertColl$push("Variable 'timeFwdUpRight_cols':
+                      At least one of the acceleration columns must be non-NA.")
     }
+  }
+
+  ## check skip
+  if (!checkmate::testCharacter(skip,
+                                len = 1,
+                                all.missing = FALSE) &&
+      !checkmate::testInt(skip,
+                          na.ok = FALSE)) {
+    assertColl$push("Variable 'skip': Must be integer or character of
+                    length 1 ('__auto__' for automatic detection).")
   }
 
   ## check time_format
@@ -93,6 +108,27 @@ load_files <- function(input,
     assertColl$push(paste0("Variable 'tz': Unrecognized time zone"))
   }
 
+  ## check sep
+  if (!identical(sep, "auto") &&
+      !checkmate::testString(sep,
+                             n.chars = 1)) {
+    assertColl$push("Variable 'sep': must be a single character
+                    i.e. nchar(sep) == 1, OR 'auto'")
+  }
+
+  ## header
+
+  if (!identical(header, "auto") &&
+      !checkmate::testFlag(header)) {
+    assertColl$push("Variable 'header': Must of be logical flag OR 'auto'")
+  }
+
+  ## check dec
+
+  checkmate::assertString(dec,
+                          n.chars = 1,
+                          add = assertColl)
+
   ## check start_time & stop_time
   for (tp in c("start_time", "end_time")) {
     if (!is.null(get(tp))) {
@@ -104,21 +140,6 @@ load_files <- function(input,
           "Variable '", tp, "': Not interpretable as POSIXct of length 1"))
       }
     }
-  }
-
-  ## check sep
-  checkmate::assertCharacter(sep,
-                             len = 1,
-                             all.missing = FALSE,
-                             add = assertColl)
-
-  ## check skip
-  if (!checkmate::testCharacter(skip,
-                               len = 1,
-                               all.missing = FALSE) &&
-      !checkmate::testInt(skip,
-                          na.ok = FALSE)) {
-    assertColl$push("Variable 'skip': Must be integer or character of length 1")
   }
 
   ## check parallel
@@ -172,6 +193,7 @@ load_files <- function(input,
   # read files & concatenate ---------------------------------------------------
 
   read_file <- function(f, fread_args, tformat = time_format) {
+    print(c(list(file = f), fread_args))
     file_dt <- do.call(data.table::fread, c(list(file = f), fread_args))
 
     if (!is.null(tformat)) {
@@ -194,16 +216,17 @@ load_files <- function(input,
   arguments <- c(
     list(
       select = timeFwdUpRight_cols,
+      skip = skip,
       tz = if (tz == "UTC")
         "UTC"
       else
         "",
       # fread only takes "UTC" or "" (system tz) --> extra step below needed
-      col.names = colnms,
-      colClasses = colcls,
       sep = sep,
-      skip = skip,
-      header = FALSE
+      header = header,
+      dec = dec,
+      col.names = colnms,
+      colClasses = colcls
     ),
     list(...)
   )
