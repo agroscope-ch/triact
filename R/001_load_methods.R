@@ -255,18 +255,20 @@ load_files <- function(input,
     on.exit(parallel::stopCluster(fread_cls))
     dataList <- parallel::parLapply(cl = fread_cls,
                                     X = input,
-                                    fun = \(f) {
+                                    fun = \(f) {suppressWarnings(
                                       tryCatch(
                                         expr = read_file(f, arguments),
                                         parse_error = identity
-                                      )
+                                      ))
                                     })
   } else {
     dataList <- lapply(X = input,
-                       FUN = \(f) tryCatch(
-                         expr = read_file(f, arguments),
-                         parse_error = identity
+                       FUN = \(f) {suppressWarnings(
+                         tryCatch(
+                          expr = read_file(f, arguments),
+                          parse_error = identity
                        ))
+                      })
   }
 
   tErrMsg <- unlist(dataList[vapply(dataList,
