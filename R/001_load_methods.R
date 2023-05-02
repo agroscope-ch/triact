@@ -331,7 +331,7 @@ load_files <- function(input,
 
   if (length(dropped_levels) > 0) {
     warning(paste0("Filtering using the user-provided start_time/end_time ",
-                    "resulted in no data for ids: ",
+                    "resulted in dropping all data for id(s): ",
                     paste(dropped_levels, collapse = ", ")),
             call. = FALSE)
   }
@@ -342,7 +342,7 @@ load_files <- function(input,
     name_of_triact_obtect <- as.character(sys.calls()[[1]][[1]])[2]
     assign(name_of_triact_obtect, Triact$new(), inherits = TRUE)
 
-    stop("No data after filtering with user-provided start_time/end_time left.",
+    stop("Attempt to import data resulted in zero rows, i.e. no data.",
          call. = FALSE)
   }
 
