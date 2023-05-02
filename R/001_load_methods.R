@@ -206,10 +206,22 @@ load_files <- function(input,
       )]
     }
 
-    if ((!lubridate::is.POSIXct(file_dt$time)) ||
-        checkmate::anyMissing(file_dt$time)) {
-      stop_custom("time_parse_error", basename(f))
+    # Note on test: fread keeps col type unchanged when NA or loss of accuracy
+    # would be introduced when coersing to data types given by colClasses.
+    # parse_date_time on the other hand introduces NAs when format(s) is no fit
+
+    time_is_POSIXct <- lubridate::is.POSIXct(file_dt$time) && # test for when fread was used
+                       !checkmate::anyMissing(file_dt$time)   # test for when parse_date_time was used
+
+    accel_is_numeric <- all(sapply(file_dt[, -1], is.numeric))
+
+    if (!time_is_POSIXct || !accel_is_numeric) {
+      message <- paste(basename(f), ":",
+                       if (!time_is_POSIXct) "Failed to convert timestamps to POSIXct.",
+                       if (!accel_is_numeric) "Failed to convert acceleration to numeric.")
+      stop_custom("parse_error", message)
     }
+
     return(file_dt)
   }
 
@@ -246,26 +258,24 @@ load_files <- function(input,
                                     fun = \(f) {
                                       tryCatch(
                                         expr = read_file(f, arguments),
-                                        time_parse_error = identity
+                                        parse_error = identity
                                       )
                                     })
   } else {
     dataList <- lapply(X = input,
                        FUN = \(f) tryCatch(
                          expr = read_file(f, arguments),
-                         time_parse_error = identity
+                         parse_error = identity
                        ))
   }
 
   tErrMsg <- unlist(dataList[vapply(dataList,
                                     FUN = is,
                                     FUN.VALUE = logical(1),
-                                    class2 = "time_parse_error")])
+                                    class2 = "parse_error")])
+
   if (!is.null(tErrMsg)) {
-    stop(paste0(
-      "Problem coersing time column to POSIXct for files: ",
-      paste(tErrMsg, collapse = ", ")
-    ))
+    stop(paste(tErrMsg, collapse = "\n"))
   }
 
   private$dataDT <- data.table::rbindlist(dataList, idcol = "id")
