@@ -154,9 +154,15 @@ add_side <- function(left_leg, crit_left = if(left_leg) 0.5 else -0.5) {
 
   # determine lying side -------------------------------------------------------
 
-  private$dataDT[, side := as.factor(if(!lying[1]) NA
-                                     else if (median(acc_right > crit_left)) "L"
-                                     else "R"),
+  # Note: three equivalent tests, (1) is fastest, (3) slowest
+  # (1) if (sum(acc_right > crit_left) > (.N / 2)) "L"
+  # (2) if (median(acc_right > crit_left)) "L"
+  # (3) if (median(acc_right) > crit_left) "L
+
+  private$dataDT[, side :=
+                   as.factor(if(!lying[1]) NA
+                             else if (sum(acc_right > crit_left) > (.N / 2)) "L"
+                             else "R"),
                  by = .(id, bout_nr)]
 
   # return ---------------------------------------------------------------------
