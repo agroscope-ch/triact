@@ -66,7 +66,7 @@ filter_acc <- function(filter_method, axes, fArgs, dba = FALSE) {
 
   if (filter_method == "median") {
 
-    fArgsDef <- list(window_size = 5) # Defaults for "median"
+    fArgsDef <- list(window_size = 10) # Defaults for "median"
 
   } else if (filter_method == "butter") {
 

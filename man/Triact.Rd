@@ -300,7 +300,7 @@ my_triact$check_orientation()
 
       \describe{
         \item{\code{window_size}}{
-        window size in seconds for filter method 'median'  (\emph{default:} \code{5})
+        window size in seconds for filter method 'median'  (\emph{default:} \code{10})
         }
         \item{\code{cutoff}}{
         cutoff frequency for low-pass filtering in Hz for filter method 'butter' (\emph{default:} \code{0.1})
@@ -418,7 +418,7 @@ head(my_triact$data)
 
                   \describe{
                     \item{\code{window_size}}{
-                    window size in seconds for filter method 'median'  (\emph{default:} \code{5})
+                    window size in seconds for filter method 'median'  (\emph{default:} \code{10})
                     }
                     \item{\code{cutoff}}{
                     cutoff frequency for low-pass filtering in Hz for filter method 'butter' (\emph{default:} \code{0.1})
