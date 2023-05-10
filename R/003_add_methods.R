@@ -7,7 +7,9 @@ add_lying <- function(filter_method = "median",
                       minimum_duration_lying = 30,
                       minimum_duration_standing = NULL,
                       add_filtered = FALSE,
-                      ...) {
+                      window_size = 10,
+                      cutoff = 0.1,
+                      order = 1) {
 
   # check prerequisites --------------------------------------------------------
 
@@ -52,16 +54,39 @@ add_lying <- function(filter_method = "median",
   checkmate::assertFlag(add_filtered,
                         add = assertColl)
 
-
   checkmate::reportAssertions(assertColl)
+
+  # raise warning if user provides arguments that are not relevant -------------
+
+  if ((!missing(window_size)) && (!filter_method == "median")) {
+    warning("Argument 'window_size' will be ignored, as it is only relevant
+            if filter_method = 'median'.")
+  }
+
+  if ((!missing(cutoff)) && (!filter_method == "butter")) {
+    warning("Argument 'cutoff' will be ignored, as it is only relevant
+            if filter_method = 'butter'.")
+  }
+
+  if ((!missing(order)) && (!filter_method == "butter")) {
+    warning("Argument 'order' will be ignored, as it is only relevant
+            if filter_method = 'butter'.")
+  }
 
   # determine lying/standing and bouts -----------------------------------------
 
   ## Step 1: filtering signal
 
+  if (filter_method == "median") {
+    fArgs <- list(window_size = window_size)
+  } else if (filter_method == "butter") {
+    fArgs <- list(cutoff = cutoff,
+                 order = order)
+  }
+
   private$filter_acc(filter_method = filter_method,
-                     axes = "acc_up",
-                     fArg = list(...))
+                       axes = "acc_up",
+                       fArgs = fArgs)
 
   ## Step 2: thresholding (binarization)
 
@@ -179,7 +204,9 @@ add_activity <- function(dynamic_measure = "dba",
                          adjust = TRUE,
                          filter_method = "median",
                          keep_dynamic_measure = FALSE,
-                          ...) {
+                         window_size = 10,
+                         cutoff = 0.1,
+                         order = 1) {
 
   # check prerequisites --------------------------------------------------------
 
@@ -226,7 +253,40 @@ add_activity <- function(dynamic_measure = "dba",
 
   checkmate::reportAssertions(assertColl)
 
-  # determine activity  ------------------------------------------------------
+  # raise warning if user provides arguments that are not relevant -------------
+
+  if (!"dba" %in% dynamic_measure) {
+
+    ignored_args <- c(if (!missing(filter_method)) "filter_method",
+                      if (!missing(window_size)) "window_size",
+                      if (!missing(cutoff)) "cutoff",
+                      if (!missing(order)) "order")
+    if (length(ignored_args) > 0) {
+      warning("Argument(s) ", paste(ignored_args, collapse = " and "),
+              " will be ignored. These argument(s) are relevant for
+              DBA-based proxies only.")
+    }
+
+  } else {
+
+    if ((!missing(window_size)) && (!filter_method == "median")) {
+      warning("Argument 'window_size' will be ignored, as it is only relevant
+              if filter_method = 'median'.")
+    }
+
+    if ((!missing(cutoff)) && (!filter_method == "butter")) {
+      warning("Argument 'cutoff' will be ignored, as it is only relevant
+              if filter_method = 'butter'.")
+    }
+
+    if ((!missing(order)) && (!filter_method == "butter")) {
+      warning("Argument 'order' will be ignored, as it is only relevant
+              if filter_method = 'butter'.")
+    }
+
+  }
+
+  # determine activity  --------------------------------------------------------
 
   calc_norm <- function(subdt, L) {
     if (L == "L1") {
@@ -244,7 +304,12 @@ add_activity <- function(dynamic_measure = "dba",
 
   if ("dba" %in% dynamic_measure) {
 
-    fArgs <- list(...)
+    if (filter_method == "median") {
+      fArgs <- list(window_size = window_size)
+    } else if (filter_method == "butter") {
+      fArgs <- list(cutoff = cutoff,
+                   order = order)
+    }
 
     private$filter_acc(filter_method,
                        axes = c("acc_fwd", "acc_up", "acc_right")[axs],

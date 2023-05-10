@@ -62,48 +62,18 @@ determine_sampInt <- function(tbl) {
 
 filter_acc <- function(filter_method, axes, fArgs, dba = FALSE) {
 
-  fArgsDef <- list()
-
-  if (filter_method == "median") {
-
-    fArgsDef <- list(window_size = 10) # Defaults for "median"
-
-  } else if (filter_method == "butter") {
-
-    fArgsDef <- list(cutoff = 0.1, # Defaults for "butter"
-                     order = 1)
-  }
-
-  fArgs <- c(fArgs, fArgsDef[!names(fArgsDef) %in% names(fArgs)])
-
-  # -------------------
-
   # ---- check fArgs arguments ----
 
   assertColl <- checkmate::makeAssertCollection()
 
-  if (filter_method == "median" && (length(fArgs) > 0)) {
-
-    checkmate::assertNames(names(fArgs),
-                           type = "unique",
-                           subset.of = names(fArgsDef),
-                           add = assertColl,
-                           what = "arguments for filter_method 'median'",
-                           .var.name = "...")
+  if (filter_method == "median") {
 
     checkmate::assertNumber(fArgs$window_size,
                             lower = 0,
                             add = assertColl,
                             .var.name = "window_size")
 
-  } else if (filter_method == "butter" && (length(fArgs) > 0)) {
-
-    checkmate::assertNames(names(fArgs),
-                           type = "unique",
-                           subset.of = names(fArgsDef),
-                           add = assertColl,
-                           what = "arguments for filter_method 'butter'",
-                           .var.name = "...")
+  } else if (filter_method == "butter") {
 
     if ("cutoff" %in% names(fArgs)) {
       checkmate::assertNumber(fArgs$cutoff,
@@ -126,7 +96,7 @@ filter_acc <- function(filter_method, axes, fArgs, dba = FALSE) {
 
   checkmate::reportAssertions(assertColl)
 
-    # -------------------
+  # -------------------
 
   axd <- gsub("acc_", "", axes)
 
