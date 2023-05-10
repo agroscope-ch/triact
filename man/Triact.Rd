@@ -262,7 +262,7 @@ my_triact$check_orientation()
   \if{latex}{\out{\hypertarget{method-add_lying}{}}}
 
   \subsection{Method \code{add_lying()}}{
-    Classify data into lying and standing and add results as column 'lying' to the ‘Triact’ object. Additionally, bouts (lying and standing) are uniquely numbered in column 'bout_id'.
+    Classify data into lying and standing and add results as column 'lying' to the ‘Triact’ object. Additionally, lying and standing bouts are uniquely numbered per id (cow) in column 'bout_nr'.
     The simple rule-based algorithm is composed of three steps: In the first step, the \emph{up} acceleration is filtered to obtain the gravity component of the signal. In the second step, a threshold is used to classify the filtered acceleration values into lying and standing. Finally, in the third step, lying bouts shorter than a given minimum duration are reclassified as standing. The last step can be performed analogous for standing bouts, but is not recommended by default. See Simmler & Brouwers (2023) for a detailed discussion.
 
     \subsection{Usage}{
@@ -272,14 +272,16 @@ my_triact$check_orientation()
       minimum_duration_lying = 30,
       minimum_duration_standing = NULL,
       add_filtered = FALSE,
-      ...)}\if{html}{\out{</div>}}
+      window_size = 10,
+      cutoff = 0.1,
+      order = 1)}\if{html}{\out{</div>}}
     }
 
     \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
         \item{\code{filter_method}}{
-          Filter method to be applied to obtain the gravity component of the acceleration on the \emph{up} axis. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be passed via the '...' argument (see below). \emph{Default:} \code{"median"}
+          Filter method to be applied to obtain the gravity component of the acceleration on the \emph{up} axis. Options are \code{"median"}, for median filter, and \code{"butter"} for a bidirectional (zero-lag) Butterworth low-pass filter. \emph{Default:} \code{"median"}
         }
         \item{\code{crit_lie}}{
           Up-acceleration threshold for classifying into lying and standing. \emph{Default:} \code{0.5}
@@ -295,21 +297,18 @@ my_triact$check_orientation()
         Logical value that indicates whether the filtered gravity component of the \emph{up} acceleration should be added to the 'Triact' object.
            \emph{Default:} \code{FALSE}
         }
-        \item{\code{...}}{
-        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument.
 
-      \describe{
         \item{\code{window_size}}{
-        window size in seconds for filter method 'median'  (\emph{default:} \code{10})
+        Window size in seconds for filter method 'median'.  \emph{Default:} \code{10}
         }
+
         \item{\code{cutoff}}{
-        cutoff frequency for low-pass filtering in Hz for filter method 'butter' (\emph{default:} \code{0.1})
+        Cutoff frequency for low-pass filtering in Hz for filter method 'butter'. \emph{Default:} \code{0.1}
         }
+
         \item{\code{order}}{
-        filter order for filter method 'butter' (\emph{default:} \code{1})
+        Filter order for filter method 'butter'. \emph{Default:} \code{1}
         }
-        }
-      }
 
       }
       \if{html}{\out{</div>}}
@@ -408,27 +407,23 @@ head(my_triact$data)
             }
 
                 \item{\code{filter_method}}{
-                Filter method to be used to determine the gravity component subtracted from the raw acceleration to obtain the dynamic body acceleration. Options are "median", for median filter, and "butter" for a bidirectional (zero-lag) Butterworth low-pass filter. Settings to the respective filter methods can be passed via the '...' argument (see below). \emph{Default:} \code{"median"}
+                Filter method to be used to determine the gravity component subtracted from the raw acceleration to obtain the dynamic body acceleration. Options are \code{"median"}, for median filter, and \code{"butter"} for a bidirectional (zero-lag) Butterworth low-pass filter. \emph{Default:} \code{"median"}
         }
                 \item{\code{keep_dynamic_measure}}{
             A logical value that indicates whether the intermediate data, being the dynamic body acceleration vector and/or the jerk vector, should be added to the 'Triact' object. \emph{Default:} \code{FALSE}
         }
-                \item{\code{...}}{
-        Further arguments passed to the corresponding filter method as specified with the \code{filter_method} argument.
 
-                  \describe{
-                    \item{\code{window_size}}{
-                    window size in seconds for filter method 'median'  (\emph{default:} \code{10})
-                    }
-                    \item{\code{cutoff}}{
-                    cutoff frequency for low-pass filtering in Hz for filter method 'butter' (\emph{default:} \code{0.1})
-                    }
-                    \item{\code{order}}{
-                    filter order for filter method 'butter' (\emph{default:} \code{1})
-                    }
+        \item{\code{window_size}}{
+        Window size in seconds for filter method 'median' used in DBA-based proxies.  \emph{Default:} \code{10}
         }
-      }
 
+        \item{\code{cutoff}}{
+        Cutoff frequency for low-pass filtering in Hz for filter method 'butter' used in DBA-based proxies. \emph{Default:} \code{0.1}
+        }
+
+        \item{\code{order}}{
+        Filter order for filter method 'butter' used in DBA-based proxies. \emph{Default:} \code{1}
+        }
       }
       \if{html}{\out{</div>}}
     }
@@ -578,7 +573,7 @@ head(bouts_summary)
     \if{html}{\out{</div>}}
 
     \subsection{Returns}{
-      With default settings, a table with one entry per liedown event, with timestamp and bout_id of the lying bout, plus lying side information (if available). With parameters \code{sec_before} and/or \code{sec_after} > 0, a list containing individual tables per liedown event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the liedown events.
+      With default settings, a table with one entry per liedown event, with timestamp and bout_nr of the lying bout, plus lying side information (if available). With parameters \code{sec_before} and/or \code{sec_after} > 0, a list containing individual tables per liedown event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the liedown events.
     }
     \subsection{Examples}{
       \preformatted{
@@ -624,7 +619,7 @@ print(l_downs)
     \if{html}{\out{</div>}}
 
     \subsection{Returns}{
-      With default settings, a table with one entry per standup event, with timestamp and bout_id of the lying bout, plus lying side information (if available). With parameters \code{sec_before} and/or \code{sec_after} > 0, a list containing individual tables per standup event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the standup events.
+      With default settings, a table with one entry per standup event, with timestamp and bout_nr of the lying bout, plus lying side information (if available). With parameters \code{sec_before} and/or \code{sec_after} > 0, a list containing individual tables per standup event. These tables are extracts of all data in the 'Triact' object from within the defined time window around the standup events.
     }
     \subsection{Examples}{
       \preformatted{
