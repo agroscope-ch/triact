@@ -18,6 +18,10 @@ stop_custom <- function(.subclass, message, call = NULL, ...) {
 
 transform_table <- function(x, table_class = getOption("triact_table", default = "data.frame")) {
   checkmate::assertChoice(table_class, choices = c("data.frame", "data.table", "tibble"), .var.name = "Global option triact_table")
+
+  # drop secondary indices  added during certain actions in DTs
+  if (is(x,"data.table")) setindex(x, NULL)
+
   if (table_class == "data.frame") {
     return(as.data.frame(x))
   } else if (table_class == "data.table") {
