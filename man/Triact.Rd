@@ -2,7 +2,7 @@
 \alias{Triact}
 \title{R6 class for analyzing accelerometer data from cows}
 \description{
-  An object for containing and analyzing data from accelerometers attached to a hind leg of cows. Analyses focus on the lying behaviour and on the cow's level of physical activity as detailed in Simmler & Brouwers (2023). For a usage example see \code{vignette("introduction", package = "triact")}.
+  An object for containing and analyzing data from accelerometers attached to a hind leg of cows. Analyses focus on the lying behaviour and on the cows' level of physical activity as detailed in Simmler & Brouwers (2023). For a usage example see \code{vignette("introduction", package = "triact")}.
 }
 
 \section{Active bindings}{
@@ -30,6 +30,7 @@
       \item \href{#method-summarize_bouts}{\code{Triact$summarize_bouts()}}
       \item \href{#method-extract_liedown}{\code{Triact$extract_liedown()}}
       \item \href{#method-extract_standup}{\code{Triact$extract_standup()}}
+      \item \href{#method-clone}{\code{Triact$clone()}}
     }
   }
 
@@ -40,12 +41,12 @@
   \if{latex}{\out{\hypertarget{method-new}{}}}
 
   \subsection{Method \code{new()}}{
-    Create a new triact object.
+    Create a new Triact object.
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$new()}\if{html}{\out{</div>}}
     }
     \subsection{Returns}{
-      A new `Triact` object.
+      A new Triact object.
     }
     \subsection{Examples}{
       \preformatted{
@@ -637,6 +638,51 @@ print(st_ups)
       }
     }
   }
+
+
+  \if{html}{\out{<hr>}}
+  \if{html}{\out{<a id="method-clone"></a>}}
+  \if{latex}{\out{\hypertarget{method-clone}{}}}
+
+  \subsection{Method \code{clone()}}{
+Copy a Triact object. By default a shallow copy is returned, which does not
+completely copy the data contained in the Triact object. For a complete copy use \code{deep = TRUE}.
+    \subsection{Usage}{
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$clone(deep = FALSE)}\if{html}{\out{</div>}}
+    }
+
+    \subsection{Arguments}{
+      \if{html}{\out{<div class="arguments">}}
+      \describe{
+        \item{\code{deep}}{
+          Whether to make a deep copy. \emph{Default:} \code{FALSE}
+        }
+      }
+    }
+    \if{html}{\out{</div>}}
+
+    \subsection{Returns}{
+A copy of the Triact object.
+    }
+    \subsection{Examples}{
+      \preformatted{
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+# create a complete copy
+my_triact_cp = my_triact$clone(deep = TRUE)
+      }
+    }
+  }
+
+
+
+
+
+
+
 }
 
   %% ------------------------------
@@ -756,6 +802,18 @@ st_ups <- my_triact$extract_standup()
 
 # inspect result
 print(st_ups)
+
+## -------------------------
+# method 'clone'
+## -------------------------
+
+# create a Triact object
+my_triact <- Triact$new()
+
+my_triact$load_table(cows_5hz)
+
+# create a complete copy
+my_triact_cp = my_triact$clone(deep = TRUE)
 
 }
 
