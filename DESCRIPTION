@@ -16,13 +16,13 @@ Description: Assists in analyzing the lying behavior of cows from raw data
 License: GPL (>=3)
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 4.1)
+Depends: R (>= 4.2)
 Imports: 
-    R6 (>= 2.5.0),
-    data.table (>= 1.14.0),
-    parallel (>= 4.1.2),
-    checkmate (>= 2.0.0),
-    lubridate (>= 1.7.10),
+    R6 (>= 2.5.1),
+    data.table (>= 1.14.8),
+    checkmate (>= 2.2.0),
+    lubridate (>= 1.9.2),
+    parallel,
     methods,
     stats
 Suggests: 
