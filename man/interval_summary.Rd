@@ -4,7 +4,7 @@
 \description{
 Output of \href{../../triact/html/Triact.html#method-summarize_intervals}{Triact$summarize_intervals()}. The information contained in the output table depends on the arguments \code{bouts} and \code{side} and on the analyses you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods.
 
-The asterisk (*) in the column names below stands for one of 'L1', 'L2', 'AdjL1', and 'AdjL2'. DBA is the abbreviation for the dynamic body acceleration.
+The asterisk (*) in the column names below stands for one of 'L1', 'L2', 'AdjL1', and 'AdjL2', indicating type of norm (L1, L2) and 'adjustment' of activity values to zero during lying, i.e. lying considered inactive by definition. DBA is the abbreviation for the dynamic body acceleration. See Simmler & Brouwers (2023).
 
   \bold{startTime}: Start time of the interval
 
@@ -12,7 +12,7 @@ The asterisk (*) in the column names below stands for one of 'L1', 'L2', 'AdjL1'
 
   \bold{endTime}: End time of the interval
 
-  \bold{duration}: Duration of data recordings in the interval. Helpful for identifying incompletely observed intervals at start and end of the recording. Units: As specified via the \code{duration_units} argument.
+  \bold{duration}: Duration of data recordings in the interval. Helpful for the incompletely observed intervals at start and end of the recording. Units: As specified via the \code{duration_units} argument.
 
   \bold{durationStanding}: Duration in upright posture. Units: As specified via the \code{duration_units} argument.
 
@@ -57,5 +57,10 @@ The asterisk (*) in the column names below stands for one of 'L1', 'L2', 'AdjL1'
   \bold{wMeanDurationLyingBoutLeft}: Weighted-mean duration of lying bouts with lying side left (weights are the proportions of the individual bouts overlapping with the respective intervals). Units: As specified via the \code{duration_units} argument.
 
   \bold{wMeanDurationLyingBoutRight}: Weighted-mean duration of lying bouts with lying side right (weights are the proportions of the individual bouts overlapping with the respective intervals). Units: As specified via the \code{duration_units} argument.
+
+}
+
+    \references{
+Simmler. M., Brouwers S., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data. \href{https://gitlab.com/AgroSimi/triact_manuscript}{pdf}
 
 }
