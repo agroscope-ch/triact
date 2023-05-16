@@ -342,7 +342,7 @@ head(my_triact$data)
     Classify lying bouts into left and right lying side and add the results as column 'side' to the Triact object. The simple one-step algorithm determines whether the majority of the \emph{right} acceleration values measured during that bout are above (left lying side) or below (right lying side) a threshold. See Simmler & Brouwers (2023) for details.
 
     \subsection{Usage}{
-      \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(left_leg, crit_left = if(left_leg) 0.5 else -0.5)}\if{html}{\out{</div>}}
+      \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(left_leg, crit_left = if (left_leg) 0.5 else -0.5)}\if{html}{\out{</div>}}
     }
 
     \subsection{Arguments}{
