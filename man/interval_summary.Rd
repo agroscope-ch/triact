@@ -2,7 +2,7 @@
 \alias{interval_summary}
 \title{Output of Triact$summarize_intervals()}
 \description{
-Output of \href{../../triact/html/Triact.html#method-summarize_intervals}{Triact$summarize_intervals()}. The information contained in the output table depends on the arguments \code{bouts} and \code{side} and on the analyses you added to the 'Triact' object using the $add_activity(), $add_lying(), and $add_side() methods.
+Output of \href{../../triact/html/Triact.html#method-summarize_intervals}{Triact$summarize_intervals()}. The information contained in the output table depends on the arguments \code{bouts} and \code{side} and on the analyses you added to the Triact object using the $add_activity(), $add_lying(), and $add_side() methods.
 
 The asterisk (*) in the column names below stands for one of 'L1', 'L2', 'AdjL1', and 'AdjL2', indicating type of norm (L1, L2) and 'adjustment' of activity values to zero during lying, i.e. lying considered inactive by definition. DBA is the abbreviation for the dynamic body acceleration. See Simmler & Brouwers (2023).
 
@@ -61,6 +61,6 @@ The asterisk (*) in the column names below stands for one of 'L1', 'L2', 'AdjL1'
 }
 
     \references{
-Simmler. M., Brouwers S., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data. \href{https://gitlab.com/AgroSimi/triact_manuscript}{pdf}
+Simmler. M., Brouwers S. P., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data. \href{https://gitlab.com/AgroSimi/triact_manuscript}{pdf}
 
 }

@@ -285,7 +285,7 @@ my_triact$check_orientation()
           Filter method to be applied to obtain the gravity component of the acceleration on the \emph{up} axis. Options are \code{"median"}, for median filter, and \code{"butter"} for a bidirectional (zero-lag) Butterworth low-pass filter. \emph{Default:} \code{"median"}
         }
         \item{\code{crit_lie}}{
-          Threshold for classifying the gravitational acceleration on up axis into lying (below threshold) and standing (above threshold). \emph{Default:} \code{0.5}
+          Threshold for classifying the gravitational acceleration on \emph{up} axis into lying (below threshold) and standing (above threshold). \emph{Default:} \code{0.5}
         }
         \item{\code{minimum_duration_lying}}{
           Minimum duration for lying bouts in seconds. Lying bouts shorter than this threshold are considered false and reclassified as standing. \emph{Default:} \code{30}
@@ -339,7 +339,7 @@ head(my_triact$data)
   \if{latex}{\out{\hypertarget{method-add_side}{}}}
 
   \subsection{Method \code{add_side()}}{
-    Classify lying bouts into left and right lying side and add the results as column 'side' to the Triact object. The simple one-step algorithm determines whether the majority of the \emph{right} acceleration values measured during that bout are above (left lying side) or below (right lying side) a threshold. See Simmler & Brouwers (2023) for details.
+    Classify lying bouts into left and right lying side and add the results as column 'side' to the Triact object. The simple one-step algorithm determines whether the majority of the \emph{right} acceleration values measured during that bout are above (left lying side) or below (right lying side) a threshold. The default threshold depends on which hind leg (left/right hind leg) the accelerometer is attached to, taking into account the asymmetry of the cow's natural lying position. See Simmler & Brouwers (2023) for a detailed explanation.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(left_leg, crit_left = if (left_leg) 0.5 else -0.5)}\if{html}{\out{</div>}}
@@ -474,7 +474,7 @@ head(my_triact$data)
       \if{html}{\out{<div class="arguments">}}
       \describe{
         \item{\code{interval}}{Character string specifying the intervals to be analyzed. Any unique English abbreviation valid for the 'unit' argument of \code{\link[=floor_date]{lubridate::floor_date}} is allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
-        \item{\code{lag_in_s}}{Lag in seconds with respect to the full hour or full day. \emph{Default:} \code{0}}
+        \item{\code{lag_in_s}}{Lag in seconds with respect to the full hour or full day. Determines the start of the intervals. \emph{Default:} \code{0}}
         \item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"} and \code{"hours"}. \emph{Default:} \code{"mins"}}
         \item{\code{bouts}}{Logical indicating whether information on bouts should be additionally summarized. \emph{Default:} \code{FALSE}}
         \item{\code{side}}{Logical indicating whether lying side should be considered in the summary. \emph{Default:} \code{FALSE}}
@@ -690,7 +690,7 @@ my_triact_cp = my_triact$clone(deep = TRUE)
   %% ------------------------------
 
     \references{
-Simmler. M., Brouwers S., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data. \href{https://gitlab.com/AgroSimi/triact_manuscript}{pdf}
+Simmler. M., Brouwers S. P., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data. \href{https://gitlab.com/AgroSimi/triact_manuscript}{pdf}
 
 }
 

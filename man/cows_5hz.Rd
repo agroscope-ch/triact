@@ -33,7 +33,7 @@ input_dir <- system.file("extdata", package = "triact")
 
 my_triact$load_files(input = input_dir,
                      id_substring = c(1, 5),
-                     timeFwdUpRight_cols = c(1, -2 ,3, -4),
+                     timeFwdUpRight_cols = c(1, -2, 3, -4),
                      tz = "Europe/Zurich",
                      skip = "DATA")
 
@@ -48,6 +48,6 @@ identical(cows_5hz_recreated, cows_5hz)
 \source{Agroscope, 8356 Ettenhausen, Switzerland}
 
     \references{
-Simmler. M., Brouwers S., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data. \href{https://gitlab.com/AgroSimi/triact_manuscript}{pdf}
+Simmler. M., Brouwers S. P., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data. \href{https://gitlab.com/AgroSimi/triact_manuscript}{pdf}
 
 }
