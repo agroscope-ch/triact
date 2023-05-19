@@ -1,12 +1,13 @@
 citHeader("To cite triact in publications use:")
 
-citEntry(entry = "Article",
+bibentry(
+  bibtype = "Article",
   title = "{triact} package for R: Analyzing the lying behavior of cows from accelerometer data.",
-  author = personList(as.person("Michael Simmler"), as.person("Stijn Brouwers")),
-  journal = "in preparation",
+  author = c(as.person("Michael Simmler"), as.person("Stijn Pieter Brouwers")),
+  journal = "In review",
   year = 2023,
   textVersion =
-  paste("Michael Simmler, Stijn Brouwers (2023).",
+  paste("Michael Simmler, Stijn Pieter Brouwers (2023).",
         "triact package for R: Analyzing the lying behavior of cows from accelerometer data.",
-        "In preparation")
+        "In review")
 )
