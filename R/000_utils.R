@@ -38,11 +38,11 @@ determine_sampInt <- function(tbl) {
   sInt_by_id <-
     tbl[, .(sInt = unique(difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
 
-  freq_grid = 1 / (1:1000)
+  int_grid = c(300:2, 1 / (1:1000))
 
   round_to_freq_interv <-
     function(x) {
-      sapply(x, \(x) freq_grid[which.min(abs(freq_grid - x))])
+      sapply(x, \(x) int_grid[which.min(abs(int_grid - x))])
     }
 
   sInt <- unique(sInt_by_id[, round_to_freq_interv(sInt)])
@@ -50,12 +50,22 @@ determine_sampInt <- function(tbl) {
   checkmate::assertNumber(
     sInt,
     finite = TRUE,
-    lower = 0,
+    lower = min(int_grid),
+    upper = max(int_grid),
     null.ok = FALSE,
     na.ok = FALSE,
     .var.name = "PROBLEM WITH YOUR SAMPLING FREQ - Maebe you use data with
         differrent freqs? Or your cow id is not unique?..."
   )
+
+  if (sInt > 1) {
+    warning("The sampling frequency of your accelelrometer data is <1 Hz.
+            Please note that the algorithms in triact with default parameter
+            values are intended for data with a sampling frequency of >= 1 Hz.
+            Therefore, in your case, lower accuracy up to total failure is to be expected.
+            You may be able to counteract this to a certain extent by adjusting parameters.",
+            call. = FALSE)
+  }
 
   return(as.difftime(sInt, units = "secs"))
 
