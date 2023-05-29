@@ -6,7 +6,7 @@ status](https://www.r-pkg.org/badges/version/triact)](https://cran.r-project.org
 <!-- badges: end -->
 
 # triact 
-<img src="logo.png" align="left" height="140" /></a> 
+<img src="logo.png" align="right" height="140" /></a> 
 
 &nbsp;
 ## Overview
