@@ -1,6 +1,7 @@
 
+# triact 
 
-# triact <a href="https://dplyr.tidyverse.org"><img src="logo.png" align="right" height="138" /></a>
+<a href="https://dplyr.tidyverse.org"><img src="logo.png" align="right" height="138" /></a>
 
 <!-- badges: start -->
 
