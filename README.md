@@ -3,9 +3,9 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/triact)](https://cran.r-project.org/package=triact)
 
-<!-- badges: end -->
+<!-- badges: end --> <img src="logo.png" align="right" height="140" /> 
 
-# triact <img src="logo.png" align="right" height="140" /> 
+# triact
 
 &nbsp;
 ## Overview
