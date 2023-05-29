@@ -1,4 +1,4 @@
-<img src="logo.png" align="right" height=140" /></a>
+<img src="logo.png" align="right" height="140" /></a>
 # triact 
 <!-- badges: start -->
 
