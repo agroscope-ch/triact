@@ -18,7 +18,7 @@ install.packages("triact")
 
 # Or the development version from GitLab:
 # install.packages("devtools")
-devtools::install_gitlab("AgroSimi/triact", build_vignettes = TRUE)
+devtools::install_github("agroscope-ch/triact", build_vignettes = TRUE)
 ```
 ## Maintainer contact 
 
