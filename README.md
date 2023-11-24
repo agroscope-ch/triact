@@ -8,7 +8,7 @@ status](https://www.r-pkg.org/badges/version/triact)](https://cran.r-project.org
 # triact
 The triact R package assists in analyzing the lying behavior of cows from raw data recorded with a triaxial accelerometer attached to the hind leg. Background and rationale of the implemented analyses are described in detail in the following publication:
 
->Simmler M., Brouwers S. P., 2023. triact package for R: Analyzing the lying behavior of cows from accelerometer data, under review
+>Simmler M., Brouwers S. P., 2023. triact package for R: Analyzing the lying behavior of cows from accelerometer data, [Preprint](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4560833)
 
 
 ## Installation
