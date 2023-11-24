@@ -16,7 +16,7 @@ The triact R package assists in analyzing the lying behavior of cows from raw da
 # Install from CRAN (recommended)
 install.packages("triact")
 
-# Or the development version from GitLab:
+# Or the development version from Github:
 # install.packages("devtools")
 devtools::install_github("agroscope-ch/triact", build_vignettes = TRUE)
 ```
