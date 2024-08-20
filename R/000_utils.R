@@ -34,31 +34,22 @@ transform_table <- function(x, table_class = getOption("triact_table", default =
 ################################################################################
 # determined accelerometer sampling frequency
 
-determine_sampInt <- function(tbl) {
+determine_sampInt <- function(tbl, tol = 0.05) {
   sInt_by_id <-
-    tbl[, .(sInt = unique(difftime(time[-1], time[-length(time)], units = "secs"))), by = id]
+    tbl[, .(sInt = difftime(time[-1], time[-length(time)], units = "secs")), by = id]
 
-  int_grid = c(300:2, 1 / (1:1000))
+  sInt_median <- sInt_by_id[, median(sInt)]
 
-  round_to_freq_interv <-
-    function(x) {
-      sapply(x, \(x) int_grid[which.min(abs(int_grid - x))])
-    }
+  inconsistent_sInt <- sInt_by_id[, any(abs(sInt - sInt_median) > (tol * sInt_median))]
 
-  sInt <- unique(sInt_by_id[, round_to_freq_interv(sInt)])
-
-  checkmate::assertNumber(
-    sInt,
-    finite = TRUE,
-    lower = min(int_grid),
-    upper = max(int_grid),
-    null.ok = FALSE,
+  checkmate::assertFALSE(
+    inconsistent_sInt,
     na.ok = FALSE,
     .var.name = "PROBLEM WITH YOUR SAMPLING FREQ - Maebe you use data with
         differrent freqs? Or your cow id is not unique?..."
   )
 
-  if (sInt > 1) {
+  if (sInt_median > 1) {
     warning("The sampling frequency of your accelelrometer data is <1 Hz.
             Please note that the algorithms in triact with default parameter
             values are intended for data with a sampling frequency of >= 1 Hz.
@@ -67,8 +58,7 @@ determine_sampInt <- function(tbl) {
             call. = FALSE)
   }
 
-  return(as.difftime(sInt, units = "secs"))
-
+  return(sInt_median)
 }
 
 ################################################################################
