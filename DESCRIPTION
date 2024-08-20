@@ -1,7 +1,7 @@
 Package: triact
 Type: Package
 Title: Analyzing the Lying Behavior of Cows from Accelerometer Data
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: c(
     person("Michael", "Simmler", email = "michael.simmler@agroscope.admin.ch", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4095-4111")),
@@ -12,21 +12,23 @@ Description: Assists in analyzing the lying behavior of cows from raw data
     the determination of common measures for lying behavior including total lying duration, the 
     number of lying bouts, and the mean duration of lying bouts. Further capabilities are the 
     description of lying laterality and the calculation of proxies for the level of physical 
-    activity of the cow. Reference: Simmler M., Brouwers S. P. (2023) <https://gitlab.com/AgroSimi/triact_manuscript>. 
+    activity of the cow. Reference: Simmler M., Brouwers S. P. (2024) <https://doi.org/10.7717/peerj.17036>. 
 License: GPL (>=3)
+URL: https://github.com/agroscope-ch/triact
+BugReports: https://github.com/agroscope-ch/triact/issues
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 4.2)
+Depends: R (>= 4.4)
 Imports: 
     R6 (>= 2.5.1),
-    data.table (>= 1.14.8),
-    checkmate (>= 2.2.0),
-    lubridate (>= 1.9.2),
+    data.table (>= 1.15.4),
+    checkmate (>= 2.3.2),
+    lubridate (>= 1.9.3),
     parallel,
     methods,
     stats
 Suggests: 
-    signal (>= 0.7-7),
+    signal (>= 1.8-1),
     tibble,
     rmarkdown,
     knitr

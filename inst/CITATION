@@ -4,10 +4,14 @@ bibentry(
   bibtype = "Article",
   title = "{triact} package for R: Analyzing the lying behavior of cows from accelerometer data.",
   author = c(as.person("Michael Simmler"), as.person("Stijn Pieter Brouwers")),
-  journal = "In review",
-  year = 2023,
+  journal = "PeerJ",
+  year = "2024",
+  volume = "12",
+  pages = "e17036",
+  doi = "10.7717/peerj.17036",
+  url = "https://doi.org/10.7717/peerj.17036",
   textVersion =
-  paste("Michael Simmler, Stijn Pieter Brouwers (2023).",
+  paste("Michael Simmler, Stijn Pieter Brouwers (2024).",
         "triact package for R: Analyzing the lying behavior of cows from accelerometer data.",
-        "In review")
+        "PeerJ, 12:e17036. https://doi.org/10.7717/peerj.17036")
 )

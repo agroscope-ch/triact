@@ -2,7 +2,7 @@
 \alias{Triact}
 \title{R6 class for analyzing accelerometer data from cows}
 \description{
-  An object for containing and analyzing data from accelerometers attached to a hind leg of cows. Analyses focus on the lying behaviour and on the cows' level of physical activity as detailed in Simmler & Brouwers (2023). For a usage example see \code{vignette("introduction", package = "triact")}.
+  An object for containing and analyzing data from accelerometers attached to a hind leg of cows. Analyses focus on the lying behaviour and on the cows' level of physical activity as detailed in Simmler & Brouwers (2024). For a usage example see \code{vignette("introduction", package = "triact")}.
 }
 
 \section{Active bindings}{
@@ -264,7 +264,7 @@ my_triact$check_orientation()
 
   \subsection{Method \code{add_lying()}}{
     Classify data into lying and standing and add results as column 'lying' to the Triact object. Additionally, lying and standing bouts are uniquely numbered per id (cow) in column 'bout_nr'.
-    The simple rule-based algorithm is composed of three steps: In the first step, the \emph{up} acceleration is filtered to obtain the gravity component of the signal. In the second step, a threshold is used to classify the (filtered) gravitational acceleration into lying and standing. Finally, in the third step, lying bouts shorter than a given minimum duration are reclassified as standing. The last step can be performed analogous for standing bouts, but is not recommended by default. See Simmler & Brouwers (2023) for a detailed discussion.
+    The simple rule-based algorithm is composed of three steps: In the first step, the \emph{up} acceleration is filtered to obtain the gravity component of the signal. In the second step, a threshold is used to classify the (filtered) gravitational acceleration into lying and standing. Finally, in the third step, lying bouts shorter than a given minimum duration are reclassified as standing. The last step can be performed analogous for standing bouts, but is not recommended by default. See Simmler & Brouwers (2024) for a detailed discussion.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_lying(
@@ -339,7 +339,7 @@ head(my_triact$data)
   \if{latex}{\out{\hypertarget{method-add_side}{}}}
 
   \subsection{Method \code{add_side()}}{
-    Classify lying bouts into left and right lying side and add the results as column 'side' to the Triact object. The simple one-step algorithm determines whether the majority of the \emph{right} acceleration values measured during that bout are above (left lying side) or below (right lying side) a threshold. The default threshold depends on which hind leg (left/right hind leg) the accelerometer is attached to, taking into account the asymmetry of the cow's natural lying position. See Simmler & Brouwers (2023) for a detailed explanation.
+    Classify lying bouts into left and right lying side and add the results as column 'side' to the Triact object. The simple one-step algorithm determines whether the majority of the \emph{right} acceleration values measured during that bout are above (left lying side) or below (right lying side) a threshold. The default threshold depends on which hind leg (left/right hind leg) the accelerometer is attached to, taking into account the asymmetry of the cow's natural lying position. See Simmler & Brouwers (2024) for a detailed explanation.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_side(left_leg, crit_left = if (left_leg) 0.5 else -0.5)}\if{html}{\out{</div>}}
@@ -382,7 +382,7 @@ head(my_triact$data)
   \if{latex}{\out{\hypertarget{method-add_activity}{}}}
 
   \subsection{Method \code{add_activity()}}{
-  Calculate proxies for the physical activity level. By default, the L2 norm of the dynamic body acceleration (DBA) vector is calculated. The corresponding L1 norm is optionally available. Also, the L1 and L2 norms of the jerk vector can be calculated. By default, all activity values during lying bouts are 'adjusted' to zero, i.e., periods when cows are lying are considered as 'inactive' by definition. See Simmler & Brouwers (2023) for details.
+  Calculate proxies for the physical activity level. By default, the L2 norm of the dynamic body acceleration (DBA) vector is calculated. The corresponding L1 norm is optionally available. Also, the L1 and L2 norms of the jerk vector can be calculated. By default, all activity values during lying bouts are 'adjusted' to zero, i.e., periods when cows are lying are considered as 'inactive' by definition. See Simmler & Brouwers (2024) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$add_activity(
@@ -458,7 +458,7 @@ head(my_triact$data)
   \if{latex}{\out{\hypertarget{method-summarize_intervals}{}}}
 
   \subsection{Method \code{summarize_intervals()}}{
-    Summarizes the data  in the Triact object, activity and lying behaviour, by regular intervals. The information contained in the output table depends on the analyses you added to the Triact object using the $add_activity(), $add_lying(), and $add_side() methods. With \code{bout = TRUE} information on bouts per interval (number and mean bout duration) will be returned additionally. With \code{side = TRUE} summarized information such lying duration is additionally provided separately for the lying side (left/right). For measures such as the number of lying bouts or mean lying bout duration, a weighted mean ('wMean...') is calculated with the weights being the proportion of the individual bout overlapping with the respective interval. See \link{interval_summary} for a complete list of summarized measures and Simmler & Brouwers (2023) for details.
+    Summarizes the data  in the Triact object, activity and lying behaviour, by regular intervals. The information contained in the output table depends on the analyses you added to the Triact object using the $add_activity(), $add_lying(), and $add_side() methods. With \code{bout = TRUE} information on bouts per interval (number and mean bout duration) will be returned additionally. With \code{side = TRUE} summarized information such lying duration is additionally provided separately for the lying side (left/right). For measures such as the number of lying bouts or mean lying bout duration, a weighted mean ('wMean...') is calculated with the weights being the proportion of the individual bout overlapping with the respective interval. See \link{interval_summary} for a complete list of summarized measures and Simmler & Brouwers (2024) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_intervals(
@@ -510,7 +510,7 @@ head(int_summary)
   \if{latex}{\out{\hypertarget{method-summarize_bouts}{}}}
 
   \subsection{Method \code{summarize_bouts()}}{
-    Summarizes the data in the Triact object, activity and lying behaviour, by lying/standing bouts. The information contained in the output table depends on the analyses you added to the Triact object using the $add_activity(), $add_lying(), and $add_side() methods. See \link{bout_summary} for a complete list of summarized measures and Simmler & Brouwers (2023) for details.
+    Summarizes the data in the Triact object, activity and lying behaviour, by lying/standing bouts. The information contained in the output table depends on the analyses you added to the Triact object using the $add_activity(), $add_lying(), and $add_side() methods. See \link{bout_summary} for a complete list of summarized measures and Simmler & Brouwers (2024) for details.
 
     \subsection{Usage}{
       \if{html}{\out{<div class="r">}}\preformatted{Triact$summarize_bouts(
@@ -690,7 +690,7 @@ my_triact_cp = my_triact$clone(deep = TRUE)
   %% ------------------------------
 
     \references{
-Simmler. M., Brouwers S. P., 2023. Triact package for R: Analyzing the lying behavior of cows from accelerometer data. \href{https://gitlab.com/AgroSimi/triact_manuscript}{pdf}
+Simmler. M., Brouwers S. P., 2024. \emph{triact} package for R: Analyzing the lying behavior of cows from accelerometer data. PeerJ, 12:e17036. \href{https://doi.org/10.7717/peerj.17036}{https://doi.org/10.7717/peerj.17036}
 
 }
 
