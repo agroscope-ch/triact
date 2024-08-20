@@ -35,11 +35,15 @@ transform_table <- function(x, table_class = getOption("triact_table", default =
 # determined accelerometer sampling frequency
 
 determine_sampInt <- function(tbl, tol = 0.05) {
+
+  # calc sampling intervals (by id!)
   sInt_by_id <-
     tbl[, .(sInt = difftime(time[-1], time[-length(time)], units = "secs")), by = id]
 
+  # calc median sampling interval (across all id)
   sInt_median <- sInt_by_id[, median(sInt)]
 
+  # throw an error if any sampling interval larger than tol times the median interval
   inconsistent_sInt <- sInt_by_id[, any(abs(sInt - sInt_median) > (tol * sInt_median))]
 
   checkmate::assertFALSE(
