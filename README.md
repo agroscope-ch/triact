@@ -25,7 +25,8 @@ devtools::install_github("agroscope-ch/triact", build_vignettes = TRUE)
 
 Michael Simmler, Agroscope ([Link](https://ira.agroscope.ch/en-US/person/19776))
 
-## Studies using triact
+## Studies using triact 
+(last updated: 21.08.24)
 
 Brouwers, S.P., Simmler, M., Savary, P., Scriba, M.F., 2023. Towards a novel method for detecting atypical lying down and standing up behaviors in dairy cows using accelerometers and machine learning. Smart Agricultural Technology 4, 100199. https://doi.org/10.1016/j.atech.2023.100199
 
