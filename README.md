@@ -9,7 +9,7 @@ status](https://www.r-pkg.org/badges/version/triact)](https://cran.r-project.org
 # triact
 The triact R package assists in analyzing the lying behavior of cows from raw data recorded with a triaxial accelerometer attached to the hind leg. Background and rationale of the implemented analyses are described in detail in the following publication:
 
->Simmler M., Brouwers S. P., 2023. triact package for R: Analyzing the lying behavior of cows from accelerometer data, [Preprint](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4560833)
+>Simmler, M., Brouwers, S.P., 2024. triact package for R: analyzing the lying behavior of cows from accelerometer data. PeerJ 12, e17036. https://doi.org/10.7717/peerj.17036
 
 
 ## Installation
@@ -24,6 +24,15 @@ devtools::install_github("agroscope-ch/triact", build_vignettes = TRUE)
 ## Maintainer contact 
 
 Michael Simmler, Agroscope ([Link](https://ira.agroscope.ch/en-US/person/19776))
+
+## Studies using triact
+
+Brouwers, S.P., Simmler, M., Savary, P., Scriba, M.F., 2023. Towards a novel method for detecting atypical lying down and standing up behaviors in dairy cows using accelerometers and machine learning. Smart Agricultural Technology 4, 100199. https://doi.org/10.1016/j.atech.2023.100199
+
+Holinger, M., Bühl, V., Helbing, M., Pieper, L., Kürmann, S., Pontiggia, A., Dohme-Meier, F., Keil, N., Ammer, S., 2024. Behavioural changes to moderate heat load in grazing dairy cows under on-farm conditions. Livestock Science 279, 105376. https://doi.org/10.1016/j.livsci.2023.105376
+
+Knoll, M., Gygax, L., Hillmann, E., 2024. Sow serenity: automatic long-term measurement of lying behavior in crates and free-farrowing pens using 3D accelerometers. Journal of Animal Science 102, skae101. https://doi.org/10.1093/jas/skae101
+
 
 
 
