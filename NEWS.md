@@ -9,4 +9,9 @@
 
 * Important bugfix: Fixed left/right classification in Triact\$add_side() which also involved changing the default value for parameter crit_left
 
+# triact 0.3.1
+
+* Major fix: allows accelerator data with any sampling interval (given consistent)  
+* Update dependencies to new R and package versions
+* Minor changes to documentation
 
