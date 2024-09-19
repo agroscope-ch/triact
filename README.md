@@ -26,13 +26,19 @@ devtools::install_github("agroscope-ch/triact", build_vignettes = TRUE)
 Michael Simmler, Agroscope ([Link](https://ira.agroscope.ch/en-US/person/19776))
 
 ## Studies using triact 
-(last updated: 21.08.24)
+(last updated: 19.09.24)
 
-Brouwers, S.P., Simmler, M., Savary, P., Scriba, M.F., 2023. Towards a novel method for detecting atypical lying down and standing up behaviors in dairy cows using accelerometers and machine learning. Smart Agricultural Technology 4, 100199. https://doi.org/10.1016/j.atech.2023.100199
+Brouwers, S.P., Simmler, M., Scriba, M.F., Savary, P., 2024. Cubicle design and dairy cow rising and lying down behaviours in free-stalls with insufficient lunge space. animal 18, 101314. https://doi.org/10.1016/j.animal.2024.101314
+
+Knoll, M., Gygax, L., Hillmann, E., 2024. Sow serenity: automatic long-term measurement of lying behavior in crates and free-farrowing pens using 3D accelerometers. Journal of Animal Science 102, skae101. https://doi.org/10.1093/jas/skae101
 
 Holinger, M., Bühl, V., Helbing, M., Pieper, L., Kürmann, S., Pontiggia, A., Dohme-Meier, F., Keil, N., Ammer, S., 2024. Behavioural changes to moderate heat load in grazing dairy cows under on-farm conditions. Livestock Science 279, 105376. https://doi.org/10.1016/j.livsci.2023.105376
 
-Knoll, M., Gygax, L., Hillmann, E., 2024. Sow serenity: automatic long-term measurement of lying behavior in crates and free-farrowing pens using 3D accelerometers. Journal of Animal Science 102, skae101. https://doi.org/10.1093/jas/skae101
+Brouwers, S.P., Simmler, M., Savary, P., Scriba, M.F., 2023. Towards a novel method for detecting atypical lying down and standing up behaviors in dairy cows using accelerometers and machine learning. Smart Agricultural Technology 4, 100199. https://doi.org/10.1016/j.atech.2023.100199
+
+
+
+
 
 
 
