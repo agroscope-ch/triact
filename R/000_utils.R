@@ -33,7 +33,7 @@ transform_table <- function(x, table_class = getOption("triact_table", default =
 
 ################################################################################
 
-determine_sampInt <- function(tbl, tol = getOption("triact_tolerance", default = 0.05)) {
+determine_sampInt <- function(tbl, tol = getOption("triact_tolerance", default = 0.5)) {
 
   # calc sampling intervals (by id!)
   sInt_by_id <-
