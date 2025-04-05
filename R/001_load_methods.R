@@ -202,7 +202,8 @@ load_files <- function(input,
         orders = tformat,
         tz = tz,
         exact = TRUE,
-        quiet = TRUE
+        quiet = TRUE,
+        truncated = 3
       )]
     }
 
