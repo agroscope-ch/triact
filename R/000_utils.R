@@ -70,7 +70,7 @@ determine_sampInt <- function(tbl, tol = getOption("triact_tolerance", default =
   }
 
   # raise warning if low sampling frequency data...
-  if (sampInt > 1) {
+  if (sampInt > (1 + 1 * tol)) {
     warning("The sampling frequency of your accelelrometer data is <1 Hz.
             Please note that the algorithms in triact with default parameter
             values are intended for data with a sampling frequency of >= 1 Hz.
