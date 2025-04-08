@@ -111,19 +111,19 @@ my_triact <- Triact$new()
         }
 
         \item{\code{skip}}{
-          An integer indicating the number of lines to skip before starting the search for the first data line, which is the first row with a consistent number of columns. Alternatively, a (sub)string specifying the line at which to start the search, or \code{"__auto__"} to leave the decision to \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{"__auto__"}
+          An integer indicating the number of lines to skip before starting the search for the first data line, which is the first row with a consistent number of columns. Alternatively, a (sub)string specifying the line at which to start the search, or \code{"__auto__"} to leave the decision to \code{\link[data.table]{fread}}. \emph{Default:} \code{"__auto__"}
         }
 
         \item{\code{sep}}{
-          The separator between columns in the acceleration data files. If \code{"auto"}, it is automatically detected by \code{\link[=fread]{data.table::fread}} according to the character in the set [,\\t |;:] that separates the sample of rows into the most number of lines with the same number of fields. \emph{Default:} \code{"auto"}
+          The separator between columns in the acceleration data files. If \code{"auto"}, it is automatically detected by \code{\link[data.table]{fread}} according to the character in the set [,\\t |;:] that separates the sample of rows into the most number of lines with the same number of fields. \emph{Default:} \code{"auto"}
         }
 
         \item{\code{header}}{
-          A logical value that indicates whether the first data line (afer considering \code{skip}) contains column names. Alternatively, \code{"auto"} to autmatically detect by \code{\link[=fread]{data.table::fread}} according to whether every non-empty field on the first data line is type character. \emph{Default:} \code{"auto"}
+          A logical value that indicates whether the first data line (afer considering \code{skip}) contains column names. Alternatively, \code{"auto"} to autmatically detect by \code{\link[data.table]{fread}} according to whether every non-empty field on the first data line is type character. \emph{Default:} \code{"auto"}
         }
 
         \item{\code{dec}}{
-          The decimal separator as in \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{"."}
+          The decimal separator as in \code{\link[data.table]{fread}}. \emph{Default:} \code{"."}
         }
 
         \item{\code{start_time}}{
@@ -135,10 +135,10 @@ my_triact <- Triact$new()
         }
 
         \item{\code{parallel}}{
-          An integer indicating the number of files that are read in parallel. For \code{parallel > 1} the reading of the individual file is set to single-threaded to avoid nested parallelization. This behavior can be overwritten by additionally passing \code{nThread} via \code{...}  argument, which is passed on to \code{\link[=fread]{data.table::fread}}. \emph{Default:} \code{1}
+          An integer indicating the number of files that are read in parallel. For \code{parallel > 1} the reading of the individual file is set to single-threaded to avoid nested parallelization. This behavior can be overwritten by additionally passing \code{nThread} via \code{...}  argument, which is passed on to \code{\link[data.table]{fread}}. \emph{Default:} \code{1}
         }
         \item{\code{...}}{
-        Further arguments passed to \code{\link[=fread]{data.table::fread}}.
+        Further arguments passed to \code{\link[data.table]{fread}}.
         }
       }
       \if{html}{\out{</div>}}
@@ -473,7 +473,7 @@ head(my_triact$data)
     \subsection{Arguments}{
       \if{html}{\out{<div class="arguments">}}
       \describe{
-        \item{\code{interval}}{Character string specifying the intervals to be analyzed. Any unique English abbreviation valid for the 'unit' argument of \code{\link[=floor_date]{lubridate::floor_date}} is allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
+        \item{\code{interval}}{Character string specifying the intervals to be analyzed. Any unique English abbreviation valid for the 'unit' argument of \code{\link[lubridate]{floor_date}} is allowed, e.g., \code{"hour"}, \code{"min"}, \code{"10 mins"}, and \code{"0.5 hours"}. \emph{Default:} \code{"hour"}}
         \item{\code{lag_in_s}}{Lag in seconds with respect to the full hour or full day. Determines the start of the intervals. \emph{Default:} \code{0}}
         \item{\code{duration_units}}{Unit in which durations should be returned. Options are \code{"secs"}, \code{"mins"} and \code{"hours"}. \emph{Default:} \code{"mins"}}
         \item{\code{bouts}}{Logical indicating whether information on bouts should be additionally summarized. \emph{Default:} \code{FALSE}}
