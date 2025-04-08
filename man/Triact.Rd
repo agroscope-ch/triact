@@ -690,7 +690,7 @@ my_triact_cp = my_triact$clone(deep = TRUE)
   %% ------------------------------
 
     \references{
-Simmler. M., Brouwers S. P., 2024. \emph{triact} package for R: Analyzing the lying behavior of cows from accelerometer data. PeerJ, 12:e17036. \href{https://doi.org/10.7717/peerj.17036}{https://doi.org/10.7717/peerj.17036}
+Simmler. M., Brouwers S. P., 2024. \emph{triact} package for R: Analyzing the lying behavior of cows from accelerometer data. PeerJ, 12:e17036. \doi{10.7717/peerj.17036}
 
 }
 
