@@ -1,0 +1,54 @@
+publiccodeYmlVersion: 0.5.0
+name: triact
+url: https://cran.r-project.org/web/packages/triact/
+softwareVersion: 0.3.1
+releaseDate: 2025-04-08
+logo: https://raw.githubusercontent.com/agroscope-ch/triact/refs/heads/master/logo.png
+platforms:
+  - windows
+  - mac
+  - linux
+categories:
+  - data-analytics
+usedBy:
+  - Agroscope
+  - FIBL
+  - Humboldt University of Berlin
+developmentStatus: stable
+softwareType: library
+organisation:
+  uri: https://ld.admin.ch/ou/10003634
+  name: Agroscope
+description:
+  en:
+    localisedName: triact
+    shortDescription: Software to analyze the lying behavior of cows from accelerometer data.
+    longDescription: "Assists in analyzing the lying behavior of cows from raw data
+      recorded with a triaxial accelerometer attached to the hind leg of a cow.
+      Allows the determination of common measures for lying behavior including
+      total lying duration, the number of lying bouts, and the mean duration of
+      lying bouts. Further capabilities are the description of lying laterality
+      and the calculation of proxies for the level of physical activity of the
+      cow. Reference: Simmler M., Brouwers S. P. (2024)
+      <doi:10.7717/peerj.17036>."
+    documentation: https://cran.r-project.org/web/packages/triact/vignettes/introduction.html
+    apiDocumentation: https://cran.r-project.org/web/packages/triact/refman/triact.html
+    features:
+      - Analyzing the lying behavior of cows from triaxial accelerometer data.
+      - Determination of total lying duration, the number of lying bouts, and
+        the mean duration of lying bouts.
+      - Determination of lying laterality.
+      - Calculation of proxies for the level of physical activity.
+legal:
+  license: GPL-3.0-or-later
+maintenance:
+  type: community
+  contacts:
+    - name: Michael Simmler
+      email: michael.simmler@agroscope.admin.ch
+      phone: +41 58 469 50 50
+      affiliation: Agroscope
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - en
